@@ -3,7 +3,7 @@ import { showModalElement } from '../../../store/actions/productsAction';
 import BootstrapTable from 'react-bootstrap-table-next'
 import paginationFactory, { PaginationProvider, PaginationListStandalone, SizePerPageDropdownStandalone } from 'react-bootstrap-table2-paginator';
 import style from '../../../styles/Layout/Workspace/TableData.module.scss'
-import { Button, ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Row, Button, ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap';
 
 
 export function TableData() {
@@ -83,16 +83,18 @@ export function TableData() {
                             rowClasses={ style.tableRow }
                             hover = { true }
                         />
-                        <div className='col-md-10'>
-                            <div className="col-md-2">
+                        <Row>
+                            <div className="col-md-1">
                                 <SizePerPageDropdownStandalone
                                     { ...paginationProps }
                                 />
                             </div>
-                            <div className="col-md-6">
+                            <div className="col-md-3 offset-4">
+                                <PaginationListStandalone 
+                                    {...paginationProps}
+                                />
                             </div>
-                        </div>
-                       
+                        </Row>
                     </>
                 )}
             </PaginationProvider> 
@@ -143,7 +145,7 @@ const pageListRenderer = ({pages, onPageChange}) => {
 
 const sizePerPageRenderer = ({options, currSizePerPage, onSizePerPageChange}) => {
     return(
-        <DropdownButton className='col-md-1' variant="primary" title={currSizePerPage}>
+        <DropdownButton variant="primary" title={currSizePerPage}>
             {options.map(option => (
                 <Dropdown.Item 
                     as="button"
