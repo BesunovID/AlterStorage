@@ -1,28 +1,26 @@
-import { Stack, Button, ButtonGroup } from "react-bootstrap";
-import { Link, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { useAppDispatch } from "../../hooks/redux";
+import { urlList } from "../../models/models";
 import { showProductsTable } from "../../store/actions/productsAction";
 
 
 export function MainMenu() {
     const dispatch = useAppDispatch();
+    const [selectBtn, setButton] = useState(urlList.main)
 
-    const OnClickHandler = (link: string) => {
-        <Link to={'/'+link}></Link>
-        if (link == 'products') dispatch(showProductsTable());
+    const handleChooseTable = (link: urlList) => {
+        setButton(link);
+        dispatch(showProductsTable(link));
     }
     return(
         <>
-        {/*}  <Stack gap={3} className='col-md-2 p-2'>
-                <Button variant="primary" active>Something 1</Button>
-                <Button variant="light">Something 2</Button>
-                <Button variant="light">Something 3</Button>
-            </Stack> {*/}
-            <ButtonGroup className='col-md-2 p-0 pt-2' vertical>
-                <Button variant="primary" onClick={() => OnClickHandler('products')} active>Something 1</Button>
-                <Button variant="light" onClick={() => OnClickHandler('requests')}>Something 2</Button>
-                <Button variant="light" onClick={() => OnClickHandler('data3')}>Something 3</Button>
-            </ButtonGroup>
+            <ToggleButtonGroup name='tables-btn-choose' className='col-md-2 p-0 pt-2 h-100' type='radio' defaultValue={selectBtn} onChange={handleChooseTable} vertical>
+                <ToggleButton id="main-btn-1" value={urlList.storage_positions} variant={selectBtn === 'storage_positions' ? "primary" : 'light'}>Storage Positions</ToggleButton>
+                <ToggleButton id="main-btn-2" value={urlList.finished_product} variant={selectBtn === 'finished_product' ? "primary" : 'light'}>Готовые продукты</ToggleButton>
+                <ToggleButton id="main-btn-3" value={urlList.shelf} variant={selectBtn === 'shelf' ? "primary" : 'light'}>Shels</ToggleButton>
+                <ToggleButton id="main-btn-4" value={urlList.assemblings} variant={selectBtn === 'assemblings' ? "primary" : 'light'}>Сборки (assemblings)</ToggleButton>
+            </ToggleButtonGroup>
         </>
     )
 }

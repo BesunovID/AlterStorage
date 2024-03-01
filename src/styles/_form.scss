@@ -1,0 +1,39 @@
+@import 'default_variables';
+
+.mainForm{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+    .formField{
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+        margin: 10px 0;
+        label{
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+        input{
+            font-size: 17px;
+            font-weight: 600;
+            background-color: $light_color;
+            color: $dark_color;
+            border: 2px solid $dark_green_color;
+            border-radius: 7px;
+            height: 35px;
+            &:focus{
+                background-color: $light_color;
+                transition: all 0.5s;
+            }
+        }
+    }
+    button{
+        margin-top: 30px;
+        height: 45px;
+        width: auto;
+        padding: 5px 50px;
+        cursor: pointer;
+    }
+}
