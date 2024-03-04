@@ -5,10 +5,11 @@ import { ModalForm } from "./ModalForm";
 
 export function ModalWindow() {
     const isOpen = useAppSelector(state => state.tables.modalIsOpen)
+    const element = useAppSelector(state => state.tables.modalElement)
     const dispatch = useAppDispatch();
 
     const handleClose = () => {
-        dispatch(showModalElement(false, {}))
+        dispatch(showModalElement(false, element))
     }
 
     return(

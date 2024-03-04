@@ -15,6 +15,7 @@ interface TableState {
 interface PayloadShowTable {
     data: AnyDataTable[]
     table: urlList
+    emptyElement: AnyDataTable
 }
 
 interface PayloadShowModalElement {
@@ -47,6 +48,7 @@ export const tableSlice = createSlice({
             state.tableIsOpen = true
             state.data = action.payload.data
             state.currentUrl = action.payload.table
+            state.modalElement = action.payload.emptyElement
         },
         sortTable(state, action: PayloadAction<PayloadSortTable>){
             state.data = action.payload.data

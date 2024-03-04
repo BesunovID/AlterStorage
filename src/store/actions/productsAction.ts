@@ -1,6 +1,6 @@
 import axios from "../../axios"
 import { AppDispatch } from ".."
-import { AnyDataTable, IAssembling, IFinishedProduct, IFIOemploeey, IInvoiceNumber, IProvider, IRack, IShelf, IStoragePosition, IUnitOfMeasur, IWriteDown, urlList } from "../../models/models"
+import { AnyDataTable, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
 
 
@@ -8,39 +8,9 @@ export const showProductsTable = (link: urlList) => {
     return async (dispatch: AppDispatch) => {
         try{
             await axios.get('storage/' + link + '/').then((res) => {
-               /* switch(link) {
-                    case 'FIO_emploeey': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IFIOemploeey[], table: link}));
-                        break;
-                    case 'assemblings': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IAssembling[], table: link}));
-                        break;
-                    case 'finished_product': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IFinishedProduct[], table: link}));
-                        break;
-                    case 'invoice_number': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IInvoiceNumber[], table: link}));
-                        break;
-                    case 'provider': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IProvider[], table: link}));
-                        break;
-                    case 'rack': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IRack[], table: link}));
-                        break;
-                    case 'shelf': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IShelf[], table: link}));
-                        break;
-                    case 'storage_positions': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IStoragePosition[], table: link}));
-                        break;
-                    case 'unit_of_measure': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IUnitOfMeasur[], table: link}));
-                        break;
-                    case 'write_down': 
-                        dispatch(tableSlice.actions.showTable({data: res.data as IWriteDown[], table: link}));
-                        break;
-                }*/
-                dispatch(tableSlice.actions.showTable({data: res.data, table: link}));
+                const emptyElement = defaultElementOfTable.get(link).value;
+                console.log(emptyElement)
+                dispatch(tableSlice.actions.showTable({data: res.data, table: link, emptyElement: emptyElement}));
             })
         } catch(e) {
             console.log('error', e)
@@ -84,6 +54,21 @@ export const createElement = (element: any, link: urlList) => {
         }) 
         .finally(() => {
             showModalElement(false, {});
+        })
+    }
+}
+
+export const deleteElement = (elementID: number, link: urlList) => {
+    return async() => {
+        await axios.delete(`storage/${link}/${elementID}/`)
+        .then(() => {
+            alert('Элемент удален!');
+        })
+        .catch((e) => {
+            alert('Ошибка удаления!' + e.message);
+        }) 
+        .finally(() => {
+            showProductsTable(link);
         })
     }
 }
