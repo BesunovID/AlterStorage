@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Button, Form } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux"
-import { AnyDataTable } from "../../../../models/models";
-import { createElement } from "../../../../store/actions/productsAction"
+import { BaseElement, BaseElementFields } from "../../../../models/models";
+import { createElement, updateElement } from "../../../../store/actions/tableAction"
 
 export function ModalForm() {
     const dispatch = useAppDispatch();
 
-    const element = useAppSelector(state => state.tables.modalElement)
+    const element = useAppSelector(state => state.tables.element)
     const currentTable = useAppSelector(state => state.tables.currentUrl)
 
     const [validated, setValidated] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const [newElement, setNewElement] = useState<AnyDataTable>(element)
+    const [newElement, setNewElement] = useState<BaseElement>(element)
 /*
     useEffect(() => {
         switch(currentTable) {
@@ -133,18 +133,24 @@ export function ModalForm() {
 */
     const handleChange = (event: any) => {
         if (event.target.name === ('assembling') && 
-        'connectAssembling_Storage_Position' in newElement){ 
+        ('connectAssembling_Storage_Position' in newElement || 'positions' in newElement)){ 
             setNewElement(prevState => ({
                 ...prevState,
-                connectAssembling_Storage_Position: [{
-                    ...('connectAssembling_Storage_Position' in prevState && prevState.connectAssembling_Storage_Position[0]),
-                    [event.target.name]: event.target.value
+                'connectAssembling_Storage_Position': [{
+                    ...(prevState['connectAssembling_Storage_Position'] as [{ [field: string]: BaseElementFields }])[0],
+                    [event.target.name]: {
+                        ...prevState[event.target.value],
+                        value: event.target.value
+                    }
                 }]})
             ) 
         } else {
             setNewElement(prevState => ({
                 ...prevState,
-                [event.target.name]: event.target.value,
+                [event.target.name]: {
+                    ...prevState[event.target.name],
+                    value: event.target.value
+                },
             }))
         }
     } 
@@ -158,27 +164,48 @@ export function ModalForm() {
         }else {
             event.preventDefault();
             setIsEdit(false);
-            dispatch(createElement(newElement, currentTable))
+            (element['id'] as BaseElementFields).value === undefined 
+                ? dispatch(createElement(newElement, currentTable))
+                : dispatch(updateElement(newElement, currentTable))
         }
         setValidated(true);
     }
     
     return(
         <Form noValidate validated={validated} onSubmit={handleSave}>
-            {('marking' in newElement) && 
+            {
+                Object.entries(newElement).map(([key, value]) => {
+                    const nValue = value as BaseElementFields;
+                    return(
+                        <Form.Group>
+                            <Form.Label>{nValue.key}</Form.Label>
+                            <Form.Control name={key} value={nValue.value} type={nValue.type} onChange={handleChange} readOnly={!isEdit && nValue.readonly} maxLength={nValue.maxLength} minLength={nValue.minLength} required={nValue.required}></Form.Control>
+                        </Form.Group>
+                    )
+                })
+            }
+           
+            {!isEdit && <Button className="p-2" onClick={() => setIsEdit(true)}>Редактировать</Button>}
+            {isEdit && <Button className="p-2" onClick={() => handleSave}>Сохранить</Button>}
+        </Form>
+    )
+}
+
+/*
+ {('marking' in newElement) && 
             <Form.Group>
                 <Form.Label>Обозначение</Form.Label>
-                <Form.Control name="marking" value={newElement?.marking} onChange={handleChange} readOnly={!isEdit} maxLength={100} minLength={1} required></Form.Control>
+                <Form.Control name="marking" value={newElement.marking} onChange={handleChange} readOnly={!isEdit} maxLength={100} minLength={1} required></Form.Control>
             </Form.Group>}
             {('name' in newElement) && 
             <Form.Group>
                 <Form.Label>Наименование</Form.Label>
-                <Form.Control name="name" value={newElement?.name} onChange={handleChange} readOnly={!isEdit} maxLength={200} minLength={1} required></Form.Control>
+                <Form.Control name="name" value={newElement.name} onChange={handleChange} readOnly={!isEdit} maxLength={200} minLength={1} required></Form.Control>
             </Form.Group>}
             {('count' in newElement) &&
             <Form.Group>
                 <Form.Label>Общее количество</Form.Label> 
-                <Form.Control name="count" value={newElement?.count} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
+                <Form.Control name="count" value={newElement.count} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
             </Form.Group>}
             {('connectAssembling_Storage_Position' in newElement) &&
             <>
@@ -241,8 +268,4 @@ export function ModalForm() {
                 <Form.Label>Готовый продукт</Form.Label>
                 <Form.Control name="item" value={newElement?.item} onChange={handleChange} readOnly={!isEdit} type="number" required></Form.Control>
             </Form.Group>}
-            {!isEdit && <Button className="p-2" onClick={() => setIsEdit(true)}>Редактировать</Button>}
-            {isEdit && <Button className="p-2" onClick={() => handleSave}>Сохранить</Button>}
-        </Form>
-    )
-}
+*/

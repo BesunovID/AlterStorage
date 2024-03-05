@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { useAppDispatch } from "../../hooks/redux";
 import { urlList } from "../../models/models";
-import { showProductsTable } from "../../store/actions/productsAction";
+import { showProductsTable } from "../../store/actions/tableAction";
 
 
 export function MainMenu() {

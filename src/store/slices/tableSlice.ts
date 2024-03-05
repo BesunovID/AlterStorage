@@ -1,30 +1,30 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { urlList, AnyDataTable } from "../../models/models"
+import { urlList, BaseElement } from "../../models/models"
 
 
 interface TableState {
     tableIsOpen: boolean
-    data: AnyDataTable[]
+    data: BaseElement[]
     sortedByField: string
     sortedDirection: number
     modalIsOpen: boolean
-    modalElement: AnyDataTable
+    element: BaseElement
     currentUrl: urlList
 }
 
 interface PayloadShowTable {
-    data: AnyDataTable[]
+    data: BaseElement[]
     table: urlList
-    emptyElement: AnyDataTable
+    emptyElement: BaseElement
 }
 
 interface PayloadShowModalElement {
     isOpen: boolean
-    element: AnyDataTable
+    element?: BaseElement
 }
 
 interface PayloadSortTable {
-    data: AnyDataTable[]
+    data: BaseElement[]
     sortedByField: string
     sortedRevers: boolean
 }
@@ -35,7 +35,7 @@ const initialState: TableState = {
     sortedByField: 'id',
     sortedDirection: 1,
     modalIsOpen: false,
-    modalElement: {},
+    element: {},
     currentUrl: urlList.main
 
 }
@@ -48,7 +48,7 @@ export const tableSlice = createSlice({
             state.tableIsOpen = true
             state.data = action.payload.data
             state.currentUrl = action.payload.table
-            state.modalElement = action.payload.emptyElement
+            state.element = action.payload.emptyElement
         },
         sortTable(state, action: PayloadAction<PayloadSortTable>){
             state.data = action.payload.data
@@ -58,7 +58,8 @@ export const tableSlice = createSlice({
         },
         showModalElement(state, action: PayloadAction<PayloadShowModalElement>){
             state.modalIsOpen = action.payload.isOpen
-            state.modalElement = action.payload.element
+            if(action.payload.element)
+                state.element = action.payload.element
         },
     }
 })

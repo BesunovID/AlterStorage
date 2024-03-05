@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
-import { showModalElement } from '../../../store/actions/productsAction';
+import { showModalElement } from '../../../store/actions/tableAction';
 import BootstrapTable from 'react-bootstrap-table-next'
 import paginationFactory, { PaginationProvider, PaginationListStandalone, SizePerPageDropdownStandalone } from 'react-bootstrap-table2-paginator';
 import style from '../../../styles/Layout/Workspace/TableData.module.scss'
