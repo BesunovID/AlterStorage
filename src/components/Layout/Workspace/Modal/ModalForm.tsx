@@ -11,8 +11,12 @@ export function ModalForm() {
     const currentTable = useAppSelector(state => state.tables.currentUrl)
 
     const [validated, setValidated] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [newElement, setNewElement] = useState<BaseElement>(element)
+    const [isEdit, setIsEdit] = useState(element.id !== undefined);
+    const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)))
+
+    const subFields = ['assembling', 'quantity', 'storage_position', 'name_of_the_invoice', 
+                    'actual_quantity', 'price_per_unit', 'manufacturer', 'quantity_invoice',
+                'summa', 'number_invoice', 'provider']
 /*
     useEffect(() => {
         switch(currentTable) {
@@ -132,18 +136,25 @@ export function ModalForm() {
 
 */
     const handleChange = (event: any) => {
-        if (event.target.name === ('assembling') && 
-        ('connectAssembling_Storage_Position' in newElement || 'positions' in newElement)){ 
-            setNewElement(prevState => ({
-                ...prevState,
-                'connectAssembling_Storage_Position': [{
-                    ...(prevState['connectAssembling_Storage_Position'] as [{ [field: string]: BaseElementFields }])[0],
-                    [event.target.name]: {
-                        ...prevState[event.target.value],
-                        value: event.target.value
-                    }
-                }]})
-            ) 
+        if (subFields.includes(event.target.name)){    
+            if (currentTable == 'invoice_number') {
+                const newSub = Object.assign([], newElement['positions']);
+                newSub[0][event.target.name].value = event.target.value
+                setNewElement(prevState => ({
+                    ...prevState,
+                    'positions': newSub
+                }))
+            }
+            else if (currentTable == 'storage_positions') { 
+                const newSub =  Object.assign([], newElement['connectAssembling_Storage_Position'])
+                if (newSub[0][event.target.name].type === 'number')
+                    newSub[0][event.target.name].value = Number(event.target.value)
+                else newSub[0][event.target.name].value = (event.target.value).toString()
+                setNewElement(prevState => ({
+                    ...prevState,
+                    ['connectAssembling_Storage_Position']: newSub
+                }))
+            }
         } else {
             setNewElement(prevState => ({
                 ...prevState,
@@ -155,18 +166,18 @@ export function ModalForm() {
         }
     } 
 
-
     const handleSave = (event: any) => {
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
             event.preventDefault();
             event.stopPropagation();
         }else {
-            event.preventDefault();
             setIsEdit(false);
-            (element['id'] as BaseElementFields).value === undefined 
-                ? dispatch(createElement(newElement, currentTable))
-                : dispatch(updateElement(newElement, currentTable))
+            event.preventDefault();
+            if ((newElement['id'] as BaseElementFields).value === undefined )
+                dispatch(createElement(newElement, currentTable))
+            else
+                dispatch(updateElement(newElement, currentTable))
         }
         setValidated(true);
     }
@@ -175,18 +186,34 @@ export function ModalForm() {
         <Form noValidate validated={validated} onSubmit={handleSave}>
             {
                 Object.entries(newElement).map(([key, value]) => {
-                    const nValue = value as BaseElementFields;
-                    return(
-                        <Form.Group>
-                            <Form.Label>{nValue.key}</Form.Label>
-                            <Form.Control name={key} value={nValue.value} type={nValue.type} onChange={handleChange} readOnly={!isEdit && nValue.readonly} maxLength={nValue.maxLength} minLength={nValue.minLength} required={nValue.required}></Form.Control>
-                        </Form.Group>
-                    )
+                    if ((key !== 'id') && (key !== 'date')) {
+                        if (key === 'connectAssembling_Storage_Position' || key === 'positions') {
+                            return(
+                                Object.entries((value as Array<Object>)[0]).map(([subKey, subValue]) => {
+                                    const nValue = subValue as BaseElementFields;    
+                                    if ((subKey !== 'id') && (subKey !== 'date'))
+                                        return(
+                                            <Form.Group key={subKey}>
+                                                <Form.Label>{nValue.key}</Form.Label>
+                                                <Form.Control name={subKey} value={nValue.value} type={nValue.type} onChange={handleChange} readOnly={!isEdit} maxLength={nValue.maxLength} minLength={nValue.minLength} required={nValue.required}></Form.Control>
+                                            </Form.Group>
+                                        )
+                                })
+                            )
+                        } else {
+                            const nValue = value as BaseElementFields;
+                            return(
+                                <Form.Group key={key}>
+                                    <Form.Label>{nValue.key}</Form.Label>
+                                    <Form.Control name={key} value={nValue.value} type={nValue.type} onChange={handleChange} readOnly={!isEdit} maxLength={nValue.maxLength} minLength={nValue.minLength} required={nValue.required}></Form.Control>
+                                </Form.Group>
+                            )
+                        }
+                    }
                 })
             }
-           
             {!isEdit && <Button className="p-2" onClick={() => setIsEdit(true)}>Редактировать</Button>}
-            {isEdit && <Button className="p-2" onClick={() => handleSave}>Сохранить</Button>}
+            {isEdit && <Button className="p-2" type="submit">Сохранить</Button>}
         </Form>
     )
 }

@@ -18,25 +18,26 @@ export function TableData() {
                 Добавить элемент
             </Button>
             {data.length > 0 ?
-            <Table striped bordered hover className='w-100'>
+            <div className='w-100 overflow-auto'>
+            <Table striped bordered hover className='w-100 overflow-hidden'>
                 <thead>
                     <tr>
                         <th></th>
-                        {Object.keys(baseElement).map(key2 => {
-                            if (key2 === ('connectAssembling_Storage_Position' || 'positions')) {
+                        {Object.entries(baseElement).map(([key2, value2]) => {
+                            if (key2 === 'connectAssembling_Storage_Position' || key2 === 'positions') {
                                 const sub: BaseElement = (baseElement[key2] as [{ [field: string]: BaseElementFields; }])[0];
                                 return(
-                                    Object.keys(sub).map(e => 
-                                       (e !== 'id') &&
+                                    Object.entries(sub).map(([key3, value3]) => 
+                                       (key3 !== 'id') &&
                                         <th 
-                                        key={e} 
+                                        key={key3} 
                                         onClick={() => dispatch(sortProductsTable(
-                                            e, 
+                                            key3, 
                                             data, 
                                             tableSelector.sortedByField, 
                                             tableSelector.sortedDirection
                                         ))}>
-                                            {e}
+                                            {(value3 as BaseElementFields).key}
                                         </th>
                                     )
                                 )
@@ -50,7 +51,7 @@ export function TableData() {
                                         tableSelector.sortedByField, 
                                         tableSelector.sortedDirection
                                     ))}>
-                                        {key2}
+                                        {(value2 as BaseElementFields).key}
                                     </th> 
                                 )
                         })}
@@ -63,7 +64,7 @@ export function TableData() {
                                 <Button onClick={() => dispatch(deleteElement((e['id'] as BaseElementFields).value as number, currentTable))}>X</Button>
                             </td>
                             {Object.entries(e).map(([keys, val]) => {
-                                if (keys === 'connectAssembling_Storage_Position')
+                                if (keys === 'connectAssembling_Storage_Position' || keys === 'positions')
                                     return(
                                         Object.entries((val as [{ [field: string]: BaseElementFields }])[0]).map(([keys2, val2]) => (
                                             keys2 !== 'id' && <td key={keys2} onClick={() => dispatch(showModalElement(true, e))}>
@@ -81,7 +82,10 @@ export function TableData() {
                         </tr>
                     ))}
                 </tbody> 
-            </Table> : <div className="1"></div>}
+            </Table>
+           </div> 
+           : <div className="1"></div>
+        }
         </>
     )
 }

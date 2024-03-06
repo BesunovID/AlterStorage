@@ -5,28 +5,33 @@ import { tableSlice } from "../slices/tableSlice"
 
 
 export const showProductsTable = (link: urlList) => {
+    const emptyElement: BaseElement = defaultElementOfTable.get(link);
+    const data: BaseElement[] = new Array
+
     return async (dispatch: AppDispatch) => {
         try{
-            await axios.get('storage/' + link + '/').then((res) => {
-                const emptyElement: BaseElement = defaultElementOfTable.get(link);
-                const data: BaseElement[] = []
+            await axios.get(`storage/${link}/`).then((res) => {   
                 res.data.map((e: Object) => {
-                    let newElement = emptyElement;
+                    console.log(e)
+                    const newElement = JSON.parse(JSON.stringify(emptyElement));
                     Object.entries(e).map(([key, value]) => {
                         if (value !== null) {
                             if (key === 'positions' || key ==='connectAssembling_Storage_Position'){
                                 Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => (
-                                    (value2.type === ('text' || 'datetime-local') )
-                                    ? (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = (value2.value as string).toString()
-                                    : (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = Number(value2.value as number)
+                                    ((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'text' 
+                                    || (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'datetime-local')
+                                    ? (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = (value2 as string).toString()
+                                    : (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = Number(value2 as number)
                                 ))
-                            } else 
-                                ((newElement[key] as BaseElementFields).type === 'text' || 'datetime-local')
+                            } else {
+                                ((newElement[key] as BaseElementFields).type === 'text' 
+                                || (newElement[key] as BaseElementFields).type === 'datetime-local')
                                 ? (newElement[key] as BaseElementFields).value = (value as string).toString()
                                 : (newElement[key] as BaseElementFields).value = Number(value as number);
-                        } else return(0)
+                            }
+                        }
                     })
-                    return data.push(newElement)
+                    data.push(newElement)
                 })
                 dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement}));
             })
@@ -61,8 +66,10 @@ export const showModalElement = (isOpen: boolean, element?: BaseElement) => {
 }
 
 export const createElement = (element: BaseElement, link: urlList) => {
+    const returnedData = restructData(element)
+    console.log(returnedData)
     return async() => {
-        await axios.post(`storage/${link}/`, element)
+        await axios.post(`storage/${link}/`, returnedData)
         .then(() => {
             alert('Элемент успешно создан!');
         })
@@ -70,32 +77,15 @@ export const createElement = (element: BaseElement, link: urlList) => {
             alert('Ошибка создания!' + e.message);
         }) 
         .finally(() => {
-            showModalElement(false);
         })
     }
 }
 
 export const updateElement = (element: BaseElement, link: urlList) => {
     const id = (element['id'] as BaseElementFields).value as number
-    const restructData: {[k: string]: any} = {};
-    Object.entries(element).map(([key, value]) => {
-        if (key === 'connectAssembling_Storage_Position' || key === 'positions') {
-          /*  Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => (
-               // restructData[key][0][key2] = value2
-                restructData[key] = [{
-                    ...restructData[key],
-                    [key2]: value2
-                }]
-            )); */
-            const subObj: [{[k: string]: any}] = [{}];
-            Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => (
-                 subObj[0][key2] = value2
-             ));
-            restructData[key] = subObj
-        } else restructData[key] = (value as BaseElementFields).value
-    })
+    const returnedData = restructData(element)
     return async() => {
-        await axios.put(`storage/${link}/${id}/`, restructData)
+        await axios.patch(`storage/${link}/${id}/`, returnedData)
         .then(() => {
             alert('Элемент успешно обновлен!');
         })
@@ -103,7 +93,6 @@ export const updateElement = (element: BaseElement, link: urlList) => {
             alert('Ошибка обновления!' + e.message);
         }) 
         .finally(() => {
-            showModalElement(false);
         })
     }
 }
@@ -118,7 +107,32 @@ export const deleteElement = (elementID: number, link: urlList) => {
             alert('Ошибка удаления!' + e.message);
         }) 
         .finally(() => {
-            showProductsTable(link);
         })
     }
+}
+
+
+const restructData = (data: BaseElement): {} => {
+    const newData: {[k: string]: any} = {};
+    Object.entries(data).map(([key, value]) => {
+        if (key !== 'id' && key !== 'date'){
+            if (key === 'connectAssembling_Storage_Position' || key === 'positions') {
+                const subObj: [{[k: string]: any}] = [{}];
+                Object.entries((value as [{ [field: string]: BaseElementFields}])[0]).map(([key2, value2]) => (
+                    (key2 !== 'id' && key2 !== 'date') && (value2.value !== undefined) &&
+                    (subObj[0][key2] = (value2.value))
+                ));
+                newData[key] = subObj
+            } else {
+                if ((value as BaseElementFields).type === 'number'){
+                    if ((value as BaseElementFields).value === undefined)
+                        newData[key] = null
+                    else 
+                        newData[key] = Number((value as BaseElementFields).value)
+                }
+                else newData[key] = (value as BaseElementFields).value
+            }
+        }
+    })
+    return newData
 }

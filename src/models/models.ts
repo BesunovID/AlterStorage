@@ -230,7 +230,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: '',
                 type: 'datetime-local',
                 required: false,
-                readonly: true,
+                
             },
             'positions': [
                 {
@@ -239,7 +239,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                         value: undefined,
                         type: 'number',
                         required: false,
-                        readonly: true,
+                        
                     },
                     'name_of_the_invoice': {
                         key: 'Наименование по накладной',
@@ -272,31 +272,31 @@ export const defaultElementOfTable: TableOfBaseElement = {
                     'quantity_invoice': {
                         key: 'Количество по накладной',
                         value: undefined,
-                        type: 'text',
+                        type: 'number',
                         required: false,
                     },
                     'summa': {
                         key: 'Сумма',
                         value: undefined,
-                        type: 'text',
+                        type: 'number',
                         required: false,
                     },
                     'number_invoice': {
                         key: 'Номер накладной',
                         value: undefined,
-                        type: 'text',
+                        type: 'number',
                         required: false,
                     },
                     'storage_position': {
                         key: 'Складская позиция',
                         value: undefined,
-                        type: 'text',
+                        type: 'number',
                         required: false,
                     },
                     'provider': {
                         key: 'Поставщик',
                         value: undefined,
-                        type: 'text',
+                        type: 'number',
                         required: false,
                     },
                 },
@@ -308,7 +308,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: undefined,
                 type: 'number',
                 required: false,
-                readonly: true,
+                
             },
             'name': {
                 key: 'Наименование',
@@ -357,7 +357,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: undefined,
                 type: 'number',
                 required: false,
-                readonly: true,
+                
             },
             'rack': {
                 key: 'Номер',
@@ -374,7 +374,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: undefined,
                 type: 'number',
                 required: false,
-                readonly: true,
+                
             },
             'shell': {
                 key: 'Номер',
@@ -413,7 +413,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: '',
                 type: 'datetime-local',
                 required: false,
-                readonly: true,
+                
             },
             'count': {
                 key: 'Общее количество',
@@ -518,7 +518,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: undefined,
                 type: 'number',
                 required: false,
-                readonly: true,
+                
             },
             'date': {
                 key: 'Дата списания',
@@ -556,7 +556,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         },
     },
     get: function(url: string): BaseElement {
-        return this.tables[url] as BaseElement
+        return defaultElementOfTable.tables[url] as BaseElement
     }
 }
 
