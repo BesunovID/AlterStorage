@@ -1,16 +1,22 @@
-import axios from "../../axios"
+import axios from "axios";
 import { AppDispatch } from ".."
-import { AnyDataTable, BaseElement, BaseElementFields, defaultElementOfTable, urlList } from "../../models/models"
+import { BaseElement, BaseElementFields, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
 
+const customAxios = axios.create({
+    baseURL: process.env.REACT_APP_BASE_STORAGE_URL,
+    timeout: 15000,
+    headers: {
+        'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+    }
+})
 
 export const showProductsTable = (link: urlList) => {
     const emptyElement: BaseElement = defaultElementOfTable.get(link);
     const data: BaseElement[] = new Array
-
     return async (dispatch: AppDispatch) => {
         try{
-            await axios.get(`storage/${link}/`).then((res) => {   
+            await customAxios.get(`/${link}/`).then((res) => {   
                 res.data.map((e: Object) => {
                     const newElement = JSON.parse(JSON.stringify(emptyElement));
                     Object.entries(e).map(([key, value]) => {
@@ -40,21 +46,67 @@ export const showProductsTable = (link: urlList) => {
     }
 }
 
-export const sortProductsTable = (field: string, data: AnyDataTable[], sortedByField: string, sortedDirection: number) => {
+export const sortProductsTable = (field: string, data: BaseElement[], sortedByField: string, sortedDirection: number) => {
+    const subFieldsInvoice = ['name_of_the_invoice', 'actual_quantity', 'price_per_unit', 
+        'manufacturer', 'quantity_invoice', 'summa', 'number_invoice', 'provider']
+    const subFieldsStorage = ['assembling', 'quantity']
+    const arrayOfSort = [...data] as BaseElement[];
+    const revers: boolean = (field === sortedByField);
+
+    if (!revers) sortedDirection = 1;
+
+    arrayOfSort.sort((a, b) => {
+        let newA;
+        let newB;
+        if(subFieldsInvoice.includes(field)){
+            newA = (a['positions'] as [{[field:string]: any}])[0][field];
+            newB = (b['positions'] as [{[field:string]: any}])[0][field];
+        } else if (subFieldsStorage.includes(field)) {
+            newA = (a['connectAssembling_Storage_Position'] as [{[field:string]: any}])[0][field];
+            newB = (b['connectAssembling_Storage_Position']  as [{[field:string]: any}])[0][field];
+        } else {
+            newA = (a[field] as BaseElementFields);
+            newB = (b[field] as BaseElementFields);
+        }
+        
+        if (newA.type === 'number' && newB.type === 'number') {
+            if (newA.value == undefined && newB.value == undefined){
+                const aID = (a['id'] as BaseElementFields).value as number
+                const bID = (b['id'] as BaseElementFields).value as number
+                return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
+            }
+            else if (newA == undefined)
+                return (-1 * sortedDirection)
+            else if (newB == undefined)
+                return (1 * sortedDirection)
+            else{
+                if (newA.value > newB.value) return (1 * sortedDirection)
+                else if (newA.value < newB.value) return (-1 * sortedDirection)
+                else{
+                    const aID = (a['id'] as BaseElementFields).value as number
+                    const bID = (b['id'] as BaseElementFields).value as number
+                    return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
+                }
+            }
+        } else {
+            if ((newA.value as string).toLowerCase() >
+                (newB.value as string).toLowerCase())
+                return (1 * sortedDirection)
+            else if ((newA.value as string).toLowerCase() <
+                (newB.value as string).toLowerCase()) 
+                return (-1 * sortedDirection)
+            else{
+                const aID = (a['id'] as BaseElementFields).value as number
+                const bID = (b['id'] as BaseElementFields).value as number
+                return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
+            }
+        }
+    }); 
+
+    const newData = revers ? arrayOfSort.reverse() : arrayOfSort;
+
     return (dispatch: AppDispatch) => {
-        const arrayOfSort = [...data] as AnyDataTable[];
-        const revers: boolean = field === sortedByField;
-
-     /*   arrayOfSort.sort((a, b) => (
-            typeof a[field as keyof typeof data[0]] === 'string' ?
-            ((a[field as keyof typeof data[0]] as string).toLowerCase() >
-            (b[field as keyof typeof data[0]] as string).toLowerCase() ? 1 * sortedDirection : -1 * sortedDirection) :
-            ((a[field as keyof typeof data[0]] as number) > (b[field as keyof typeof data[0]] as number) ? 1 * sortedDirection : -1 * sortedDirection)
-        )); 
-*/
-        const newData = revers ? arrayOfSort.reverse() : arrayOfSort;
-
-       // dispatch(tableSlice.actions.sortTable({data: newData, sortedByField: field, sortedRevers: revers}))
+        dispatch(tableSlice.actions.sortTable({data: newData, sortedByField: field, sortedRevers: revers}))
     }
 }
 
@@ -67,7 +119,7 @@ export const showModalElement = (isOpen: boolean, element?: BaseElement) => {
 export const createElement = (element: BaseElement, link: urlList) => {
     const returnedData = restructData(element)
     return async(dispatch: AppDispatch) => {
-        await axios.post(`storage/${link}/`, returnedData)
+        await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
             alert('Элемент успешно создан!');
             dispatch(showProductsTable(link));
@@ -84,7 +136,7 @@ export const updateElement = (element: BaseElement, link: urlList) => {
     const id = (element['id'] as BaseElementFields).value as number
     const returnedData = restructData(element)
     return async(dispatch: AppDispatch) => {
-        await axios.put(`storage/${link}/${id}/`, returnedData)
+        await customAxios.put(`/${link}/${id}/`, returnedData)
         .then(() => {
             alert('Элемент успешно обновлен!');
             dispatch(showProductsTable(link));
@@ -99,7 +151,7 @@ export const updateElement = (element: BaseElement, link: urlList) => {
 
 export const deleteElement = (elementID: number, link: urlList) => {
     return async(dispatch: AppDispatch) => {
-        await axios.delete(`storage/${link}/${elementID}/`)
+        await customAxios.delete(`/${link}/${elementID}/`)
         .then(() => {
             alert('Элемент удален!');
             dispatch(showProductsTable(link));
@@ -133,16 +185,6 @@ const restructData = (data: BaseElement): {} => {
                     newData[key] = null
                 } else
                     newData[key] = (value as BaseElementFields).value
-             /*   if ((value as BaseElementFields).type === 'number'){
-                    if (((value as BaseElementFields).value === undefined) || 
-                    ((value as BaseElementFields).value === 0)) {
-                        newData[key] = null
-                        console.log(newData[key])
-                    } else {
-                        newData[key] = Number((value as BaseElementFields).value)
-                    }
-                }
-                else newData[key] = (value as BaseElementFields).value*/
             }
         }
     })

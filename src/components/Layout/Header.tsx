@@ -1,23 +1,21 @@
-import { Container, Dropdown, Nav, Navbar, NavDropdown, Row } from "react-bootstrap"
-import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { Container, Dropdown, Nav, Navbar } from "react-bootstrap"
+import { useAppDispatch } from "../../hooks/redux";
 import { logout } from '../../store/actions/authActions'
-import style from '../../styles/Layout/Header.module.scss'
+import { getProfile } from "../../store/actions/usersActions";
 
 export function Header() {
-    const userName = useAppSelector(state => state.auth.username)
     const dispatch = useAppDispatch();
     
     return(
         <Navbar bg='primary' data-bs-theme="dark">
             <Container fluid>
                 <Nav className='w-100'>
-                    <Nav.Link href='#page1'>Something 1</Nav.Link>
-                    <Nav.Link href='#page2'>Something 2</Nav.Link>
+                    <Nav.Link href='/storage' className="ms-10">Управление складом</Nav.Link>
                     <Dropdown id='dropdown-profile' className="col-md-2 ms-auto">
                         <Dropdown.Toggle>{localStorage.getItem('USERNAME')}</Dropdown.Toggle>
                         <Dropdown.Menu>
-                            <Dropdown.Item href='/profile-1'>Open profile</Dropdown.Item>
-                            <Dropdown.Item href='/login' onClick={() => dispatch(logout)}>Exit</Dropdown.Item>
+                            <Dropdown.Item as='button' onClick={() => dispatch(getProfile())}>Профиль</Dropdown.Item>
+                            <Dropdown.Item as='button' href='/login' onClick={() => dispatch(logout())}>Выйти</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </Nav>

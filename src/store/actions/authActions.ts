@@ -1,17 +1,37 @@
 import { AppDispatch } from ".."
-import axios from "../../axios"
+import axios from "axios"
 import { IUser } from "../../models/models"
 import {authSlice} from "../slices/authSlice"
 
-interface RegisterResponse {
-    data: IUser
-}
+const axiosLogin = axios.create({
+    baseURL: process.env.REACT_APP_BASE_AUTH_URL,
+    timeout: 15000,
+})
+
+const axiosLogout = axios.create({
+    baseURL: process.env.REACT_APP_BASE_AUTH_URL,
+    timeout: 15000,
+    headers: {
+        'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+    }
+})
+
+const axiosRegistration = axios.create({
+    baseURL: process.env.REACT_APP_BASE_USERS_URL,
+    timeout: 15000,
+})
+
 
 export const register = ( data: IUser ) => {
-    return async (dispatch: AppDispatch) => {
+    return async () => {
         try{
-            await axios.post<RegisterResponse>('customusers/users/', data)
+            await axiosRegistration.post('/', data)
+            .then(() => {
+                alert('Вы успешно зарегистрировались!')
+                window.location.href = '/login'
+            })
         } catch(e) {
+            alert('Ошибка!')
             console.log('Ошибка ', e)
         }
     }
@@ -20,7 +40,7 @@ export const register = ( data: IUser ) => {
 export const login = (username: string, password: string) => {
     const data = { 'username': username, 'password': password}
     return async (dispatch: AppDispatch) => {
-        const res = await axios.post(`${process.env.REACT_APP_AUTH_URL}login`, data)
+        const res = await axiosLogin.post('/login/', data)
         .then(response => {
             dispatch(authSlice.actions.login({auth_token: response.data.auth_token as string, username: username}))
             return 'success'
@@ -37,8 +57,10 @@ export const login = (username: string, password: string) => {
 
 export const logout = () => {
     return async (dispatch: AppDispatch) => {
-        await axios.post(`${process.env.REACT_APP_AUTH_URL}logout`)
-        .then(response => dispatch(authSlice.actions.logout()))
+        await axiosLogout.post('/logout/',)
+        .then(() => {
+            dispatch(authSlice.actions.logout())
+        })
         .catch(e => (
             console.log(e)
         ))

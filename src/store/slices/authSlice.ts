@@ -1,8 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
-const USERNAME = 'username'
-const TOKEN = ''
-
 interface AuthState {
     auth_token: string
     username: string
@@ -14,15 +11,10 @@ interface AuthPayloadLogin {
     username: string
 }
 
-interface AuthPayloadRegister {
-    auth_token: string,
-    username: string
-}
-
 const initialState: AuthState = {
-    auth_token: localStorage.getItem(TOKEN) ?? '',
-    username: localStorage.getItem(USERNAME) ?? '',
-    isAuth: Boolean(localStorage.getItem(USERNAME) && localStorage.getItem(TOKEN)),
+    auth_token: localStorage.getItem('TOKEN') ?? '',
+    username: localStorage.getItem('USERNAME') ?? '',
+    isAuth: Boolean(localStorage.getItem('USERNAME') && localStorage.getItem('TOKEN')),
 }
 
 export const authSlice = createSlice({
@@ -42,12 +34,8 @@ export const authSlice = createSlice({
             state.username = ''
             state.isAuth = false
 
-            localStorage.removeItem(TOKEN)
-            localStorage.removeItem(USERNAME)
-        },
-        register(state, action: PayloadAction<AuthPayloadRegister>) {
-            state.auth_token = action.payload.auth_token
-            state.username = action.payload.username
+            localStorage.removeItem('TOKEN')
+            localStorage.removeItem('USERNAME')
         }
     }
 })

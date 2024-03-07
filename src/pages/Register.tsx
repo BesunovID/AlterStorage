@@ -16,22 +16,18 @@ export function Register() {
         const form = new FormData(event.target as HTMLFormElement);
         if (form.get('password') !== form.get('passwordAccept')) {
             alert('Пароли не совпадают. Повторите')
-        } else if (Object.keys(form.values()).map(e => e === null || ''))
-            alert('Заполните все поля!')
-        else if (!(form.get('email') as string).match(regEmail)) 
+        } else if (!(form.get('email') as string).match(regEmail)) 
             alert('Неправильная почта!')
         else {
             const newUser: IUser = {
                 username: form.get('username') as string,
                 email: form.get('email') as string,
-                first_name: form.get('first_name') as string,
-                last_name: form.get('last_name') as string,
+              //  first_name: form.get('first_name') as string,
+              //  last_name: form.get('last_name') as string,
                 password: form.get('password') as string,
                 role: 'user'
             }
             dispatch(register(newUser));
-            alert('Вы успешно зарегистрировались!')
-            window.location.href = '/login'
         }
     }
 
@@ -63,7 +59,7 @@ export function Register() {
                             maxLength={254} placeholder='Введите ваш email...' onChange={event}/>
                     </div>
 
-                    <div className={style.formField}>
+                 {/*   <div className={style.formField}>
                         <label htmlFor="first_name">Имя</label>
                         <input type="text" id='first_name' name='first_name'
                             maxLength={150} onChange={event}/>
@@ -74,7 +70,7 @@ export function Register() {
                         <input type="text" id='last_name' name='last_name'
                             maxLength={150} onChange={event}/>
                     </div>
-
+    */}
                     <div className={style.formField}>
                         <label htmlFor="password">Пароль</label>
                         <input type="password" id='password' name='password'
@@ -97,7 +93,6 @@ export function Register() {
                         </Link>
                     </button>
                 </div>
-               
             </div>
             <Particles /> 
         </div>

@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Button, Form } from "react-bootstrap"
-import { useAppDispatch, useAppSelector } from "../../../../hooks/redux"
-import { BaseElement, BaseElementFields } from "../../../../models/models";
-import { createElement, updateElement } from "../../../../store/actions/tableAction"
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux"
+import { BaseElement, BaseElementFields } from "../../../models/models";
+import { createElement, updateElement } from "../../../store/actions/tableActions"
 
 export function ModalForm() {
     const dispatch = useAppDispatch();
@@ -212,7 +212,7 @@ export function ModalForm() {
                     }
                 })
             }
-            {!isEdit && <Button className="p-2" onClick={() => setIsEdit(true)}>Редактировать</Button>}
+            {!isEdit && <Button className="p-2" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
             {isEdit && <Button className="p-2" type="submit">Сохранить</Button>}
         </Form>
     )

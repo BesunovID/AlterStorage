@@ -1,7 +1,7 @@
-import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { Button, Table } from 'react-bootstrap';
-import { deleteElement, showModalElement, sortProductsTable } from '../../../store/actions/tableAction';
-import { BaseElement, BaseElementFields } from '../../../models/models';
+import { deleteElement, showModalElement, sortProductsTable } from '../../store/actions/tableActions';
+import { BaseElement, BaseElementFields } from '../../models/models';
 
 
 export function TableData() {

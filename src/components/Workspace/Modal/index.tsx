@@ -1,7 +1,7 @@
 import { Button, Modal } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { defaultElementOfTable } from "../../../../models/models";
-import { showModalElement } from "../../../../store/actions/tableAction";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { defaultElementOfTable } from "../../../models/models";
+import { showModalElement } from "../../../store/actions/tableActions";
 import { ModalForm } from "./ModalForm";
 
 export function ModalWindow() {

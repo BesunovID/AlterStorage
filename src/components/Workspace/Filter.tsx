@@ -1,4 +1,4 @@
-import { useAppSelector, useAppDispatch } from "../../../hooks/redux";
+import { useAppSelector, useAppDispatch } from "../../hooks/redux";
 
 export function Filter() {
     const tableSelector = useAppSelector(state => state.tables);

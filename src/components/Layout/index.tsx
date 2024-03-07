@@ -1,18 +1,15 @@
-import { Container, Row } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 import { Header } from './Header'
-import { MainMenu } from './MainMenu'
-import { Workspace } from './Workspace/index'
 
-export function Layout() {
+interface LayoutProps {
+    children: React.ReactNode
+}
+
+export function Layout(props: LayoutProps) {
     return(
         <Container fluid className={'min-vh-100 d-flex flex-md-column p-0'}>
             <Header />
-            <Container fluid className={'flex-md-grow-1'}>
-                <Row className={''}>
-                    <MainMenu />
-                    <Workspace />
-                </Row>
-            </Container>
+            {props.children}
         </Container>
     )
 }
