@@ -59,7 +59,7 @@ export function Register() {
                     
                     <div className={style.formField}>
                         <label htmlFor="email">Почта</label>
-                        <input type="text" id='email' name='email' minLength={1} 
+                        <input type="email" id='email' name='email' minLength={1} 
                             maxLength={254} placeholder='Введите ваш email...' onChange={event}/>
                     </div>
 
@@ -77,13 +77,13 @@ export function Register() {
 
                     <div className={style.formField}>
                         <label htmlFor="password">Пароль</label>
-                        <input type="text" id='password' name='password'
+                        <input type="password" id='password' name='password'
                             minLength={1} maxLength={150} onChange={event}/>
                     </div>
 
                     <div className={style.formField}>
                         <label htmlFor="passwordAccept">Подтвердите пароль</label>
-                        <input type="text" id='passwordAccept' name='passwordAccept'
+                        <input type="password" id='passwordAccept' name='passwordAccept'
                             minLength={1} maxLength={150} onChange={event}/>
                     </div>
 
@@ -97,8 +97,9 @@ export function Register() {
                         </Link>
                     </button>
                 </div>
-                <Particles /> 
+               
             </div>
+            <Particles /> 
         </div>
     )
 }

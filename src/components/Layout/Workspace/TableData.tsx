@@ -28,7 +28,7 @@ export function TableData() {
                                 const sub: BaseElement = (baseElement[key2] as [{ [field: string]: BaseElementFields; }])[0];
                                 return(
                                     Object.entries(sub).map(([key3, value3]) => 
-                                       (key3 !== 'id') &&
+                                       (key3 !== 'id') && (key3 !== 'storage_position') &&
                                         <th 
                                         key={key3} 
                                         onClick={() => dispatch(sortProductsTable(
@@ -67,7 +67,8 @@ export function TableData() {
                                 if (keys === 'connectAssembling_Storage_Position' || keys === 'positions')
                                     return(
                                         Object.entries((val as [{ [field: string]: BaseElementFields }])[0]).map(([keys2, val2]) => (
-                                            keys2 !== 'id' && <td key={keys2} onClick={() => dispatch(showModalElement(true, e))}>
+                                            (keys2 !== 'id') && (keys2 !== 'storage_position') &&
+                                             <td key={keys2} onClick={() => dispatch(showModalElement(true, e))}>
                                                 {val2.value}
                                             </td>
                                         ))

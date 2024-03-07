@@ -22,7 +22,7 @@ export function Particles() {
 
     return(
         <div className={style.particles}>
-            {particles.length > 1 ? particles.map(e => (
+            {(particles.length > 1) && particles.map(e => (
                 <div className={style.particle} style={
                     {
                     top: 0,
@@ -34,7 +34,7 @@ export function Particles() {
                     transform: `translate(${e.x}vw, ${e.y}vh)`
                     }}>
                 </div>
-            )): <div className="1"></div> }
+            ))}
         </div>
     )
 }

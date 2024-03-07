@@ -46,6 +46,7 @@ export const tableSlice = createSlice({
     reducers: {
         showTable(state: TableState, action: PayloadAction<PayloadShowTable>){
             state.tableIsOpen = true
+            state.modalIsOpen = false
             state.data = action.payload.data
             state.currentUrl = action.payload.table
             state.element = action.payload.emptyElement

@@ -22,9 +22,6 @@ export function ModalWindow() {
                     <ModalForm />
                 </Modal.Body>
                 <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Закрыть
-                </Button>
                 </Modal.Footer>
             </Modal>
         </>

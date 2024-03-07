@@ -10,8 +10,8 @@ export function ModalForm() {
     const element = useAppSelector(state => state.tables.element)
     const currentTable = useAppSelector(state => state.tables.currentUrl)
 
-    const [validated, setValidated] = useState(false);
-    const [isEdit, setIsEdit] = useState(element.id !== undefined);
+    const [isEdit, setIsEdit] = useState((element['id'] as BaseElementFields).value == undefined);
+    const [validated, setValidated] = useState(isEdit);
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)))
 
     const subFields = ['assembling', 'quantity', 'storage_position', 'name_of_the_invoice', 
@@ -191,7 +191,7 @@ export function ModalForm() {
                             return(
                                 Object.entries((value as Array<Object>)[0]).map(([subKey, subValue]) => {
                                     const nValue = subValue as BaseElementFields;    
-                                    if ((subKey !== 'id') && (subKey !== 'date'))
+                                    if ((subKey !== 'id') && (subKey !== 'date') && (subKey !== 'storage_position'))
                                         return(
                                             <Form.Group key={subKey}>
                                                 <Form.Label>{nValue.key}</Form.Label>
@@ -217,82 +217,3 @@ export function ModalForm() {
         </Form>
     )
 }
-
-/*
- {('marking' in newElement) && 
-            <Form.Group>
-                <Form.Label>Обозначение</Form.Label>
-                <Form.Control name="marking" value={newElement.marking} onChange={handleChange} readOnly={!isEdit} maxLength={100} minLength={1} required></Form.Control>
-            </Form.Group>}
-            {('name' in newElement) && 
-            <Form.Group>
-                <Form.Label>Наименование</Form.Label>
-                <Form.Control name="name" value={newElement.name} onChange={handleChange} readOnly={!isEdit} maxLength={200} minLength={1} required></Form.Control>
-            </Form.Group>}
-            {('count' in newElement) &&
-            <Form.Group>
-                <Form.Label>Общее количество</Form.Label> 
-                <Form.Control name="count" value={newElement.count} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
-            </Form.Group>}
-            {('connectAssembling_Storage_Position' in newElement) &&
-            <>
-                <Form.Group>
-                    <Form.Label>Номер сборки</Form.Label> 
-                    <Form.Control name="assembling" value={newElement.connectAssembling_Storage_Position[0]?.assembling <= 0 ? undefined : 
-                    newElement.connectAssembling_Storage_Position[0]?.assembling} onChange={handleChange} readOnly={!isEdit} type="number" required></Form.Control>
-                </Form.Group>
-                <Form.Group>
-                    <Form.Label>Количество в сборке</Form.Label> 
-                    <Form.Control name="quantity" value={newElement.connectAssembling_Storage_Position[0]?.quantity} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
-                </Form.Group> 
-                <Form.Group>
-                    <Form.Label>Номер складской позиции</Form.Label> 
-                    <Form.Control name="storage_position" value={newElement.connectAssembling_Storage_Position[0]?.storage_position} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
-                </Form.Group>
-            </>}
-            {('units' in newElement) && 
-            <Form.Group>
-                <Form.Label>Единицы измерения</Form.Label>
-                <Form.Control name="units" value={newElement?.units} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
-            </Form.Group>}
-            {('rack' in newElement) && 
-            <Form.Group>
-                <Form.Label>Стеллаж</Form.Label>
-                <Form.Control name="rack" value={newElement?.rack} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
-            </Form.Group>}
-            {('shelf' in newElement) &&
-            <Form.Group>
-                <Form.Label>Полка</Form.Label>
-                <Form.Control name="shelf" value={newElement?.shelf} onChange={handleChange} readOnly={!isEdit} type="number"></Form.Control>
-            </Form.Group>}
-            {('box' in newElement) && 
-            <Form.Group>
-                <Form.Label>Коробка</Form.Label>
-                <Form.Control name="box" value={newElement?.box} onChange={handleChange} readOnly={!isEdit} type="text" maxLength={100}></Form.Control>
-            </Form.Group>}
-            {('price' in newElement) && 
-            <Form.Group>
-                <Form.Label>Цена за единицу</Form.Label>
-                <Form.Control name="price" value={newElement?.price} onChange={handleChange} readOnly={!isEdit} type="number" maxLength={100}></Form.Control>
-            </Form.Group>}
-            {('comment' in newElement) && 
-            <Form.Group>
-                <Form.Label>Комментарий</Form.Label>
-                <Form.Control name="comment" value={newElement?.comment} onChange={handleChange} readOnly={!isEdit} type="text" maxLength={200}></Form.Control>
-            </Form.Group>}
-            {('description' in newElement) && (currentTable === 'finished_product') &&
-            <Form.Group>
-                <Form.Label>Описание</Form.Label>
-                <Form.Control name="description" value={newElement?.description} onChange={handleChange} readOnly={!isEdit} type="text" maxLength={200}></Form.Control>
-            </Form.Group>}
-            {('shell' in newElement) &&
-            <Form.Group>
-                <Form.Label>Номер</Form.Label>
-                <Form.Control name="shell" value={newElement?.shell} onChange={handleChange} readOnly={!isEdit} type="number" required></Form.Control>
-            </Form.Group>}
-            {('item' in newElement) &&
-            <Form.Group>
-                <Form.Label>Готовый продукт</Form.Label>
-                <Form.Control name="item" value={newElement?.item} onChange={handleChange} readOnly={!isEdit} type="number" required></Form.Control>
-            </Form.Group>}
-*/

@@ -45,7 +45,7 @@ export function Login() {
                     </div>
                     <div className={style.formField}>
                         <label htmlFor="password">Пароль</label>
-                        <input type="text" name='password'/>
+                        <input type="password" name='password'/>
                     </div>
                     <button type="submit">
                         Войти
@@ -59,8 +59,9 @@ export function Login() {
                         </Link>
                     </button>
                 </div>
-                <Particles /> 
+                
             </div>
+            <Particles /> 
         </div>
     )
 }

@@ -12,7 +12,6 @@ export const showProductsTable = (link: urlList) => {
         try{
             await axios.get(`storage/${link}/`).then((res) => {   
                 res.data.map((e: Object) => {
-                    console.log(e)
                     const newElement = JSON.parse(JSON.stringify(emptyElement));
                     Object.entries(e).map(([key, value]) => {
                         if (value !== null) {
@@ -67,11 +66,11 @@ export const showModalElement = (isOpen: boolean, element?: BaseElement) => {
 
 export const createElement = (element: BaseElement, link: urlList) => {
     const returnedData = restructData(element)
-    console.log(returnedData)
-    return async() => {
+    return async(dispatch: AppDispatch) => {
         await axios.post(`storage/${link}/`, returnedData)
         .then(() => {
             alert('Элемент успешно создан!');
+            dispatch(showProductsTable(link));
         })
         .catch((e) => {
             alert('Ошибка создания!' + e.message);
@@ -84,10 +83,11 @@ export const createElement = (element: BaseElement, link: urlList) => {
 export const updateElement = (element: BaseElement, link: urlList) => {
     const id = (element['id'] as BaseElementFields).value as number
     const returnedData = restructData(element)
-    return async() => {
-        await axios.patch(`storage/${link}/${id}/`, returnedData)
+    return async(dispatch: AppDispatch) => {
+        await axios.put(`storage/${link}/${id}/`, returnedData)
         .then(() => {
             alert('Элемент успешно обновлен!');
+            dispatch(showProductsTable(link));
         })
         .catch((e) => {
             alert('Ошибка обновления!' + e.message);
@@ -98,10 +98,11 @@ export const updateElement = (element: BaseElement, link: urlList) => {
 }
 
 export const deleteElement = (elementID: number, link: urlList) => {
-    return async() => {
+    return async(dispatch: AppDispatch) => {
         await axios.delete(`storage/${link}/${elementID}/`)
         .then(() => {
             alert('Элемент удален!');
+            dispatch(showProductsTable(link));
         })
         .catch((e) => {
             alert('Ошибка удаления!' + e.message);
@@ -118,19 +119,30 @@ const restructData = (data: BaseElement): {} => {
         if (key !== 'id' && key !== 'date'){
             if (key === 'connectAssembling_Storage_Position' || key === 'positions') {
                 const subObj: [{[k: string]: any}] = [{}];
-                Object.entries((value as [{ [field: string]: BaseElementFields}])[0]).map(([key2, value2]) => (
-                    (key2 !== 'id' && key2 !== 'date') && (value2.value !== undefined) &&
-                    (subObj[0][key2] = (value2.value))
-                ));
+                Object.entries((value as [{ [field: string]: BaseElementFields}])[0]).map(([key2, value2]) => {
+                    if (key2 !== 'id' && key2 !== 'date') {
+                        if (((value2 as BaseElementFields).type === 'number') && ((value2 as BaseElementFields).value == 0))
+                            subObj[0][key2] = null
+                        else 
+                            subObj[0][key2] = value2.value
+                    }
+                });
                 newData[key] = subObj
             } else {
-                if ((value as BaseElementFields).type === 'number'){
-                    if ((value as BaseElementFields).value === undefined)
+                if (((value as BaseElementFields).type === 'number') && ((value as BaseElementFields).value == 0)) {
+                    newData[key] = null
+                } else
+                    newData[key] = (value as BaseElementFields).value
+             /*   if ((value as BaseElementFields).type === 'number'){
+                    if (((value as BaseElementFields).value === undefined) || 
+                    ((value as BaseElementFields).value === 0)) {
                         newData[key] = null
-                    else 
+                        console.log(newData[key])
+                    } else {
                         newData[key] = Number((value as BaseElementFields).value)
+                    }
                 }
-                else newData[key] = (value as BaseElementFields).value
+                else newData[key] = (value as BaseElementFields).value*/
             }
         }
     })

@@ -1,10 +1,11 @@
 @import 'default_variables';
 
 .particles{
+    z-index: 1;
     .particle{
         position: absolute;
         background-color: $light_color;
-        z-index: 10;
+        z-index: 1;
         box-shadow: 0 0 5px 3px rgb(255, 255, 255);
     }
 }
