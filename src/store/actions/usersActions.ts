@@ -1,6 +1,5 @@
 import { AppDispatch } from ".."
 import axios from "axios"
-import { IUser } from "../../models/models"
 import { usersSlice } from "../slices/usersSlice"
 
 const customAxios = axios.create({
@@ -14,10 +13,13 @@ const customAxios = axios.create({
 export const getProfile = () => {
     return async (dispatch: AppDispatch) => {
         try{
-            await customAxios.get('/users/')
+            await axios.get(`${process.env.REACT_APP_BASE_CUSTOMUSERS_URL}/users/`, { headers: {
+                'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+            }})
             .then((res) => {
-                console.log(res.data)
-                dispatch(usersSlice.actions.myProfile(res.data))
+                const profile = res.data.find((profile: any) => profile.username === localStorage.getItem('USERNAME'))
+                console.log(profile)
+                dispatch(usersSlice.actions.myProfile({data: profile}))
             })
         } catch(e) {
             alert('Ошибка!')

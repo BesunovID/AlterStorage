@@ -3,11 +3,11 @@ import { IUser } from "../../models/models"
 
 interface UsersSlice {
     users: IUser[]
-    myProfile: any
+    myProfile: IUser
 }
 
 interface GetMyProfile {
-    data: any
+    data: IUser
 }
 
 interface AllUsers {
@@ -16,7 +16,11 @@ interface AllUsers {
 
 const initialState: UsersSlice = {
     users: [],
-    myProfile: {}
+    myProfile: {
+        username: '',
+        email: '',
+        password: ''
+    }
 }
 
 export const usersSlice = createSlice({

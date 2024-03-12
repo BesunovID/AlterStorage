@@ -8,136 +8,21 @@ export function ModalForm() {
     const dispatch = useAppDispatch();
 
     const element = useAppSelector(state => state.tables.element)
+    const userRole = useAppSelector(state => state.users.myProfile.role)
+    console.log(userRole)
     const currentTable = useAppSelector(state => state.tables.currentUrl)
 
-    const [isEdit, setIsEdit] = useState((element['id'] as BaseElementFields).value == undefined);
+    const [isEdit, setIsEdit] = useState((element['id'] as BaseElementFields).value === undefined);
     const [validated, setValidated] = useState(isEdit);
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)))
 
     const subFields = ['assembling', 'quantity', 'storage_position', 'name_of_the_invoice', 
                     'actual_quantity', 'price_per_unit', 'manufacturer', 'quantity_invoice',
                 'summa', 'number_invoice', 'provider']
-/*
-    useEffect(() => {
-        switch(currentTable) {
-            case 'FIO_emploeey': 
-                setNewElement({
-                    id: undefined,
-                    surname: '',
-                    name: '',
-                    patronymic: '',
-                    post: '',
-                    telephone: '',
-                    email: '',
-                } as IFIOemploeey)
-                break;
-            case 'assemblings': 
-                setNewElement({
-                    id: undefined,
-                    item: undefined,
-                    description: '',
-                })
-                break;
-            case 'finished_product': 
-                setNewElement({
-                    id: undefined,
-                    name: '',
-                    description: '',
-                })
-                break;
-            case 'invoice_number': 
-                setNewElement({
-                    number_invoice: '',
-                    data: '',
-                    positions: [
-                        {
-                            id: undefined,
-                            name_of_the_invoice: '',
-                            actual_quantity: undefined,
-                            price_per_unit: 0,
-                            manufacturer: '',
-                            quantity_invoice: undefined,
-                            summa: undefined,
-                            number_invoice: undefined,
-                            storage_position: undefined,
-                            provider: undefined,
-                        },
-                    ],
-                })
-                break;
-            case 'provider': 
-                setNewElement({
-                    id: undefined,
-                    name: '',
-                    refer_to: '',
-                    address: '',
-                    telephon: '',
-                    email: '',
-                })
-                break;
-            case 'rack': 
-                setNewElement({
-                    id: undefined,
-                    rack: '',
-                })
-                break;
-            case 'shelf': 
-                setNewElement({
-                    id: undefined,
-                    shell: undefined,
-                })
-                break;
-            case 'storage_positions': 
-                setNewElement({
-                    marking: '',
-                    name: '',
-                    date: '',
-                    count: undefined,
-                    units: undefined,
-                    rack: undefined,
-                    shelf: undefined,
-                    box: '',
-                    price: undefined,
-                    comment: '',
-                    connectAssembling_Storage_Position: [{
-                        id: undefined,
-                        quantity: undefined,
-                        storage_position: undefined,
-                        assembling: -1,
-                    }]
-                })
-                break;
-            case 'unit_of_measure': 
-                setNewElement({
-                    id: undefined,
-                    name: '',
-                    full_name: '',
-                })
-                break;
-            case 'write_down': 
-                setNewElement({
-                    id: undefined,
-                    date: '',
-                    count: undefined,
-                    storage_pos: undefined,
-                    fio_employee: undefined,
-                    purpose: undefined,
-                })
-                break;
-        }
-        if (element.id !== undefined && newElement.id === undefined){
-            console.log('1')
-            setNewElement((prevState) => ({
-                ...prevState,
-                ...element}))
-        }
-        console.log(newElement)
-    }, [element])
 
-*/
     const handleChange = (event: any) => {
         if (subFields.includes(event.target.name)){    
-            if (currentTable == 'invoice_number') {
+            if (currentTable === 'invoice_number') {
                 const newSub = Object.assign([], newElement['positions']);
                 newSub[0][event.target.name].value = event.target.value
                 setNewElement(prevState => ({
@@ -145,7 +30,7 @@ export function ModalForm() {
                     'positions': newSub
                 }))
             }
-            else if (currentTable == 'storage_positions') { 
+            else if (currentTable === 'storage_positions') { 
                 const newSub =  Object.assign([], newElement['connectAssembling_Storage_Position'])
                 if (newSub[0][event.target.name].type === 'number')
                     newSub[0][event.target.name].value = Number(event.target.value)
@@ -212,7 +97,7 @@ export function ModalForm() {
                     }
                 })
             }
-            {!isEdit && <Button className="p-2" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
+            {!isEdit && <Button disabled={userRole === 'user'} className="p-2" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
             {isEdit && <Button className="p-2" type="submit">Сохранить</Button>}
         </Form>
     )

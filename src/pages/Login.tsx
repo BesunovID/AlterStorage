@@ -1,12 +1,14 @@
 import React from "react"
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Particles } from "../components/Particles";
 import { useAppDispatch } from "../hooks/redux";
 import { login } from "../store/actions/authActions";
+import { getProfile } from "../store/actions/usersActions";
 import style from '../styles/Auth.module.scss'
 
 export function Login() {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     const loginSubmitHandler = (event: React.FormEvent) => {
         event.preventDefault()
@@ -16,7 +18,7 @@ export function Login() {
         .then((res) => {
             switch(res){
                 case 'success': 
-                    window.location.href = '/'
+                    navigate('/');
                     break
                 case 'non_field_errors':
                     alert('Не верные данные')

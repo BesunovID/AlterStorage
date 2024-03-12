@@ -1,5 +1,7 @@
 import { Navigate } from "react-router-dom"
-import { useAppSelector } from "../hooks/redux"
+import { useAppDispatch, useAppSelector } from "../hooks/redux"
+import { useEffect } from "react";
+import { getProfile } from "../store/actions/usersActions";
 
 
 export function Main() {
