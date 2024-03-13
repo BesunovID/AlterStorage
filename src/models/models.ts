@@ -15,6 +15,9 @@ export type BaseElementFields = {
     readonly?: boolean
     maxLength?: number
     minLength?: number
+    selectable?: boolean
+    subject?: string
+    subData?: any
 }
 
 export type BaseElement = {
@@ -396,7 +399,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
                     key: 'Количество в сборке',
                     value: undefined,
                     type: 'number',
-                    required: false,
+                    required: true,
                 },
                 'storage_position': {
                     key: 'Номер складской позиции',
@@ -409,6 +412,9 @@ export const defaultElementOfTable: TableOfBaseElement = {
                     value: undefined,
                     type: 'number',
                     required: true,
+                    selectable: true,
+                    subject: 'assemblings',
+                    subData: '',
                 },
             }]
         },

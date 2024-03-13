@@ -6,15 +6,16 @@ import { BaseElement, BaseElementFields } from '../../models/models';
 
 export function TableData() {
     const tableSelector = useAppSelector(state => state.tables);
+    const userRole = useAppSelector(state => state.users.myProfile.role)
     const dispatch = useAppDispatch();
 
     const data = tableSelector.data; 
     const currentTable = tableSelector.currentUrl;
     const baseElement = tableSelector.element
-
+    
     return(
         <>
-            <Button className="m-2" onClick={() => dispatch(showModalElement(true, baseElement))}>
+            <Button className="m-2" onClick={() => dispatch(showModalElement(true, baseElement))}  disabled={userRole === 'user'}>
                 Добавить элемент
             </Button>
             {data.length > 0 ?

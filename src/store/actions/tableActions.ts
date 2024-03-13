@@ -5,7 +5,7 @@ import { tableSlice } from "../slices/tableSlice"
 
 const customAxios = axios.create({
     baseURL: process.env.REACT_APP_BASE_STORAGE_URL,
-    timeout: 15000,
+    timeout: 10000,
     headers: {
         'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
     }
@@ -13,26 +13,49 @@ const customAxios = axios.create({
 
 export const showProductsTable = (link: urlList) => {
     const emptyElement: BaseElement = defaultElementOfTable.get(link);
-    const data: BaseElement[] = new Array
+    const data: BaseElement[] = new Array;
     return async (dispatch: AppDispatch) => {
         try{
             await customAxios.get(`/${link}/`).then((res) => {   
                 res.data.map((e: Object) => {
-                    const newElement = JSON.parse(JSON.stringify(emptyElement));
+                    const newElement: BaseElement = JSON.parse(JSON.stringify(emptyElement));
                     Object.entries(e).map(([key, value]) => {
                         if (value !== null) {
                             if (key === 'positions' || key ==='connectAssembling_Storage_Position'){
-                                Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => (
-                                    ((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'text' 
-                                    || (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'datetime-local')
-                                    ? (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = (value2 as string).toString()
-                                    : (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = Number(value2 as number)
-                                ))
+                                Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => {
+                                    if((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'text' 
+                                    || (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'datetime-local'){
+                                        (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = (value2 as string).toString()
+                                    } else (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = Number(value2 as number)
+                                    
+                                    if ((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].selectable){
+                                        getTableData((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].subject as string)
+                                        .then((res) => {
+                                            const newSubData = new Array;
+                                            res.data.map((e: Object) => 
+                                                newSubData.push(e)
+                                            );
+                                            console.log(newSubData);
+                                            (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].subData = [...newSubData]
+                                        }) 
+                                    }
+                                })
                             } else {
-                                ((newElement[key] as BaseElementFields).type === 'text' 
-                                || (newElement[key] as BaseElementFields).type === 'datetime-local')
-                                ? (newElement[key] as BaseElementFields).value = (value as string).toString()
-                                : (newElement[key] as BaseElementFields).value = Number(value as number);
+                                if((newElement[key] as BaseElementFields).type === 'text' 
+                                || (newElement[key] as BaseElementFields).type === 'datetime-local'){
+                                    (newElement[key] as BaseElementFields).value = (value as string).toString()
+                                }else(newElement[key] as BaseElementFields).value = Number(value as number);
+
+                                if ((newElement[key] as BaseElementFields).selectable){
+                                    getTableData((newElement[key] as BaseElementFields).subject as string)
+                                    .then((res) => {
+                                        const newSubData = new Array;
+                                        res.data.map((e: Object) =>
+                                            newSubData.push(e)
+                                        );
+                                        (newElement[key] as BaseElementFields).subData = [...newSubData]
+                                    }) 
+                                }
                             }
                         }
                     })
@@ -45,6 +68,29 @@ export const showProductsTable = (link: urlList) => {
         }
     }
 }
+const getTableData = (link: string) => {
+    return axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
+        headers: {
+            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+        }
+    })
+}
+/*
+const getTableData = (link: string): Array<Object> => {
+    let data: Object[] = []
+    const res = async () => await axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
+        headers: {
+            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+        }
+    }).then(res => (
+       // res.data.map((e: Object) => data.push(e))
+
+       data = res.data
+    ))
+    console.log(data)
+    return data
+}
+*/
 
 export const sortProductsTable = (field: string, data: BaseElement[], sortedByField: string, sortedDirection: number) => {
     const subFieldsInvoice = ['name_of_the_invoice', 'actual_quantity', 'price_per_unit', 

@@ -5,8 +5,13 @@ import { getProfile } from "../store/actions/usersActions";
 
 
 export function Main() {
-    const isAuth = useAppSelector(state => state.auth.isAuth)
+    const isAuth = useAppSelector(state => state.auth.isAuth);
+    const dispatch = useAppDispatch();
 
+    useEffect(() => {
+        isAuth && dispatch(getProfile())
+    }, [isAuth])
+    
     if (!isAuth) {
         return <Navigate to='/login' />
     }

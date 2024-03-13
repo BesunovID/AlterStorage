@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { useAppDispatch } from "../../hooks/redux";
 import { urlList } from "../../models/models";
-import { showProductsTable } from "../../store/actions/tableActions";
+import { deleteElement, showProductsTable } from "../../store/actions/tableActions";
 
 
 export function MainMenu() {
@@ -10,6 +10,9 @@ export function MainMenu() {
     const [selectBtn, setButton] = useState(urlList.main)
 
     const handleChooseTable = (link: urlList) => {
+        if (link === 'storage_positions') {
+           // dispatch(deleteElement(8, link))
+        }
         setButton(link);
         dispatch(showProductsTable(link));
     }

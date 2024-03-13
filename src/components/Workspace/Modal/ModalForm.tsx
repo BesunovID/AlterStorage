@@ -3,13 +3,13 @@ import { Button, Form } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux"
 import { BaseElement, BaseElementFields } from "../../../models/models";
 import { createElement, updateElement } from "../../../store/actions/tableActions"
+import axios from "axios";
 
 export function ModalForm() {
     const dispatch = useAppDispatch();
 
     const element = useAppSelector(state => state.tables.element)
     const userRole = useAppSelector(state => state.users.myProfile.role)
-    console.log(userRole)
     const currentTable = useAppSelector(state => state.tables.currentUrl)
 
     const [isEdit, setIsEdit] = useState((element['id'] as BaseElementFields).value === undefined);
@@ -75,12 +75,22 @@ export function ModalForm() {
                         if (key === 'connectAssembling_Storage_Position' || key === 'positions') {
                             return(
                                 Object.entries((value as Array<Object>)[0]).map(([subKey, subValue]) => {
-                                    const nValue = subValue as BaseElementFields;    
+                                    const nValue = subValue as BaseElementFields;  
                                     if ((subKey !== 'id') && (subKey !== 'date') && (subKey !== 'storage_position'))
                                         return(
                                             <Form.Group key={subKey}>
                                                 <Form.Label>{nValue.key}</Form.Label>
-                                                <Form.Control name={subKey} value={nValue.value} type={nValue.type} onChange={handleChange} readOnly={!isEdit} maxLength={nValue.maxLength} minLength={nValue.minLength} required={nValue.required}></Form.Control>
+                                                {
+                                                    subValue.selectable ? 
+                                                    <Form.Select id={subKey}>
+                                                        {subValue.subData.map((e: any) => {
+                                                            console.log(subValue.subData);
+                                                            return <select id={e.id}>{e.item}</select>
+                                                        })}
+                                                    </Form.Select>
+                                                    : <Form.Control name={subKey} value={nValue.value} type={nValue.type} onChange={handleChange} readOnly={!isEdit} maxLength={nValue.maxLength} minLength={nValue.minLength} required={nValue.required}></Form.Control>
+                                                }
+                                    
                                             </Form.Group>
                                         )
                                 })
