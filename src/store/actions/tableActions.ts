@@ -1,6 +1,6 @@
 import axios from "axios";
 import { AppDispatch } from ".."
-import { BaseElement, BaseElementFields, defaultElementOfTable, urlList } from "../../models/models"
+import { BaseElement, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
 
 const customAxios = axios.create({
@@ -13,50 +13,29 @@ const customAxios = axios.create({
 
 export const showProductsTable = (link: urlList) => {
     const emptyElement: BaseElement = defaultElementOfTable.get(link);
-    const data: BaseElement[] = new Array;
+    const data: BaseElement[] = [];
     return async (dispatch: AppDispatch) => {
         try{
-            await customAxios.get(`/${link}/`).then((res) => {   
+            await customAxios.get(`/${link}/`).then((res) => {  
                 res.data.map((e: Object) => {
-                    const newElement: BaseElement = JSON.parse(JSON.stringify(emptyElement));
+                    const newElement = defaultElementOfTable.get(link);
                     Object.entries(e).map(([key, value]) => {
-                        if (value !== null) {
-                            if (key === 'positions' || key ==='connectAssembling_Storage_Position'){
-                                Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => {
-                                    if((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'text' 
-                                    || (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].type === 'datetime-local'){
-                                        (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = (value2 as string).toString()
-                                    } else (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].value = Number(value2 as number)
-                                    
-                                    if ((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].selectable){
-                                        getTableData((newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].subject as string)
-                                        .then((res) => {
-                                            const newSubData = new Array;
-                                            res.data.map((e: Object) => 
-                                                newSubData.push(e)
-                                            );
-                                            console.log(newSubData);
-                                            (newElement[key] as [{ [field: string]: BaseElementFields}])[0][key2].subData = [...newSubData]
-                                        }) 
-                                    }
-                                })
-                            } else {
-                                if((newElement[key] as BaseElementFields).type === 'text' 
-                                || (newElement[key] as BaseElementFields).type === 'datetime-local'){
-                                    (newElement[key] as BaseElementFields).value = (value as string).toString()
-                                }else(newElement[key] as BaseElementFields).value = Number(value as number);
-
-                                if ((newElement[key] as BaseElementFields).selectable){
-                                    getTableData((newElement[key] as BaseElementFields).subject as string)
-                                    .then((res) => {
-                                        const newSubData = new Array;
-                                        res.data.map((e: Object) =>
-                                            newSubData.push(e)
-                                        );
-                                        (newElement[key] as BaseElementFields).subData = [...newSubData]
-                                    }) 
-                                }
-                            }
+                        if (newElement[key].childrens !== undefined){
+                            Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => {
+                                if(newElement[key2].type === 'text' 
+                                || newElement[key2].type === 'datetime-local'){
+                                    newElement[key2].value = value2 as string
+                                } else {
+                                    if (key2 === 'id')
+                                        newElement['id_2'].value = Number(value2 as number);
+                                    else newElement[key2].value = Number(value2 as number);
+                                }   
+                            })
+                        } else {
+                            if(newElement[key].type === 'text' 
+                            || newElement[key].type === 'datetime-local'){
+                                newElement[key].value = value as string
+                            } else newElement[key].value = Number(value as number);
                         }
                     })
                     data.push(newElement)
@@ -68,69 +47,33 @@ export const showProductsTable = (link: urlList) => {
         }
     }
 }
-const getTableData = (link: string) => {
-    return axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
-        headers: {
-            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
-        }
-    })
-}
-/*
-const getTableData = (link: string): Array<Object> => {
-    let data: Object[] = []
-    const res = async () => await axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
-        headers: {
-            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
-        }
-    }).then(res => (
-       // res.data.map((e: Object) => data.push(e))
-
-       data = res.data
-    ))
-    console.log(data)
-    return data
-}
-*/
 
 export const sortProductsTable = (field: string, data: BaseElement[], sortedByField: string, sortedDirection: number) => {
-    const subFieldsInvoice = ['name_of_the_invoice', 'actual_quantity', 'price_per_unit', 
-        'manufacturer', 'quantity_invoice', 'summa', 'number_invoice', 'provider']
-    const subFieldsStorage = ['assembling', 'quantity']
-    const arrayOfSort = [...data] as BaseElement[];
+    const arrayOfSort = [...data];
     const revers: boolean = (field === sortedByField);
 
     if (!revers) sortedDirection = 1;
 
     arrayOfSort.sort((a, b) => {
-        let newA;
-        let newB;
-        if(subFieldsInvoice.includes(field)){
-            newA = (a['positions'] as [{[field:string]: any}])[0][field];
-            newB = (b['positions'] as [{[field:string]: any}])[0][field];
-        } else if (subFieldsStorage.includes(field)) {
-            newA = (a['connectAssembling_Storage_Position'] as [{[field:string]: any}])[0][field];
-            newB = (b['connectAssembling_Storage_Position']  as [{[field:string]: any}])[0][field];
-        } else {
-            newA = (a[field] as BaseElementFields);
-            newB = (b[field] as BaseElementFields);
-        }
+        let newA = a[field];
+        let newB = b[field];
         
         if (newA.type === 'number' && newB.type === 'number') {
-            if (newA.value == undefined && newB.value == undefined){
-                const aID = (a['id'] as BaseElementFields).value as number
-                const bID = (b['id'] as BaseElementFields).value as number
+            if (newA.value === undefined && newB.value === undefined){
+                const aID = a['id'].value as number
+                const bID = b['id'].value as number
                 return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
-            else if (newA == undefined)
+            else if (newA === undefined)
                 return (-1 * sortedDirection)
-            else if (newB == undefined)
+            else if (newB === undefined)
                 return (1 * sortedDirection)
-            else{
+            else {
                 if (newA.value > newB.value) return (1 * sortedDirection)
                 else if (newA.value < newB.value) return (-1 * sortedDirection)
                 else{
-                    const aID = (a['id'] as BaseElementFields).value as number
-                    const bID = (b['id'] as BaseElementFields).value as number
+                    const aID = a['id'].value as number
+                    const bID = b['id'].value as number
                     return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
                 }
             }
@@ -142,8 +85,8 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
                 (newB.value as string).toLowerCase()) 
                 return (-1 * sortedDirection)
             else{
-                const aID = (a['id'] as BaseElementFields).value as number
-                const bID = (b['id'] as BaseElementFields).value as number
+                const aID = a['id'].value as number
+                const bID = b['id'].value as number
                 return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
         }
@@ -163,12 +106,12 @@ export const showModalElement = (isOpen: boolean, element?: BaseElement) => {
 }
 
 export const createElement = (element: BaseElement, link: urlList) => {
-    const returnedData = restructData(element)
+    const returnedData = restructData(element);
+    console.log(returnedData);
     return async(dispatch: AppDispatch) => {
         await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
             alert('Элемент успешно создан!');
-            dispatch(showProductsTable(link));
         })
         .catch((e) => {
             alert('Ошибка создания!' + e.message);
@@ -179,10 +122,11 @@ export const createElement = (element: BaseElement, link: urlList) => {
 }
 
 export const updateElement = (element: BaseElement, link: urlList) => {
-    const id = (element['id'] as BaseElementFields).value as number
-    const returnedData = restructData(element)
+    const id = element['id'].value as number;
+    const returnedData = restructData(element);
+    console.log(returnedData);
     return async(dispatch: AppDispatch) => {
-        await customAxios.put(`/${link}/${id}/`, returnedData)
+        await customAxios.patch(`/${link}/${id}/`, returnedData)
         .then(() => {
             alert('Элемент успешно обновлен!');
             dispatch(showProductsTable(link));
@@ -213,26 +157,40 @@ export const deleteElement = (elementID: number, link: urlList) => {
 
 const restructData = (data: BaseElement): {} => {
     const newData: {[k: string]: any} = {};
+    const childrens: Array<string> = [];
+    Object.keys(data).map(key => 
+        data[key].childrens !== undefined && (data[key].childrens?.map(ch => 
+        childrens.push(ch))));
     Object.entries(data).map(([key, value]) => {
-        if (key !== 'id' && key !== 'date'){
-            if (key === 'connectAssembling_Storage_Position' || key === 'positions') {
-                const subObj: [{[k: string]: any}] = [{}];
-                Object.entries((value as [{ [field: string]: BaseElementFields}])[0]).map(([key2, value2]) => {
-                    if (key2 !== 'id' && key2 !== 'date') {
-                        if (((value2 as BaseElementFields).type === 'number') && ((value2 as BaseElementFields).value == 0))
-                            subObj[0][key2] = null
-                        else 
-                            subObj[0][key2] = value2.value
+        if (key !== 'id' && key !== 'date' && !(contains(childrens, key))){
+            if (data[key].childrens !== undefined) {
+                newData[key] = [{}];
+                data[key].childrens?.map(field => {
+                    if (field !== 'id_2' && field !== 'date') {
+                        if (data[field].type === 'number'){
+                            if (data[field].value as number > 0)
+                                newData[key][0][field] = Number(data[field].value);
+                        }else{
+                            newData[key][0][field] = data[field].value;
+                        }  
                     }
-                });
-                newData[key] = subObj
+                })
             } else {
-                if (((value as BaseElementFields).type === 'number') && ((value as BaseElementFields).value == 0)) {
-                    newData[key] = null
+                if (value.type === 'number') {
+                    if (value.value as number > 0)
+                        newData[key] = value.value;
                 } else
-                    newData[key] = (value as BaseElementFields).value
+                    newData[key] = value.value;
             }
         }
     })
     return newData
+}
+
+const contains = (arr: Array<string>, elem: string) => {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === elem)
+            return true;
+    }
+    return false;
 }

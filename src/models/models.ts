@@ -7,38 +7,35 @@ export interface IUser {
     password: string
 }
 
-export type BaseElementFields = {
+export type BaseField = {
     key: string
-    value: string | number | undefined
+    value: string | number
     type: string
     required: boolean
-    readonly?: boolean
+    childrens?: Array<string>
     maxLength?: number
     minLength?: number
-    selectable?: boolean
     subject?: string
-    subData?: any
+    subData?: Array<Object>
 }
 
 export type BaseElement = {
-    [field: string]: BaseElementFields | [{
-        [field: string]: BaseElementFields
-    }]
+    [field: string]: BaseField
 }
 
-type TableOfBaseElement = {
+type ListOfTables = {
     tables: {
         [table: string]: BaseElement
     }
     get: Function
 }
 
-export const defaultElementOfTable: TableOfBaseElement = {
+export const defaultElementOfTable: ListOfTables = {
     tables: {
         'FIO_emploeey': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 required: false,
                 type: 'number',
             },
@@ -94,15 +91,17 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'assemblings': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
             'item': {
                 key: 'Готовый продукт',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: true,
+                subject: 'finished_product',
+                subData: [],
             },
             'description': {
                 key: 'Описание сборки',
@@ -116,7 +115,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'finished_product': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -140,7 +139,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'invoice_number': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -157,82 +156,85 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: '',
                 type: 'datetime-local',
                 required: false,
-                
             },
-            'positions': [
-                {
-                    'id': {
-                        key: 'ID',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                        
-                    },
-                    'name_of_the_invoice': {
-                        key: 'Наименование по накладной',
-                        value: '',
-                        type: 'text',
-                        required: true,
-                        minLength: 1,
-                        maxLength: 255,
-                    },
-                    'actual_quantity': {
-                        key: 'Фактическое число',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                    },
-                    'price_per_unit': {
-                        key: 'Цена за единицу',
-                        value: undefined,
-                        type: 'number',
-                        required: true,
-                    },
-                    'manufacturer': {
-                        key: 'Производитель',
-                        value: '',
-                        type: 'text',
-                        required: true,
-                        minLength: 1,
-                        maxLength: 255,
-                    },
-                    'quantity_invoice': {
-                        key: 'Количество по накладной',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                    },
-                    'summa': {
-                        key: 'Сумма',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                    },
-                    'number_invoice': {
-                        key: 'Номер накладной',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                    },
-                    'storage_position': {
-                        key: 'Складская позиция',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                    },
-                    'provider': {
-                        key: 'Поставщик',
-                        value: undefined,
-                        type: 'number',
-                        required: false,
-                    },
-                },
-            ],
+            'positions': {
+                key: 'positions',
+                value: -1,
+                type: 'number',
+                required: false,
+                childrens: ['id_2', 'name_of_the_invoice', 'actual_quantity', 'price_per_unit',
+                    'manufacturer', 'quantity_invoice', 'summa', 'number_invoice', 
+                    'storage_position', 'provider'],
+            },
+            'id_2': {
+                key: 'ID',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'name_of_the_invoice': {
+                key: 'Наименование по накладной',
+                value: '',
+                type: 'text',
+                required: true,
+                minLength: 1,
+                maxLength: 255,
+            },
+            'actual_quantity': {
+                key: 'Фактическое число',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'price_per_unit': {
+                key: 'Цена за единицу',
+                value: -1,
+                type: 'number',
+                required: true,
+            },
+            'manufacturer': {
+                key: 'Производитель',
+                value: '',
+                type: 'text',
+                required: true,
+                minLength: 1,
+                maxLength: 255,
+            },
+            'quantity_invoice': {
+                key: 'Количество по накладной',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'summa': {
+                key: 'Сумма',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'number_invoice_2': {
+                key: 'Номер накладной',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'storage_position': {
+                key: 'Складская позиция',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'provider': {
+                key: 'Поставщик',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
         },
         'provider': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
                 
@@ -281,7 +283,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'rack': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
                 
@@ -298,7 +300,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'shelf': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
                 
@@ -315,7 +317,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'storage_positions': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -344,25 +346,25 @@ export const defaultElementOfTable: TableOfBaseElement = {
             },
             'count': {
                 key: 'Общее количество',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
             'units': {
                 key: 'Единицы измерения',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
             'rack': {
                 key: 'Стеллаж',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
             'shelf': {
                 key: 'Полка',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -376,7 +378,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
             },
             'price': {
                 key: 'Цена за единицу',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -388,40 +390,44 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 minLength: 0,
                 maxLength: 200,
             },
-            'connectAssembling_Storage_Position': [{
-                'id': {
-                    key: 'ID',
-                    value: undefined,
-                    type: 'number',
-                    required: false,
-                },
-                'quantity': {
-                    key: 'Количество в сборке',
-                    value: undefined,
-                    type: 'number',
-                    required: true,
-                },
-                'storage_position': {
-                    key: 'Номер складской позиции',
-                    value: undefined,
-                    type: 'number',
-                    required: false,
-                },
-                'assembling': {
-                    key: 'Номер сборки',
-                    value: undefined,
-                    type: 'number',
-                    required: true,
-                    selectable: true,
-                    subject: 'assemblings',
-                    subData: '',
-                },
-            }]
+            'connectAssembling_Storage_Position': {
+                key: 'connectAssembling_Storage_Position',
+                value: -1,
+                type: 'number',
+                required: false,
+                childrens: ['id_2', 'quantity', 'storage_position', 'assembling'],
+            },
+            'id_2': {
+                key: 'ID',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'quantity': {
+                key: 'Количество в сборке',
+                value: -1,
+                type: 'number',
+                required: true,
+            },
+            'storage_position': {
+                key: 'Номер складской позиции',
+                value: -1,
+                type: 'number',
+                required: false,
+            },
+            'assembling': {
+                key: 'Номер сборки',
+                value: -1,
+                type: 'number',
+                required: true,
+                subject: 'assemblings',
+                subData: [],
+            },
         },
         'unit_of_measure': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -445,7 +451,7 @@ export const defaultElementOfTable: TableOfBaseElement = {
         'write_down': {
             'id': {
                 key: 'ID',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
                 
@@ -455,23 +461,22 @@ export const defaultElementOfTable: TableOfBaseElement = {
                 value: '',
                 type: 'datetime-local',
                 required: false,
-                readonly: true
             },
             'count': {
                 key: 'Количество',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
             'storage_pos': {
                 key: 'Позиция на складе',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
             'fio_employee': {
                 key: 'Сотрудник',
-                value: undefined,
+                value: -1,
                 type: 'number',
                 required: false,
             },
@@ -485,8 +490,12 @@ export const defaultElementOfTable: TableOfBaseElement = {
             },
         },
     },
-    get: function(url: string): BaseElement {
-        return defaultElementOfTable.tables[url] as BaseElement
+    get: function(url: string) {
+        const newObj: BaseElement = {};
+        for(let field in defaultElementOfTable.tables[url]) {
+            newObj[field] = {...defaultElementOfTable.tables[url][field]}
+        }
+        return newObj
     }
 }
 
