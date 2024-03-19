@@ -22,8 +22,8 @@ export function Particles() {
 
     return(
         <div className={style.particles}>
-            {(particles.length > 1) && particles.map(e => (
-                <div className={style.particle} style={
+            {(particles.length > 1) && particles.map((e, index) => (
+                <div key={index} className={style.particle} style={
                     {
                     top: 0,
                     left: 0,

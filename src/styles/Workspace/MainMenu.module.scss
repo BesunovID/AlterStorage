@@ -1,0 +1,9 @@
+
+.button{
+    border: none;
+    min-height: 50px;
+    vertical-align: middle;
+    &:hover{
+        background-color: rgb(124, 203, 255);
+    }
+}

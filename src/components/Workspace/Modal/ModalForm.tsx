@@ -179,7 +179,7 @@ const CustomMenu = React.forwardRef(
           <input
             autoFocus
             className="mx-3 my-2"
-            style={{width: '92%'}}
+            style={{width: 'calc(100% - 2rem)'}}
             placeholder="Поиск..."
             onChange={(e) => setValue(e.target.value)}
             value={value}

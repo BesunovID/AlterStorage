@@ -19,11 +19,11 @@ export function TableData() {
                 Добавить элемент
             </Button>
             {data.length > 0 ?
-            <div className='w-100 overflow-auto'>
-            <Table striped bordered hover className='w-100 overflow-hidden'>
+            <div className='overflow-auto' style={{width: 'calc(100% - 1rem)', marginLeft: '0.5rem'}}>
+            <Table bordered hover className='w-100 overflow-hidden '>
                 <thead>
                     <tr>
-                        <th></th>
+                        <th style={{width: '60px'}}></th>
                         {Object.entries(baseElement).map(([key, value]) => (
                             (baseElement[key].childrens === undefined) && (key !== 'id_2') &&
                             <th 
@@ -43,12 +43,12 @@ export function TableData() {
                 <tbody>
                     {data.map((e: BaseElement) => (
                         <tr key={`${e['id'].value} + ${tableSelector.currentUrl}`}>
-                            <td>   
-                                <Button onClick={() => dispatch(deleteElement(e['id'].value as number, currentTable))}>X</Button>
+                            <td style={{maxWidth: '40px'}}>   
+                                <Button onClick={() => dispatch(deleteElement(e['id'].value as number, currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                             </td>
                             {Object.entries(e).map(([keys, val]) => (
                                 (e[keys].childrens === undefined) && (keys !== 'id_2') &&
-                                <td key={keys} onClick={() => dispatch(showModalElement(true, e))}>
+                                <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
                                     {(val.type === 'number' && val.value as number <= 0) ? '' : val.value}
                                 </td>  
                             ))}
@@ -57,7 +57,7 @@ export function TableData() {
                 </tbody> 
             </Table>
            </div> 
-           : <div className="1"></div>
+           : <div className="m-auto">Данные отсутствуют</div>
         }
         </>
     )
