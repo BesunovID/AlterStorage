@@ -43,7 +43,6 @@ export function ModalForm(props: any) {
     }, [isOpenNewModal, setNewElement])
 
     const handleChange = (event: any) => {
-        console.log(event);
 
         setNewElement(prevState => ({
             ...prevState,
@@ -94,7 +93,7 @@ export function ModalForm(props: any) {
                                     <Dropdown.Menu as={CustomMenu}>
                                         {value.subData?.map((el: Object) => {              
                                             return (
-                                                <Dropdown.Item eventKey={(el as any).id}>
+                                                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id}>
                                                     {Object.entries(el).map(([key2, value2]) => {
                                                     if (key2 !== 'id') return `${value2} `
                                                     })}
@@ -160,6 +159,7 @@ const CustomToggle = React.forwardRef(({ children, onClick, isEdit }: any, ref) 
         isEdit && onClick(e);
       }}
       className="d-block w-100"
+      onChange={() => (null)}
     >
 
     </Form.Control>
