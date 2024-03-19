@@ -361,12 +361,16 @@ export const defaultElementOfTable: ListOfTables = {
                 value: -1,
                 type: 'number',
                 required: false,
+                subject: 'rack',
+                subData: [],
             },
             'shelf': {
                 key: 'Полка',
                 value: -1,
                 type: 'number',
                 required: false,
+                subject: 'shelf',
+                subData: [],
             },
             'box': {
                 key: 'Коробка',

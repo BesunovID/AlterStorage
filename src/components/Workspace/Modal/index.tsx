@@ -24,8 +24,6 @@ export function ModalWindow() {
                 <Modal.Body>
                     <ModalForm element={element} table={currentUrl}/>
                 </Modal.Body>
-                <Modal.Footer>
-                </Modal.Footer>
             </Modal>
         </>
     )
