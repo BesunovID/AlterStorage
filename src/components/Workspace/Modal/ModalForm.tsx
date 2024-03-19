@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, ButtonGroup, Dropdown, DropdownButton, DropdownToggle, Form, Modal } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux"
 import { BaseElement, defaultElementOfTable, urlList } from "../../../models/models";
-import { createElement, updateElement } from "../../../store/actions/tableActions"
+import { createElement, showModalElement, updateElement } from "../../../store/actions/tableActions"
 import axios from "axios";
 import React from "react";
 
@@ -43,7 +43,6 @@ export function ModalForm(props: any) {
     }, [isOpenNewModal, setNewElement])
 
     const handleChange = (event: any) => {
-
         setNewElement(prevState => ({
             ...prevState,
             [event.target.name]: {
@@ -64,7 +63,8 @@ export function ModalForm(props: any) {
             if (newElement['id'].value === -1 ) {
                 dispatch(createElement(newElement, table));
                 if (props.setIsOpenNewModal)
-                    props.setIsOpenNewModal(false)
+                    props.setIsOpenNewModal(false);
+                else(dispatch(showModalElement(false, defaultElementOfTable.get(table), table)))
             }else
                 dispatch(updateElement(newElement, table))
         }
@@ -90,10 +90,10 @@ export function ModalForm(props: any) {
                                     <DropdownToggle as={CustomToggle} isEdit={isEdit}>
                                         {(value.type === 'number' && (value.value as number <= 0)) ? '' : value.value}
                                     </DropdownToggle>
-                                    <Dropdown.Menu as={CustomMenu}>
+                                    <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
                                         {value.subData?.map((el: Object) => {              
                                             return (
-                                                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id}>
+                                                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
                                                     {Object.entries(el).map(([key2, value2]) => {
                                                     if (key2 !== 'id') return `${value2} `
                                                     })}
@@ -103,7 +103,7 @@ export function ModalForm(props: any) {
                                     </Dropdown.Menu>
                                 </Dropdown>
                                 {isEdit && <>
-                                <Button onClick={() => setIsOpenNewModal(value.subject as string)}>+</Button>
+                                <Button className="ms-2" onClick={() => setIsOpenNewModal(value.subject as string)}>+</Button>
                                 <Modal show={isOpenNewModal === value.subject} onHide={() => setIsOpenNewModal('')}>
                                     <Modal.Body>
                                         <ModalForm isCreate={true} table={value.subject} setIsOpenNewModal={setIsOpenNewModal} element={defaultElementOfTable.get(value.subject)}/>
@@ -168,7 +168,7 @@ const CustomToggle = React.forwardRef(({ children, onClick, isEdit }: any, ref) 
 const CustomMenu = React.forwardRef(
     ({ children, style, className, 'aria-labelledby': labeledBy }:any, ref) => {
         const [value, setValue] = useState('');
-    
+
       return (
         <div
           ref={ref as any}
@@ -176,14 +176,15 @@ const CustomMenu = React.forwardRef(
           className={className}
           aria-labelledby={labeledBy}
         >
-          <Form.Control
+          <input
             autoFocus
-            className="mx-3 my-2 w-auto"
+            className="mx-3 my-2"
+            style={{width: '92%'}}
             placeholder="Поиск..."
             onChange={(e) => setValue(e.target.value)}
             value={value}
           />
-          <ul className="list-unstyled">
+          <ul className="list-unstyled w-100">
             {React.Children.toArray(children).filter(
               (child) =>
                 !value || (child as any).props.children.toString().toLowerCase().indexOf(value.toLowerCase()) != -1

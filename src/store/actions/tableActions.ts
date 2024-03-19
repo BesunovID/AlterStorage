@@ -99,9 +99,10 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
     }
 }
 
-export const showModalElement = (isOpen: boolean, element?: BaseElement) => {
+export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: urlList) => {
     return(dispatch: AppDispatch) => {
         dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}))
+        if (table && !isOpen) dispatch(showProductsTable(table));;
     }
 }
 
