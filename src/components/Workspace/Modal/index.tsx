@@ -1,4 +1,4 @@
-import { Button, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { defaultElementOfTable } from "../../../models/models";
 import { showModalElement, showProductsTable } from "../../../store/actions/tableActions";
@@ -13,7 +13,6 @@ export function ModalWindow() {
 
     const handleClose = () => {
         dispatch(showModalElement(false, defaultElementOfTable.get(currentUrl)));
-        dispatch(showProductsTable(currentUrl));
     }
 
     return(

@@ -102,14 +102,13 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
 export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: urlList) => {
     return(dispatch: AppDispatch) => {
         dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}))
-        if (table && !isOpen) dispatch(showProductsTable(table));;
+        if (table && !isOpen) dispatch(showProductsTable(table));
     }
 }
 
 export const createElement = (element: BaseElement, link: urlList) => {
     const returnedData = restructData(element);
-    console.log(returnedData);
-    return async(dispatch: AppDispatch) => {
+    return async() => {
         await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
             alert('Элемент успешно создан!');
@@ -125,7 +124,6 @@ export const createElement = (element: BaseElement, link: urlList) => {
 export const updateElement = (element: BaseElement, link: urlList) => {
     const id = element['id'].value as number;
     const returnedData = restructData(element);
-    console.log(returnedData);
     return async(dispatch: AppDispatch) => {
         await customAxios.patch(`/${link}/${id}/`, returnedData)
         .then(() => {
