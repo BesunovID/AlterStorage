@@ -9,14 +9,17 @@ export interface IUser {
 
 export type BaseField = {
     key: string
-    value: string | number
+    value: Array<string> | Array<number>
     type: string
     required: boolean
     childrens?: Array<string>
+    count?: number
     maxLength?: number
     minLength?: number
+    selectable?: string
+    selectData?: Array<Object>
+    visable?: boolean
     subject?: string
-    subData?: Array<Object>
 }
 
 export type BaseElement = {
@@ -35,13 +38,13 @@ export const defaultElementOfTable: ListOfTables = {
         'FIO_emploeey': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 required: false,
                 type: 'number',
             },
             'surname': {
                 key: 'Фамилия',
-                value: '',
+                value: [''],
                 required: true,
                 type: 'text',
                 minLength: 1,
@@ -49,7 +52,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'name': {
                 key: 'Имя',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
                 minLength: 1,
@@ -57,7 +60,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'patronymic': {
                 key: 'Отчество',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
                 minLength: 0,
@@ -65,7 +68,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'post': {
                 key: 'Должность',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
                 minLength: 0,
@@ -73,7 +76,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'telephone': {
                 key: 'Телефон',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
                 minLength: 0,
@@ -81,7 +84,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'email': {
                 key: 'Email',
-                value: '',
+                value: [''],
                 type: 'email',
                 required: false,
                 minLength: 0,
@@ -91,23 +94,26 @@ export const defaultElementOfTable: ListOfTables = {
         'assemblings': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
             },
             'item': {
                 key: 'Готовый продукт',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: true,
-                subject: 'finished_product',
-                subData: [],
+                visable: true,
+                selectable: 'finished_product',
+                selectData: [],
             },
             'description': {
                 key: 'Описание сборки',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 1000,
             },
@@ -115,23 +121,26 @@ export const defaultElementOfTable: ListOfTables = {
         'finished_product': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
             },
             'name': {
                 key: 'Наименование',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 100,
             },
             'description': {
                 key: 'Описание',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 1000,
             },
@@ -139,143 +148,177 @@ export const defaultElementOfTable: ListOfTables = {
         'invoice_number': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false
             },
             'number_invoice': {
                 key: 'Номер накладной',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 255,
             },
             'date': {
                 key: 'Дата',
-                value: '',
+                value: [''],
                 type: 'datetime-local',
                 required: false,
+                visable: false
             },
             'positions': {
-                key: 'positions',
-                value: -1,
+                key: 'Позиция',
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
+                count: 0,
                 childrens: ['id_2', 'name_of_the_invoice', 'actual_quantity', 'price_per_unit',
                     'manufacturer', 'quantity_invoice', 'summa', 'number_invoice', 
                     'storage_position', 'provider'],
             },
             'id_2': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
+                subject: 'positions',
             },
             'name_of_the_invoice': {
                 key: 'Наименование по накладной',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
+                subject: 'positions',
                 minLength: 1,
                 maxLength: 255,
             },
             'actual_quantity': {
                 key: 'Фактическое число',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
+                subject: 'positions',
             },
             'price_per_unit': {
                 key: 'Цена за единицу',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: true,
+                visable: true,
+                subject: 'positions',
             },
             'manufacturer': {
                 key: 'Производитель',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
+                subject: 'positions',
                 minLength: 1,
                 maxLength: 255,
             },
             'quantity_invoice': {
                 key: 'Количество по накладной',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
+                subject: 'positions',
             },
             'summa': {
                 key: 'Сумма',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
+                subject: 'positions',
             },
             'number_invoice_2': {
                 key: 'Номер накладной',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
+                subject: 'positions',
             },
             'storage_position': {
                 key: 'Складская позиция',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
+                subject: 'positions',
+                selectable: 'storage_positions',
+                selectData: [],
             },
             'provider': {
                 key: 'Поставщик',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
+                subject: 'positions',
+                selectable: 'provider',
+                selectData: [],
             },
         },
         'provider': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-                
+                visable: false,
             },
             'name': {
                 key: 'Наименование',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 255,
             },
             'refer_to': {
                 key: 'Обращаться к ...',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 255,
             },
             'address': {
                 key: 'Адрес',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 255,
             },
             'telephon': {
                 key: 'Телефон',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 255,
             },
             'email': {
                 key: 'Email',
-                value: '',
+                value: [''],
                 type: 'email',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 255,
             },
@@ -283,16 +326,17 @@ export const defaultElementOfTable: ListOfTables = {
         'rack': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-                
+                visable: false,
             },
             'rack': {
                 key: 'Номер',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 50,
             },
@@ -300,16 +344,17 @@ export const defaultElementOfTable: ListOfTables = {
         'shelf': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-                
+                visable: false,
             },
             'shell': {
                 key: 'Номер',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 50,
             },
@@ -317,127 +362,141 @@ export const defaultElementOfTable: ListOfTables = {
         'storage_positions': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
             },
             'marking': {
                 key: 'Обозначение',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
                 minLength: 1,
                 maxLength: 100,
+                visable: true,
             },
             'name': {
                 key: 'Наименование',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
                 minLength: 1,
                 maxLength: 200,
+                visable: true,
             },
             'date': {
                 key: 'Дата',
-                value: '',
+                value: [''],
                 type: 'datetime-local',
                 required: false,
-                
+                visable: false,
             },
             'count': {
                 key: 'Общее количество',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
             },
             'units': {
                 key: 'Единицы измерения',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
             },
             'rack': {
                 key: 'Стеллаж',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-                subject: 'rack',
-                subData: [],
+                visable: true,
+                selectable: 'rack',
+                selectData: [],
             },
             'shelf': {
                 key: 'Полка',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-                subject: 'shelf',
-                subData: [],
+                visable: true,
+                selectable: 'shelf',
+                selectData: [],
             },
             'box': {
                 key: 'Коробка',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 100,
             },
             'price': {
                 key: 'Цена за единицу',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
             },
             'comment': {
                 key: 'Комментарий',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 200,
             },
             'connectAssembling_Storage_Position': {
                 key: 'connectAssembling_Storage_Position',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
                 childrens: ['id_2', 'quantity', 'storage_position', 'assembling'],
             },
             'id_2': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-            },
-            'quantity': {
-                key: 'Количество в сборке',
-                value: -1,
-                type: 'number',
-                required: true,
-            },
-            'storage_position': {
-                key: 'Номер складской позиции',
-                value: -1,
-                type: 'number',
-                required: false,
+                visable: false,
             },
             'assembling': {
                 key: 'Номер сборки',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: true,
-                subject: 'assemblings',
-                subData: [],
+                visable: true,
+                selectable: 'assemblings',
+                selectData: [],
+            },
+            'quantity': {
+                key: 'Количество в сборке',
+                value: [-1],
+                type: 'number',
+                required: true,
+                visable: true,
+            },
+            'storage_position': {
+                key: 'Номер складской позиции',
+                value: [-1],
+                type: 'number',
+                required: false,
             },
         },
         'unit_of_measure': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
             },
             'name': {
                 key: 'Наименование',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: true,
                 minLength: 1,
@@ -445,7 +504,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'full_name': {
                 key: 'Полное наименование',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
                 minLength: 0,
@@ -455,38 +514,40 @@ export const defaultElementOfTable: ListOfTables = {
         'write_down': {
             'id': {
                 key: 'ID',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
-                
+                visable: false,
             },
             'date': {
                 key: 'Дата списания',
-                value: '',
+                value: [''],
                 type: 'datetime-local',
                 required: false,
+                visable: true,
             },
             'count': {
                 key: 'Количество',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
+                visable: true,
             },
             'storage_pos': {
                 key: 'Позиция на складе',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
             },
             'fio_employee': {
                 key: 'Сотрудник',
-                value: -1,
+                value: [-1],
                 type: 'number',
                 required: false,
             },
             'purpose': {
                 key: 'Цель списания',
-                value: '',
+                value: [''],
                 type: 'text',
                 required: false,
                 minLength: 0,
@@ -497,7 +558,11 @@ export const defaultElementOfTable: ListOfTables = {
     get: function(url: string) {
         const newObj: BaseElement = {};
         for(let field in defaultElementOfTable.tables[url]) {
-            newObj[field] = {...defaultElementOfTable.tables[url][field]}
+           // newObj[field] = {...defaultElementOfTable.tables[url][field]};
+            newObj[field] = {
+                ...defaultElementOfTable.tables[url][field],
+                value: [...defaultElementOfTable.tables[url][field].value as any]
+            }
         }
         return newObj
     }

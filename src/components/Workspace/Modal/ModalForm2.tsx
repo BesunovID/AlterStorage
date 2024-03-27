@@ -6,8 +6,8 @@ import { createElement, showModalElement, updateElement } from "../../../store/a
 import axios from "axios";
 import React from "react";
 import { createPortal } from "react-dom";
-
-export function ModalForm(props: any) {
+/*
+export function ModalForm2(props: any) {
     const dispatch = useAppDispatch();
 
     const element: BaseElement = props.element;
@@ -79,7 +79,6 @@ export function ModalForm(props: any) {
                 //dispatch(updateElement(newElement, table));
             dispatch(showModalElement(false, defaultElementOfTable.get(table), table));
         }
-        
     }
 
     const handleCreateSubData = (event: any) => {
@@ -103,7 +102,7 @@ export function ModalForm(props: any) {
                 props.accordionRef.current.click();
             }
         }); */
-    }
+ /*   }
 
     const handleAddField = () => {
 
@@ -113,11 +112,103 @@ export function ModalForm(props: any) {
         <>
         <Form noValidate validated={validated} onSubmit={handleSubmit} className={props.isCreate ? 'rounded p-2 my-2' : ''} style={props.isCreate ? {backgroundColor: '#458b7460'} : undefined}>
         <Accordion>
-            {Object.entries(newElement).map(([key, value], index) => (
-                (key !== 'id') && (key !== 'date') && (key !== 'id_2') 
-                && (key !== 'number_invoice_2')  && !(value.childrens) 
-            //  && (currentTable === 'storage_positions' && key !== 'storage_position')
-                && (value.subject ?  
+            {Object.entries(newElement).map(([key, value], index) => {
+                if (value.visable) {
+                    return(
+                    <Form.Group key={index}>
+                        <Form.Label>{value.key}</Form.Label>
+                        {(value.selectable) && 
+                        <>
+                            <div className="d-flex">
+                                <Dropdown
+                                className="w-100 d-flex"
+                                onSelect={(value) => 
+                                    handleChange({target:{name: key, value: value}})
+                                }>
+                                    <DropdownToggle as={CustomToggle} isEdit={isEdit}>
+                                        {(value.type === 'number' && (value.value as number <= 0)) ? '' : value.value}
+                                    </DropdownToggle>
+                                    <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
+                                        {value.selectData?.map((el: Object) => {              
+                                            return (
+                                                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
+                                                    {Object.entries(el).map(([key2, value2]) => {
+                                                    if (key2 !== 'id') return `${value2} `
+                                                    })}
+                                                </Dropdown.Item>)
+                                            }
+                                        )}
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                                {isEdit &&
+                                <CustomAccordionBut 
+                                    eventKey={value.selectable} 
+                                    onClick={() => setIsOpenNewModal(isOpenNewModal === value.selectable ? '' : value.selectable as string)}
+                                    ref={ref => accordionRef.current[index] = ref as HTMLDivElement}
+                                >
+                                    {isOpenNewModal === value.selectable ? `-` : '+'}
+                                </CustomAccordionBut>}
+                            </div>
+                            <Accordion.Collapse eventKey={value.selectable}>
+                                <div className="1" ref={(ref: any) => portalRef.current[index] = ref}>{
+                                (portalRef.current[index] !== undefined && portalRef.current[index] !== null 
+                                && accordionRef.current[index] !== undefined && accordionRef.current[index] !== null) 
+                                ? createPortal2(portalRef.current[index], accordionRef.current[index], value.selectable, setIsOpenNewModal) 
+                                : <div className="1"></div>
+                                }</div>
+                            </Accordion.Collapse>
+                        </>}
+                        {value.count value.childrens?.map(child => {
+                            return(
+                                <Form.Group key={index}>
+                                    <Form.Label>{value.key}</Form.Label>
+                                    {(value.selectable) && 
+                                    <>
+                                        <div className="d-flex">
+                                            <Dropdown
+                                            className="w-100 d-flex"
+                                            onSelect={(value) => 
+                                                handleChange({target:{name: key, value: value}})
+                                            }>
+                                                <DropdownToggle as={CustomToggle} isEdit={isEdit}>
+                                                    {(value.type === 'number' && (value.value as number <= 0)) ? '' : value.value}
+                                                </DropdownToggle>
+                                                <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
+                                                    {value.selectData?.map((el: Object) => {              
+                                                        return (
+                                                            <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
+                                                                {Object.entries(el).map(([key2, value2]) => {
+                                                                if (key2 !== 'id') return `${value2} `
+                                                                })}
+                                                            </Dropdown.Item>)
+                                                        }
+                                                    )}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                            {isEdit &&
+                                            <CustomAccordionBut 
+                                                eventKey={value.selectable} 
+                                                onClick={() => setIsOpenNewModal(isOpenNewModal === value.selectable ? '' : value.selectable as string)}
+                                                ref={ref => accordionRef.current[index] = ref as HTMLDivElement}
+                                            >
+                                                {isOpenNewModal === value.selectable ? `-` : '+'}
+                                            </CustomAccordionBut>}
+                                        </div>
+                                        <Accordion.Collapse eventKey={value.selectable}>
+                                            <div className="1" ref={(ref: any) => portalRef.current[index] = ref}>{
+                                            (portalRef.current[index] !== undefined && portalRef.current[index] !== null 
+                                            && accordionRef.current[index] !== undefined && accordionRef.current[index] !== null) 
+                                            ? createPortal2(portalRef.current[index], accordionRef.current[index], value.selectable, setIsOpenNewModal) 
+                                            : <div className="1"></div>
+                                            }</div>
+                                        </Accordion.Collapse>
+                                    </>}
+                                </Form.Group>
+                            )
+                        })}
+                    </Form.Group>
+                    )
+                } 
                     <Form.Group key={key}>
                         <Form.Label>{value.key}</Form.Label>
                         <div className="d-flex">
@@ -130,7 +221,7 @@ export function ModalForm(props: any) {
                                     {(value.type === 'number' && (value.value as number <= 0)) ? '' : value.value}
                                 </DropdownToggle>
                                 <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
-                                    {value.subData?.map((el: Object) => {              
+                                    {value.selectData?.map((el: Object) => {              
                                         return (
                                             <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
                                                 {Object.entries(el).map(([key2, value2]) => {
@@ -159,7 +250,7 @@ export function ModalForm(props: any) {
                             }</div>
                         </Accordion.Collapse>
                     </Form.Group>    
-                    :
+                    else
                     <Form.Group key={key}>
                         <Form.Label>{value.key}</Form.Label>
                         <Form.Control 
@@ -174,14 +265,14 @@ export function ModalForm(props: any) {
                         
                         </Form.Control>
                     </Form.Group>
-                )
-            ))}
+                }
+            )}
             {!isEdit && <Button disabled={userRole === 'user'} className="d-block mt-3 mx-auto" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
             {isEdit && table === 'invoice_number' && <Button className='d-block mt-3 mx-auto' onClick={handleAddField}>Добавить позицию (+)</Button>}
-            {isEdit && !props.isCreate && <Button className="d-block mt-3 mx-auto" /* onClick={handleSave} */ type="submit" name='base'>Сохранить</Button>}
-            {isEdit && props.isCreate && <Button className='d-block mt-3 mx-auto' /*onClick={handleCreateSubData} */ type="submit" name='sub' ref={submitRef as any}>Создать</Button>}
+            {isEdit && !props.isCreate && <Button className="d-block mt-3 mx-auto" /* onClick={handleSave} */// type="submit" name='base'>Сохранить</Button>}
+ /*           {isEdit && props.isCreate && <Button className='d-block mt-3 mx-auto' /*onClick={handleCreateSubData} */// type="submit" name='sub' ref={submitRef as any}>Создать</Button>}
             
-            </Accordion>
+/*            </Accordion>
         </Form>
         </>
     )

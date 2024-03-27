@@ -12,7 +12,7 @@ export function TableData() {
     const data = tableSelector.data; 
     const currentTable = tableSelector.currentUrl;
     const baseElement = tableSelector.element;
-    
+
     return(
         <>
             <Button className="m-2" onClick={() => dispatch(showModalElement(true, baseElement))}  disabled={userRole === 'user'}>
@@ -44,12 +44,12 @@ export function TableData() {
                     {data.map((e: BaseElement) => (
                         <tr key={`${e['id'].value} + ${tableSelector.currentUrl}`}>
                             <td style={{maxWidth: '40px'}}>   
-                                <Button onClick={() => dispatch(deleteElement(e['id'].value as number, currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
+                                <Button onClick={() => dispatch(deleteElement(e['id'].value[0] as number, currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                             </td>
                             {Object.entries(e).map(([keys, val]) => (
                                 (e[keys].childrens === undefined) && (keys !== 'id_2') &&
                                 <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
-                                    {(val.type === 'number' && val.value as number <= 0) ? '' : val.value}
+                                    {(val.type === 'number' && val.value[0] as number <= 0) ? '' : val.value}
                                 </td>  
                             ))}
                         </tr>

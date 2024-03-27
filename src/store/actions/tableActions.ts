@@ -21,21 +21,25 @@ export const showProductsTable = (link: urlList) => {
                     const newElement = defaultElementOfTable.get(link);
                     Object.entries(e).map(([key, value]) => {
                         if (newElement[key].childrens !== undefined){
-                            Object.entries((value as Array<Object>)[0]).map(([key2, value2]) => {
-                                if(newElement[key2].type === 'text' 
-                                || newElement[key2].type === 'datetime-local'){
-                                    newElement[key2].value = value2 as string
-                                } else {
-                                    if (key2 === 'id')
-                                        newElement['id_2'].value = Number(value2 as number);
-                                    else newElement[key2].value = Number(value2 as number);
-                                }   
-                            })
+                            newElement[key].count = (value as Array<Object>).length;
+                            Object.values((value as Array<Object>)).map((value2, index) => (
+                                Object.entries(value2).map(([key2, value2]) => {
+                                    if(newElement[key2].type === 'text' 
+                                    || newElement[key2].type === 'datetime-local'){
+                                        newElement[key2].value[index] = value2 as string
+                                    } else {
+                                        if (key2 === 'id')
+                                            newElement['id_2'].value[index] = Number(value2 as number);
+                                        else newElement[key2].value[index] = Number(value2 as number);
+                                    }   
+                                })
+                            ))
                         } else {
                             if(newElement[key].type === 'text' 
                             || newElement[key].type === 'datetime-local'){
-                                newElement[key].value = value as string
-                            } else newElement[key].value = Number(value as number);
+                              
+                                newElement[key].value[0] = (value as string)
+                            } else newElement[key].value[0] = (Number(value as number));
                         }
                     })
                     data.push(newElement)
@@ -60,8 +64,8 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
         
         if (newA.type === 'number' && newB.type === 'number') {
             if (newA.value === undefined && newB.value === undefined){
-                const aID = a['id'].value as number
-                const bID = b['id'].value as number
+                const aID = a['id'].value[0] as number
+                const bID = b['id'].value[0] as number
                 return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
             else if (newA === undefined)
@@ -72,21 +76,21 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
                 if (newA.value > newB.value) return (1 * sortedDirection)
                 else if (newA.value < newB.value) return (-1 * sortedDirection)
                 else{
-                    const aID = a['id'].value as number
-                    const bID = b['id'].value as number
+                    const aID = a['id'].value[0] as number
+                    const bID = b['id'].value[0] as number
                     return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
                 }
             }
         } else {
-            if ((newA.value as string).toLowerCase() >
-                (newB.value as string).toLowerCase())
+            if ((newA.value[0] as string).toLowerCase() >
+                (newB.value[0] as string).toLowerCase())
                 return (1 * sortedDirection)
-            else if ((newA.value as string).toLowerCase() <
-                (newB.value as string).toLowerCase()) 
+            else if ((newA.value[0] as string).toLowerCase() <
+                (newB.value[0] as string).toLowerCase()) 
                 return (-1 * sortedDirection)
             else{
-                const aID = a['id'].value as number
-                const bID = b['id'].value as number
+                const aID = a['id'].value[0] as number
+                const bID = b['id'].value[0] as number
                 return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
         }
@@ -122,7 +126,7 @@ export const createElement = (element: BaseElement, link: urlList) => {
 }
 
 export const updateElement = (element: BaseElement, link: urlList) => {
-    const id = element['id'].value as number;
+    const id = element['id'].value[0] as number;
     const returnedData = restructData(element);
     return async(dispatch: AppDispatch) => {
         await customAxios.patch(`/${link}/${id}/`, returnedData)
@@ -167,7 +171,7 @@ const restructData = (data: BaseElement): {} => {
                 data[key].childrens?.map(field => {
                     if (field !== 'id_2' && field !== 'date') {
                         if (data[field].type === 'number'){
-                            if (data[field].value as number > 0)
+                            if (data[field].value[0] as number > 0)
                                 newData[key][0][field] = Number(data[field].value);
                         }else{
                             newData[key][0][field] = data[field].value;
@@ -176,7 +180,7 @@ const restructData = (data: BaseElement): {} => {
                 })
             } else {
                 if (value.type === 'number') {
-                    if (value.value as number > 0)
+                    if (value.value[0] as number > 0)
                         newData[key] = value.value;
                 } else
                     newData[key] = value.value;
