@@ -172,7 +172,7 @@ const restructData = (data: BaseElement): {} => {
                 arr.map((_, index) => {
                     const subject = (data[key].childrens as Array<any>).reduce((newObj, child) => {
                         if (child !== 'id_2' && child !== 'number_invoice_2' && child !== 'summa'){
-                            newObj[child] = (data[child].type === 'number' && data[child].value[index] <= 0) 
+                            newObj[child] = (data[child].type === 'number' && (data[child].value[index] as number) <= 0) 
                             ? null : data[child].value[index]
                         }
                         return(newObj)

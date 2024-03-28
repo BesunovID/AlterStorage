@@ -25,7 +25,7 @@ export function SelectableField(props: any) {
                 {(value.type === 'number' && (value.value[0] as number <= 0)) ? '' : value.value[0]}
               </DropdownToggle>
               <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
-                {value.selectData?.map((el: Object) => {              
+                {value.selectData?.map((el: Object) => {          
                   return (
                     <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
                         {Object.entries(el).map(([key2, value2]) => {

@@ -22,8 +22,8 @@ export function ModalForm(props: any) {
     const submitRef = useRef<HTMLElement>(null);
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)));
     
-    /*if (props.isSubField)
-        console.log(newElement); */
+    if (props.isSubField)
+        console.log(newElement);  
 
     const getTableData = (link: string, key: string) => {
         axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
@@ -31,6 +31,7 @@ export function ModalForm(props: any) {
                 'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
             }
         }).then((res) => {
+            console.log(res.data);
             setNewElement(prevState => ({
                 ...prevState,
                 [key]: {
@@ -46,16 +47,21 @@ export function ModalForm(props: any) {
         const newValue = [...newElement[event.target.name].value];
         newValue[valIndex] = event.target.value;
 
-        const newElem = {
-            ...newElement,
+        setNewElement(prevState => ({
+            ...prevState,
             [event.target.name]: {
-                ...newElement[event.target.name],
+                ...prevState[event.target.name],
                 value: newValue
             }
-        }
-        console.log(newElem);
-        setNewElement(newElem);
-        (props.setNewElement) && props.setNewElement(newElem);
+        }));
+        (props.setNewElement) && 
+        (props.setNewElement as React.Dispatch<React.SetStateAction<BaseElement>>)(prevState => ({
+            ...prevState,
+            [event.target.name]: {
+                ...prevState[event.target.name],
+                value: newValue
+            }
+        }));
     } 
 
     const handleSubmit = (event: any) => {
@@ -100,7 +106,6 @@ export function ModalForm(props: any) {
             }); 
             //setNewElement(defaultElementOfTable.get(table));
         }
-
     }
 
     const handleAddField = (name: string) => {
