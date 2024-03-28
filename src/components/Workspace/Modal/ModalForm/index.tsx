@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Accordion, Button, Form } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 import { BaseElement, defaultElementOfTable, urlList } from "../../../../models/models";
-import { showModalElement } from "../../../../store/actions/tableActions";
+import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
 import { SelectableField } from "./SelectableField";
 import { SubdataField } from "./SubdataField";
 
@@ -13,13 +13,17 @@ export function ModalForm(props: any) {
 
     const element: BaseElement = props.element;
     const table: urlList = props.table;
+    const valIndex = props.index ? props.index : 0;
     const userRole = useAppSelector(state => state.users.myProfile.role)
 
-    const [isEdit, setIsEdit] = useState((element['id'].value[0] === -1));
-    const [isOpenNewModal, setIsOpenNewModal] = useState('');
+    const [isEdit, setIsEdit] = useState(('id' in element && element['id'].value[0] === -1) 
+        || ('id_2' in element && element['id_2'].value[valIndex] === -1));
     const [validated, setValidated] = useState(isEdit);
     const submitRef = useRef<HTMLElement>(null);
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)));
+    
+    /*if (props.isSubField)
+        console.log(newElement); */
 
     const getTableData = (link: string, key: string) => {
         axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
@@ -31,28 +35,27 @@ export function ModalForm(props: any) {
                 ...prevState,
                 [key]: {
                     ...prevState[key],
-                    subData: res.data
+                    value: [...(prevState[key].value as any)],
+                    selectData: res.data
                 }
             }));
         }) 
     }
 
-    useEffect(() => {
-        Object.keys(newElement).map((e) => {
-            if (newElement[e].selectable){
-                getTableData(newElement[e].selectable as string, e);
-            }
-        }) 
-    }, [isOpenNewModal, setNewElement, isEdit])
-
     const handleChange = (event: any) => {
-        setNewElement(prevState => ({
-            ...prevState,
+        const newValue = [...newElement[event.target.name].value];
+        newValue[valIndex] = event.target.value;
+
+        const newElem = {
+            ...newElement,
             [event.target.name]: {
-                ...prevState[event.target.name],
-                value: event.target.value
-            },
-        }))
+                ...newElement[event.target.name],
+                value: newValue
+            }
+        }
+        console.log(newElem);
+        setNewElement(newElem);
+        (props.setNewElement) && props.setNewElement(newElem);
     } 
 
     const handleSubmit = (event: any) => {
@@ -64,18 +67,19 @@ export function ModalForm(props: any) {
     const handleSave = (event: any) => {
         const form = event.currentTarget;
         event.preventDefault();
-
+        console.log(newElement);
         if (form.checkValidity() === false) {
             alert('Заполните поля!');
             event.stopPropagation();
         }else {
             setIsEdit(false);
-            if (newElement['id'].value[0] === -1) 
+            if (newElement['id'].value[0] === -1){ 
                 alert("Создано!");
-            // dispatch(createElement(newElement, table));
-            else
+                dispatch(createElement(newElement, table));
+            }else{
                 alert("Обновлено!");
-                //dispatch(updateElement(newElement, table));
+                dispatch(updateElement(newElement, table));
+            }
             dispatch(showModalElement(false, defaultElementOfTable.get(table), table));
         }
     }
@@ -88,26 +92,66 @@ export function ModalForm(props: any) {
             alert('Заполните поля!');
             event.stopPropagation();
         }else {
-            alert(`Подформа ${table} создана!`);
-            if (props.accordionRef !== undefined && props.accordionRef !== null) {
-                props.accordionRef.click();
-            }
-            setNewElement(defaultElementOfTable.get(table));
+            dispatch(createElement(newElement, table))
+            .then(() => {
+                if (props.accordionRef.current !== undefined && props.accordionRef.current !== null) {
+                    props.accordionRef.current.click();
+                }
+            }); 
+            //setNewElement(defaultElementOfTable.get(table));
         }
-       /* dispatch(createElement(newElement, table))
-        .then(() => {
-            setIsOpenNewModal('');
-            if (props.accordionRef.current !== undefined && props.accordionRef.current !== null) {
-                props.accordionRef.current.click();
-            }
-        }); */
+
     }
+
+    const handleAddField = (name: string) => {
+        const formElement: BaseElement = Object.entries(newElement).reduce((newObj, [elKey, elValue]) => {
+            if ((newElement[name].childrens as Array<string>).includes(elKey)){
+                const newValue = [...elValue.value]
+                if (elValue.type === 'number'){
+                    newValue.push(-1);
+                    newObj[elKey] = {
+                        ...elValue,
+                        value: newValue as number[]
+                    }
+                } else {
+                    newValue.push('');
+                    newObj[elKey] = {
+                        ...elValue,
+                        value: newValue as string[]
+                    }
+                }
+            } else if (elKey === name && elValue.count !== undefined) {
+                const newCount = elValue.count + 1;
+                newObj[elKey] = {
+                    ...elValue,
+                    value: [...elValue.value as any],
+                    count: newCount
+                }
+            } else {
+                newObj[elKey] = {
+                    ...elValue,
+                    value: [...elValue.value as any]
+                }
+            }
+            return(newObj)
+        }, {} as BaseElement) 
+        setNewElement(formElement);
+    }
+
+    useEffect(() => {
+        if (!props.isCreate && !props.isSubField)
+            Object.keys(newElement).map((e) => {
+                if (newElement[e].selectable){
+                    getTableData(newElement[e].selectable as string, e);
+                }
+            }) 
+    }, [setNewElement, isEdit])
     
     return(
         <Form noValidate validated={validated} onSubmit={handleSubmit} className={props.isCreate ? 'rounded p-2 my-2' : ''} style={props.isCreate ? {backgroundColor: '#458b7460'} : undefined}>
             <Accordion>
             {Object.entries(newElement).map(([key, value], index) => {
-                if (value.visable && value.childrens === undefined && value.subject === undefined) {
+                if (value.visable && value.childrens === undefined && value.subject === props.subject) {
                     if (value.selectable)
                         return(
                         <SelectableField 
@@ -116,7 +160,6 @@ export function ModalForm(props: any) {
                             index={index}
                             isEdit={isEdit} 
                             handleChange={handleChange}
-                            setIsOpenNewModal={setIsOpenNewModal}
                         />
                         )
                     else return(
@@ -124,7 +167,7 @@ export function ModalForm(props: any) {
                             <Form.Label>{value.key}</Form.Label>
                             <Form.Control 
                                 name={key} 
-                                value={(value.type === 'number' && (value.value[0] as number <= 0)) ? '' : value.value[0]} 
+                                value={(value.type === 'number' && (value.value[valIndex] as number <= 0)) ? '' : value.value[valIndex]} 
                                 type={value.type} 
                                 onChange={handleChange} 
                                 readOnly={!isEdit} 
@@ -134,38 +177,31 @@ export function ModalForm(props: any) {
                             />
                         </Form.Group>
                     )
-                } else if (value.visable && value.childrens) {
-                    if (value.count === 0) {
-                        return(
-                        <SubdataField 
-                            name={key}
-                            value={value}
-                            element={newElement}
-                            index={0}
-                            table={table}
-                            isEdit={isEdit} 
-                            setIsOpenNewModal={setIsOpenNewModal}
-                        />)
-                    } else {
+                } else if (value.visable && value.childrens && !props.subject) {
+                    if (value.count !== undefined){
                         const arr = [...new Array(value.count)].map((_,i) => i+1);
-                        arr.map((_, index) => 
-                            <SubdataField 
-                                name={key}
-                                value={value}
-                                element={newElement}
-                                index={index}
-                                table={table}
-                                isEdit={isEdit} 
-                                setIsOpenNewModal={setIsOpenNewModal}
-                            />
+                        return(
+                        <>
+                            {arr.map((_, index) => 
+                                <SubdataField 
+                                    name={key}
+                                    value={value}
+                                    element={newElement}
+                                    index={index}
+                                    table={table}
+                                    isEdit={isEdit} 
+                                    setNewElement={setNewElement}
+                                />
+                            )}
+                            {isEdit && <Button className='d-block mt-3 mx-auto' onClick={() => handleAddField(key)}>Добавить позицию (+)</Button>}
+                        </>
                         )
                     }
                 }
             })}
             {!isEdit && <Button disabled={userRole === 'user'} className="d-block mt-3 mx-auto" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
-            {isEdit && table === 'invoice_number' && <Button className='d-block mt-3 mx-auto'>Добавить позицию (+)</Button>}
             {isEdit && !props.isCreate && <Button className="d-block mt-3 mx-auto" type="submit" name='base'>Сохранить</Button>}
-            {isEdit && props.isCreate && <Button className='d-block mt-3 mx-auto' type="submit" name='sub' ref={submitRef as any}>Создать</Button>}
+            {isEdit && props.isCreate && !props.isSubField && <Button className='d-block mt-3 mx-auto' type="submit" name='sub' ref={submitRef as any}>Создать</Button>}
             </Accordion>
         </Form>
     )

@@ -6,8 +6,8 @@ import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-    const {name, value, index, isEdit, handleChange, setIsOpenNewModal}: 
-    {name: string, value: BaseField, index: number, isEdit: boolean, handleChange: (event: any) => void, setIsOpenNewModal: any} = props;
+    const {name, value, isEdit, handleChange}: 
+    {name: string, value: BaseField, isEdit: boolean, handleChange: (event: any) => void} = props;
     const [isOpen, setIsOpen] = useState(false);
     const accordionRef = useRef<HTMLElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
@@ -50,7 +50,7 @@ export function SelectableField(props: any) {
               {
               (portalRef.current !== undefined && portalRef.current !== null 
               && accordionRef.current !== undefined && accordionRef.current !== null) 
-              ? createPortal2(portalRef, accordionRef, value.selectable, setIsOpenNewModal) 
+              ? createPortal2(portalRef, accordionRef, value.selectable) 
               : <div className="1"></div>
               }
             </div>
@@ -59,10 +59,10 @@ export function SelectableField(props: any) {
     )
 }
 
-const createPortal2 = (portalRef: any, accordionRef: any, table: any, setIsOpenNewModal: any) => {
+const createPortal2 = (portalRef: any, accordionRef: any, table: any) => {
   return(
     createPortal(
-    <ModalForm isCreate={true} table={table} setIsOpenNewModal={setIsOpenNewModal} element={defaultElementOfTable.get(table)} accordionRef={accordionRef} />
+    <ModalForm isCreate={true} table={table} element={defaultElementOfTable.get(table)} accordionRef={accordionRef} />
     , portalRef.current)
   )
 }

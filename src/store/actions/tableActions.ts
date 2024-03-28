@@ -167,26 +167,28 @@ const restructData = (data: BaseElement): {} => {
     Object.entries(data).map(([key, value]) => {
         if (key !== 'id' && key !== 'date' && !(contains(childrens, key))){
             if (data[key].childrens !== undefined) {
-                newData[key] = [{}];
-                data[key].childrens?.map(field => {
-                    if (field !== 'id_2' && field !== 'date') {
-                        if (data[field].type === 'number'){
-                            if (data[field].value[0] as number > 0)
-                                newData[key][0][field] = Number(data[field].value);
-                        }else{
-                            newData[key][0][field] = data[field].value;
-                        }  
-                    }
+                newData[key] = [];
+                const arr = [...new Array(value.count)].map((_,i) => i+1);
+                arr.map((_, index) => {
+                    const subject = (data[key].childrens as Array<any>).reduce((newObj, child) => {
+                        if (child !== 'id_2' && child !== 'number_invoice_2' && child !== 'summa'){
+                            newObj[child] = (data[child].type === 'number' && data[child].value[index] <= 0) 
+                            ? null : data[child].value[index]
+                        }
+                        return(newObj)
+                    }, {} as BaseElement)
+                    newData[key].push(subject);
                 })
             } else {
                 if (value.type === 'number') {
                     if (value.value[0] as number > 0)
-                        newData[key] = value.value;
+                        newData[key] = value.value[0];
                 } else
-                    newData[key] = value.value;
+                    newData[key] = value.value[0];
             }
         }
     })
+    console.log(newData);
     return newData
 }
 

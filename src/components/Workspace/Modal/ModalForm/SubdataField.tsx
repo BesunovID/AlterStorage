@@ -1,49 +1,37 @@
-import React, { useRef, useState } from "react"
-import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button } from "react-bootstrap"
+import React, { useEffect, useRef, useState } from "react"
+import { Form, Accordion, useAccordionButton } from "react-bootstrap"
 import { createPortal } from "react-dom";
-import { BaseElement, BaseField, defaultElementOfTable, urlList } from "../../../../models/models";
+import { BaseElement, BaseField, urlList } from "../../../../models/models";
 import { ModalForm } from "./index";
 
 
 export function SubdataField(props: any) {
-    const {name, value, element, index, table, isEdit, setIsOpenNewModal}: 
-    {name: string, value: BaseField, element: BaseElement, index: number, table: urlList, isEdit: boolean, setIsOpenNewModal: any} = props;
+    const {name, value, element, index, table, isEdit, setNewElement}: 
+    {name: string, value: BaseField, element: BaseElement, index: number, table: urlList, isEdit: boolean, setNewElement: any} = props;
     const [isOpen, setIsOpen] = useState(false);
     const accordionRef = useRef<HTMLInputElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
 
-    const [formElement, setFormElement] = useState<BaseElement>({
-        ...value.childrens?.map(child => {
-            ...element[child],
-            value: [...element[child].value[index]] 
-        }),
-
-    });
-
-    const formElement2 = value.childrens?.map(child => {
-       /* setFormElement(prevState => ({
-            ...prevState,
-            [child]: {
-                ...element[child],
-                value: [element[child].value[index] as any]
+/*
+    const formElement: BaseElement = Object.entries(element).reduce((newObj, [elKey, elValue]) => {
+        if ((value.childrens as Array<string>).includes(elKey)){
+            newObj[elKey] = {
+                ...elValue,
+                'value': [elValue.value[index] as any]
             }
-        })) */
-         [child]: {
-                ...element[child],
-                value: [element[child].value[index] as any]
-            }
-    })
+        }
+        return(newObj)
+    }, {} as BaseElement) */
 
     return(
         <Form.Group key={name}>
           <Form.Label>{`${value.key} ${index + 1}`}</Form.Label>
           <CustomAccordionInput
             name={name}
-            value={value}
+            value={element[value.valueFrom as string].value[index]}
             index={index}
-            isEdit={isEdit}
             eventKey={index.toString()}
-            onClick={() => setIsOpen(true)}
+            onClick={() => setIsOpen(!isOpen)}
             ref={accordionRef}
           />
           <Accordion.Collapse eventKey={index.toString()}>
@@ -51,7 +39,7 @@ export function SubdataField(props: any) {
               {
               (portalRef.current !== undefined && portalRef.current !== null 
               && accordionRef.current !== undefined && accordionRef.current !== null) 
-              ? createPortal2(portalRef, formElement, table, setIsOpenNewModal) 
+              ? createPortal2(portalRef, accordionRef, element, index, table, name, setNewElement) 
               : <div className="1"></div>
               }
             </div>
@@ -60,22 +48,21 @@ export function SubdataField(props: any) {
     )
 }
 
-const createPortal2 = (portalRef: any, element: any, table: any, setIsOpenNewModal: any) => {
-
+const createPortal2 = (portalRef: any, accordionRef: any, element: any, index: number, table: any, subject: string, setNewElement: any) => {
     return(
         createPortal(
-        <ModalForm isCreate={true} table={table} setIsOpenNewModal={setIsOpenNewModal} element={element} />
+        <ModalForm accordionRef={accordionRef} isCreate={true} isSubField={true} table={table} element={element} subject={subject} index={index} setNewElement={setNewElement}/>
         , portalRef.current)
     )
 }
 
-const CustomAccordionInput = React.forwardRef(({name, value, index, isEdit, eventKey, onClick}: any, ref) => {
+const CustomAccordionInput = React.forwardRef(({name, value, index, eventKey, onClick}: any, ref) => {
     const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
 
     return (
         <Form.Control
             name={name} 
-            value={`${value.key} ${index + 1}`} 
+            value={value ? `${value} ${index + 1}` : `(Наименование)`} 
             type={value.type} 
             readOnly={true}
             onClick={decoratedOnClick}

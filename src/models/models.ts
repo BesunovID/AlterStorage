@@ -14,6 +14,7 @@ export type BaseField = {
     required: boolean
     childrens?: Array<string>
     count?: number
+    valueFrom?: string
     maxLength?: number
     minLength?: number
     selectable?: string
@@ -171,13 +172,14 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'positions': {
                 key: 'Позиция',
-                value: [-1],
-                type: 'number',
+                value: [''],
+                type: 'string',
                 required: false,
                 visable: true,
-                count: 0,
+                valueFrom: 'name_of_the_invoice',
+                count: 1,
                 childrens: ['id_2', 'name_of_the_invoice', 'actual_quantity', 'price_per_unit',
-                    'manufacturer', 'quantity_invoice', 'summa', 'number_invoice', 
+                    'manufacturer', 'quantity_invoice', 'summa', 'number_invoice_2', 
                     'storage_position', 'provider'],
             },
             'id_2': {
@@ -202,7 +204,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Фактическое число',
                 value: [-1],
                 type: 'number',
-                required: false,
+                required: true,
                 visable: true,
                 subject: 'positions',
             },
