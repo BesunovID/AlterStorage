@@ -4,6 +4,7 @@ import { urlList, BaseElement } from "../../models/models"
 
 interface TableState {
     tableIsOpen: boolean
+    loading: boolean
     data: BaseElement[]
     sortedByField: string
     sortedDirection: number
@@ -31,6 +32,7 @@ interface PayloadSortTable {
 
 const initialState: TableState = {
     tableIsOpen: false,
+    loading: true,
     data: [],
     sortedByField: 'id',
     sortedDirection: 1,
@@ -44,12 +46,16 @@ export const tableSlice = createSlice({
     name: 'table',
     initialState,
     reducers: {
+        startLoading(state: TableState){
+            state.loading = true
+        },
         showTable(state: TableState, action: PayloadAction<PayloadShowTable>){
             state.tableIsOpen = true
             state.modalIsOpen = false
             state.data = action.payload.data
             state.currentUrl = action.payload.table
             state.element = action.payload.emptyElement
+            state.loading = false
         },
         sortTable(state, action: PayloadAction<PayloadSortTable>){
             state.data = action.payload.data

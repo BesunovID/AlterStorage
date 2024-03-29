@@ -15,6 +15,7 @@ export const showProductsTable = (link: urlList) => {
     const emptyElement: BaseElement = defaultElementOfTable.get(link);
     const data: BaseElement[] = [];
     return async (dispatch: AppDispatch) => {
+        dispatch(tableSlice.actions.startLoading());
         try{
             await customAxios.get(`/${link}/`).then((res) => {  
                 res.data.map((e: Object) => {
@@ -26,19 +27,22 @@ export const showProductsTable = (link: urlList) => {
                                 Object.entries(value2).map(([key2, value2]) => {
                                     if(newElement[key2].type === 'text' 
                                     || newElement[key2].type === 'datetime-local'){
-                                        newElement[key2].value[index] = value2 as string
+                                        if (key2 === 'number_invoice'){
+                                            newElement['number_invoice_2'].value[index] = (value2 as string).toString();
+                                        } else newElement[key2].value[index] = value2 as string;
                                     } else {
-                                        if (key2 === 'id')
+                                        if (key2 === 'id'){
                                             newElement['id_2'].value[index] = Number(value2 as number);
-                                        else newElement[key2].value[index] = Number(value2 as number);
+                                        } else if (key2 === 'number_invoice'){
+                                            newElement['number_invoice_2'].value[index] = Number(value2 as number);
+                                        } else newElement[key2].value[index] = Number(value2 as number);
                                     }   
                                 })
                             ))
                         } else {
                             if(newElement[key].type === 'text' 
                             || newElement[key].type === 'datetime-local'){
-                              
-                                newElement[key].value[0] = (value as string)
+                                if (value !== null) newElement[key].value[0] = (value as string).toString();
                             } else newElement[key].value[0] = (Number(value as number));
                         }
                     })
@@ -171,9 +175,12 @@ const restructData = (data: BaseElement): {} => {
                 const arr = [...new Array(value.count)].map((_,i) => i+1);
                 arr.map((_, index) => {
                     const subject = (data[key].childrens as Array<any>).reduce((newObj, child) => {
-                        if (child !== 'id_2' && child !== 'number_invoice_2' && child !== 'summa'){
-                            newObj[child] = (data[child].type === 'number' && (data[child].value[index] as number) <= 0) 
-                            ? null : data[child].value[index]
+                        if (data[child].visable){
+                            if (data[child].type === 'number' && (data[child].value[index] as number) > 0){
+                                newObj[child] = Number(data[child].value[index])
+                            } else if (data[child].type !== 'number' && (data[child].value[index] as string) !== '') {
+                                newObj[child] = data[child].value[index].toString();
+                            }
                         }
                         return(newObj)
                     }, {} as BaseElement)

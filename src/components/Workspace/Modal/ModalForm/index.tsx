@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { Accordion, Button, Form } from "react-bootstrap";
+import { Accordion, Button, Form, Spinner } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 import { BaseElement, defaultElementOfTable, urlList } from "../../../../models/models";
 import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
@@ -16,31 +16,33 @@ export function ModalForm(props: any) {
     const valIndex = props.index ? props.index : 0;
     const userRole = useAppSelector(state => state.users.myProfile.role)
 
-    const [isEdit, setIsEdit] = useState(('id' in element && element['id'].value[0] === -1) 
+    const [loading, setLoading] = useState(!props.isSubField ? true : false);
+    const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === -1) 
         || ('id_2' in element && element['id_2'].value[valIndex] === -1));
     const [validated, setValidated] = useState(isEdit);
     const submitRef = useRef<HTMLElement>(null);
+    const selectFieldsRef = useRef<Array<HTMLElement | null>>([]);
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)));
-    
-    if (props.isSubField)
-        console.log(newElement);  
 
-    const getTableData = (link: string, key: string) => {
-        axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${link}/`, {
-            headers: {
-                'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+    const getTableData = () => {
+        const selectData: BaseElement = JSON.parse(JSON.stringify(newElement));
+        const promises = Object.keys(newElement).map((e) => {
+            if (newElement[e].selectable){
+                return(
+                axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${newElement[e].selectable}/`, {
+                    headers: {
+                        'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+                    }
+                }).then((res) => {
+                    selectData[e].selectData = [...res.data]
+                })
+                )
             }
-        }).then((res) => {
-            console.log(res.data);
-            setNewElement(prevState => ({
-                ...prevState,
-                [key]: {
-                    ...prevState[key],
-                    value: [...(prevState[key].value as any)],
-                    selectData: res.data
-                }
-            }));
-        }) 
+        });
+        Promise.all(promises).then(() => {
+            setLoading(false);
+            setNewElement(JSON.parse(JSON.stringify(selectData)));
+        })
     }
 
     const handleChange = (event: any) => {
@@ -51,7 +53,9 @@ export function ModalForm(props: any) {
             ...prevState,
             [event.target.name]: {
                 ...prevState[event.target.name],
-                value: newValue
+                value: newValue,
+                selectData: prevState[event.target.name].selectData !== undefined ? 
+                [...(prevState[event.target.name].selectData as Array<Object>)] : undefined
             }
         }));
         (props.setNewElement) && 
@@ -59,7 +63,9 @@ export function ModalForm(props: any) {
             ...prevState,
             [event.target.name]: {
                 ...prevState[event.target.name],
-                value: newValue
+                value: newValue,
+                selectData: prevState[event.target.name].selectData !== undefined ? 
+                [...(prevState[event.target.name].selectData as Array<Object>)] : undefined
             }
         }));
     } 
@@ -73,20 +79,21 @@ export function ModalForm(props: any) {
     const handleSave = (event: any) => {
         const form = event.currentTarget;
         event.preventDefault();
-        console.log(newElement);
+
         if (form.checkValidity() === false) {
             alert('Заполните поля!');
             event.stopPropagation();
         }else {
             setIsEdit(false);
             if (newElement['id'].value[0] === -1){ 
-                alert("Создано!");
-                dispatch(createElement(newElement, table));
+                dispatch(createElement(newElement, table)).then(() =>
+                    dispatch(showModalElement(false, defaultElementOfTable.get(table), table))
+                );
             }else{
-                alert("Обновлено!");
-                dispatch(updateElement(newElement, table));
+                dispatch(updateElement(newElement, table)).then(() =>
+                    dispatch(showModalElement(false, defaultElementOfTable.get(table), table))
+                );
             }
-            dispatch(showModalElement(false, defaultElementOfTable.get(table), table));
         }
     }
 
@@ -104,7 +111,6 @@ export function ModalForm(props: any) {
                     props.accordionRef.current.click();
                 }
             }); 
-            //setNewElement(defaultElementOfTable.get(table));
         }
     }
 
@@ -116,13 +122,15 @@ export function ModalForm(props: any) {
                     newValue.push(-1);
                     newObj[elKey] = {
                         ...elValue,
-                        value: newValue as number[]
+                        value: [...newValue as number[]],
+                        selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                     }
                 } else {
                     newValue.push('');
                     newObj[elKey] = {
                         ...elValue,
-                        value: newValue as string[]
+                        value: [...newValue as string[]],
+                        selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                     }
                 }
             } else if (elKey === name && elValue.count !== undefined) {
@@ -140,31 +148,41 @@ export function ModalForm(props: any) {
             }
             return(newObj)
         }, {} as BaseElement) 
-        setNewElement(formElement);
+        setNewElement(JSON.parse(JSON.stringify(formElement)));
     }
 
     useEffect(() => {
-        if (!props.isCreate && !props.isSubField)
-            Object.keys(newElement).map((e) => {
-                if (newElement[e].selectable){
-                    getTableData(newElement[e].selectable as string, e);
-                }
-            }) 
-    }, [setNewElement, isEdit])
-    
+        if (loading){
+            if (Object.keys(newElement).find((e) => newElement[e].selectable)) 
+                getTableData();
+            else setLoading(false);
+        }
+      /*  if (props.isSubField)
+            setNewElement(JSON.parse(JSON.stringify(element))); */
+        if (props.isSubField && props.isEdit !== isEdit)
+            setIsEdit(props.isEdit);
+    }, [setNewElement, isEdit, props.element, props.isEdit, loading])
+
     return(
         <Form noValidate validated={validated} onSubmit={handleSubmit} className={props.isCreate ? 'rounded p-2 my-2' : ''} style={props.isCreate ? {backgroundColor: '#458b7460'} : undefined}>
             <Accordion>
-            {Object.entries(newElement).map(([key, value], index) => {
+            {loading ? 
+            <div className="bg-grey d-flex align-items-center justify-content-center">
+                <Spinner animation="border" />
+            </div> :
+            Object.entries(newElement).map(([key, value], index) => {
                 if (value.visable && value.childrens === undefined && value.subject === props.subject) {
                     if (value.selectable)
                         return(
                         <SelectableField 
                             name={key}
                             value={value}
-                            index={index}
                             isEdit={isEdit} 
                             handleChange={handleChange}
+                            index={valIndex}
+                           // ref={(el: any) => selectFieldsRef.current[index] = el}
+                            accordionRef={selectFieldsRef}
+                            refIndex={index}
                         />
                         )
                     else return(
@@ -204,7 +222,7 @@ export function ModalForm(props: any) {
                     }
                 }
             })}
-            {!isEdit && <Button disabled={userRole === 'user'} className="d-block mt-3 mx-auto" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
+            {!isEdit && !props.isSubField && <Button disabled={userRole === 'user'} className="d-block mt-3 mx-auto" onClick={() => {setIsEdit(true); setValidated(true)}}>Редактировать</Button>}
             {isEdit && !props.isCreate && <Button className="d-block mt-3 mx-auto" type="submit" name='base'>Сохранить</Button>}
             {isEdit && props.isCreate && !props.isSubField && <Button className='d-block mt-3 mx-auto' type="submit" name='sub' ref={submitRef as any}>Создать</Button>}
             </Accordion>

@@ -1,15 +1,14 @@
-import React, { useRef, useState } from "react"
-import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button } from "react-bootstrap"
+import React, { useContext, useRef, useState } from "react"
+import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button, AccordionContext } from "react-bootstrap"
 import { createPortal } from "react-dom";
 import { BaseField, defaultElementOfTable } from "../../../../models/models";
 import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-    const {name, value, isEdit, handleChange}: 
-    {name: string, value: BaseField, isEdit: boolean, handleChange: (event: any) => void} = props;
+    const {name, value, isEdit, handleChange, index}: 
+    {name: string, value: BaseField, isEdit: boolean, handleChange: (event: any) => void, index: number} = props;
     const [isOpen, setIsOpen] = useState(false);
-    const accordionRef = useRef<HTMLElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
     
     return(
@@ -21,8 +20,8 @@ export function SelectableField(props: any) {
             onSelect={(value) => 
               handleChange({target:{name: name, value: value}})
             }>
-              <DropdownToggle as={CustomToggle} isEdit={isEdit}>
-                {(value.type === 'number' && (value.value[0] as number <= 0)) ? '' : value.value[0]}
+              <DropdownToggle as={CustomToggle} isEdit={isEdit} inputType={value.type}>
+                {(value.type === 'number' && (value.value[index] as number <= 0)) ? null : value.value[index]}
               </DropdownToggle>
               <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
                 {value.selectData?.map((el: Object) => {          
@@ -40,17 +39,13 @@ export function SelectableField(props: any) {
             <CustomAccordionBut 
               eventKey={value.selectable}
               onClick={() => setIsOpen(!isOpen)} 
-              ref={accordionRef}
-            >
-              {isOpen ? `-` : '+'}
-            </CustomAccordionBut>}
+            />}
           </div>
           <Accordion.Collapse eventKey={value.selectable as string}>
             <div className="accordionContainer" ref={portalRef}>
               {
-              (portalRef.current !== undefined && portalRef.current !== null 
-              && accordionRef.current !== undefined && accordionRef.current !== null) 
-              ? createPortal2(portalRef, accordionRef, value.selectable) 
+              (portalRef.current !== undefined && portalRef.current !== null) 
+              ? createPortal2(portalRef, value.selectable) 
               : <div className="1"></div>
               }
             </div>
@@ -59,31 +54,33 @@ export function SelectableField(props: any) {
     )
 }
 
-const createPortal2 = (portalRef: any, accordionRef: any, table: any) => {
+const createPortal2 = (portalRef: any, table: any) => {
   return(
     createPortal(
-    <ModalForm isCreate={true} table={table} element={defaultElementOfTable.get(table)} accordionRef={accordionRef} />
+    <ModalForm isCreate={true} table={table} element={defaultElementOfTable.get(table)} />
     , portalRef.current)
   )
 }
 
-const CustomAccordionBut = React.forwardRef(({children, eventKey, onClick}: any, ref) => {
-    const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
-
-    return (
-        <Button
-        className="btn btn-primary d-flex ms-2"
-        onClick={decoratedOnClick}
-        ref={ref as any}
-        >
-        {children}
-        </Button>
-    );
+const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => {
+  const { activeEventKey } = useContext(AccordionContext);
+  const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
+  const isCurrentEventKey = activeEventKey === eventKey;
+  return (
+      <Button
+      className="btn btn-primary d-flex ms-2"
+      onClick={decoratedOnClick}
+      ref={ref as any}
+      >
+      {isCurrentEventKey ? `-` : '+'}
+      </Button>
+  );
 })
 
-const CustomToggle = React.forwardRef(({ children, onClick, isEdit }: any, ref) => (
+const CustomToggle = React.forwardRef(({ children, onClick, isEdit, inputType }: any, ref) => (
     <Form.Control
       value={children}
+      type='select'
       ref={ref as any}
       readOnly={!isEdit}
       onClick={(e) => {
