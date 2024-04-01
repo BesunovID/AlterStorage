@@ -20,7 +20,7 @@ export function SelectableField(props: any) {
             onSelect={(value) => 
               handleChange({target:{name: name, value: value}})
             }>
-              <DropdownToggle as={CustomToggle} isEdit={isEdit} inputType={value.type}>
+              <DropdownToggle as={CustomToggle} isEdit={isEdit} required={value.required}>
                 {(value.type === 'number' && (value.value[index] as number <= 0)) ? '' : value.value[index]}
               </DropdownToggle>
               <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
@@ -77,10 +77,11 @@ const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => 
   );
 })
 
-const CustomToggle = React.forwardRef(({ children, onClick, isEdit, inputType }: any, ref) => (
+const CustomToggle = React.forwardRef(({ children, onClick, isEdit, required }: any, ref) => (
     <Form.Control
       value={children}
       type='select'
+      required={required}
       ref={ref as any}
       readOnly={!isEdit}
       onClick={(e) => {

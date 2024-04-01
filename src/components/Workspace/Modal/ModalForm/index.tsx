@@ -175,7 +175,7 @@ export function ModalForm(props: any) {
                     if (value.selectable)
                         return(
                         <SelectableField 
-                            key={key}
+                            key={`${key} ${valIndex}`}
                             name={key}
                             value={value}
                             isEdit={isEdit} 
@@ -186,7 +186,7 @@ export function ModalForm(props: any) {
                         />
                         )
                     else return(
-                        <Form.Group key={key}>
+                        <Form.Group key={`${key} ${valIndex}`}>
                             <Form.Label className="mt-1">{value.key}</Form.Label>
                             <Form.Control 
                                 name={key} 
@@ -207,6 +207,7 @@ export function ModalForm(props: any) {
                         <>
                             {arr.map((_, index) => 
                                 <SubdataField 
+                                    key={`${key} ${index}`}
                                     name={key}
                                     value={value}
                                     element={newElement}

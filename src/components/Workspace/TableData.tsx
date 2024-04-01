@@ -1,8 +1,8 @@
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { Button, Pagination, Spinner, Table } from 'react-bootstrap';
+import { Button, Form, InputGroup, Pagination, Spinner, Table } from 'react-bootstrap';
 import { deleteElement, showModalElement, sortProductsTable } from '../../store/actions/tableActions';
 import { BaseElement } from '../../models/models';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 export function TableData() {
@@ -19,6 +19,12 @@ export function TableData() {
     const sortBy = tableSelector.sortedByField;
     const sortDirect = tableSelector.sortedDirection;
 
+    const [searchData, setSearchData] = useState<BaseElement[]>(JSON.parse(JSON.stringify(data)))
+
+    useEffect(() => {
+
+    }, [searchData])
+
     return(
         loading ? 
         <div className="bg-grey d-flex align-self-center align-items-md-center justify-content-center"  style={{minHeight: '60vh'}}>
@@ -30,6 +36,8 @@ export function TableData() {
             </Button>
             {data.length > 0 ?
             <>
+            <CustomSearch data={data} setSearchData={setSearchData} />
+            {searchData.length > 0 ?
             <div className='overflow-auto border ' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', marginLeft: '0.5rem', resize: 'both'}}>
                 <Table striped bordered hover className='overflow-hidden'>
                     <thead>
@@ -47,10 +55,10 @@ export function TableData() {
                                 ))}>
                                     {value.key}
                                     {
-                                    (sortBy === key) && (sortDirect === 1) && `▲`
+                                    (sortBy === key) && (sortDirect === 1) && `  ▲`
                                     }
                                     {
-                                    (sortBy === key) && (sortDirect === -1) && `▼`
+                                    (sortBy === key) && (sortDirect === -1) && `  ▼`
                                     }
                                 </th> 
                                     
@@ -58,7 +66,7 @@ export function TableData() {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((e: BaseElement) => (
+                        {searchData.map((e: BaseElement) => (
                             <tr key={`${e['id'].value[0]} + ${tableSelector.currentUrl}`}>
                                 <td style={{maxWidth: '40px'}}>   
                                     <Button onClick={() => dispatch(deleteElement(e['id'].value[0] as number, currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
@@ -76,10 +84,11 @@ export function TableData() {
                             </tr>
                         )).slice(15 * (currentPage - 1), 15 * currentPage)}
                     </tbody> 
-                </Table>
+                </Table> 
             </div> 
+            : <p className='my-3 mx-auto'>По данному запросу результатов не найдено</p>}
             {
-                data.length > 15 && 
+                searchData.length > 15 && 
                 <CustomPagination 
                     size={data.length} 
                     currentPage={currentPage} 
@@ -116,5 +125,54 @@ const CustomPagination = (
             {(currentPage+1 <= lastPage) && <Pagination.Next onClick={() => setCurrentPage(currentPage+1)} />}
             {(currentPage+3 <= lastPage) && <Pagination.Last onClick={() => setCurrentPage(currentPage+2)} />}
         </Pagination>
+    )
+}
+
+const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData: any}) => {
+    const [searchValue, setSearchValue] = useState('');
+    const [searchField, setSearchField] = useState('');
+
+    useEffect(() => {
+        if (searchValue !== '')
+            setSearchData(JSON.parse(JSON.stringify(data.filter((e) => {
+                if (searchField === ''){
+                    return(
+                        Object.values(e).find((value) => {
+                            return (value.value as string[]).find((str) => {
+                                return str.toString().toLowerCase().includes(searchValue.toLowerCase())
+                            })
+                        })
+                    )
+                } else {
+                    return(
+                        (e[searchField].value as string[]).find((str) => {
+                            return str.toString().toLowerCase().includes(searchValue.toLowerCase())
+                        })
+                    )
+                }
+            }))))
+        else setSearchData(JSON.parse(JSON.stringify(data)))
+    }, [searchValue, searchField])
+
+    return(
+        <InputGroup className='mb-2 mx-2 w-50'>
+            <InputGroup.Text id='search'>Поиск</InputGroup.Text>
+            <Form.Control
+                aria-label="Поиск"
+                value={searchValue}
+                onChange={(event: any) => setSearchValue(event.target.value)}
+            />
+            <InputGroup.Text id='in'>в</InputGroup.Text>
+            <Form.Select
+                value={searchField}
+                onChange={(event: any) => setSearchField(event.target.value)}
+            >
+                <option value={''}>любом</option>
+                {Object.entries(data[0]).map(([key, value]) => 
+                    <option key={key} value={key}>{value.key}</option>
+                )
+                }
+            </Form.Select>
+        </InputGroup>
     )
 }
