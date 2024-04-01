@@ -175,19 +175,19 @@ export function ModalForm(props: any) {
                     if (value.selectable)
                         return(
                         <SelectableField 
+                            key={key}
                             name={key}
                             value={value}
                             isEdit={isEdit} 
                             handleChange={handleChange}
                             index={valIndex}
-                           // ref={(el: any) => selectFieldsRef.current[index] = el}
                             accordionRef={selectFieldsRef}
                             refIndex={index}
                         />
                         )
                     else return(
                         <Form.Group key={key}>
-                            <Form.Label>{value.key}</Form.Label>
+                            <Form.Label className="mt-1">{value.key}</Form.Label>
                             <Form.Control 
                                 name={key} 
                                 value={(value.type === 'number' && (value.value[valIndex] as number <= 0)) ? '' : value.value[valIndex]} 

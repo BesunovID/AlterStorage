@@ -70,32 +70,34 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
             if (newA.value === undefined && newB.value === undefined){
                 const aID = a['id'].value[0] as number
                 const bID = b['id'].value[0] as number
-                return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
+                return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
             else if (newA === undefined)
                 return (-1 * sortedDirection)
             else if (newB === undefined)
                 return (1 * sortedDirection)
             else {
-                if (newA.value > newB.value) return (1 * sortedDirection)
-                else if (newA.value < newB.value) return (-1 * sortedDirection)
+                if ((Number(newA.value[0]) - Number(newB.value[0])) > 1) return (1 * sortedDirection)
+                else if ((Number(newA.value[0]) - Number(newB.value[0])) < 1) return (-1 * sortedDirection)
                 else{
                     const aID = a['id'].value[0] as number
                     const bID = b['id'].value[0] as number
-                    return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
+                    return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
                 }
             }
         } else {
-            if ((newA.value[0] as string).toLowerCase() >
-                (newB.value[0] as string).toLowerCase())
+            if (((newA.value[0] as string).toLowerCase() >
+                (newB.value[0] as string).toLowerCase()) &&
+                (Number(newA.value[0]) - Number(newB.value[0]) > 1))
                 return (1 * sortedDirection)
-            else if ((newA.value[0] as string).toLowerCase() <
-                (newB.value[0] as string).toLowerCase()) 
+            else if (((newA.value[0] as string).toLowerCase() <
+                (newB.value[0] as string).toLowerCase()) && 
+                (Number(newA.value[0]) - Number(newB.value[0]) > 1)) 
                 return (-1 * sortedDirection)
             else{
                 const aID = a['id'].value[0] as number
                 const bID = b['id'].value[0] as number
-                return(aID > bID ? (1 * sortedDirection) : (-1 * sortedDirection))
+                return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
         }
     }); 
@@ -195,7 +197,6 @@ const restructData = (data: BaseElement): {} => {
             }
         }
     })
-    console.log(newData);
     return newData
 }
 

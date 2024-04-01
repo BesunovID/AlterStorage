@@ -21,7 +21,7 @@ export function SelectableField(props: any) {
               handleChange({target:{name: name, value: value}})
             }>
               <DropdownToggle as={CustomToggle} isEdit={isEdit} inputType={value.type}>
-                {(value.type === 'number' && (value.value[index] as number <= 0)) ? null : value.value[index]}
+                {(value.type === 'number' && (value.value[index] as number <= 0)) ? '' : value.value[index]}
               </DropdownToggle>
               <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
                 {value.selectData?.map((el: Object) => {          
@@ -88,6 +88,7 @@ const CustomToggle = React.forwardRef(({ children, onClick, isEdit, inputType }:
         isEdit && onClick(e);
       }}
       className="d-block w-100"
+      style={{cursor: 'pointer'}}
       onChange={() => (null)}
     />
   ));

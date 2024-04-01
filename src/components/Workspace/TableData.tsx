@@ -30,7 +30,7 @@ export function TableData() {
             </Button>
             {data.length > 0 ?
             <>
-            <div className='overflow-auto' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', marginLeft: '0.5rem', resize: 'both'}}>
+            <div className='overflow-auto border ' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', marginLeft: '0.5rem', resize: 'both'}}>
                 <Table striped bordered hover className='overflow-hidden'>
                     <thead>
                         <tr>
@@ -101,7 +101,7 @@ const CustomPagination = (
     const lastPage = Math.ceil(size / 15);
 
     return(
-        <Pagination className='mx-auto'>
+        <Pagination className='mx-auto mt-2'>
             {(currentPage-3 >= 1) && <Pagination.First onClick={() => setCurrentPage(currentPage-2)} />}
             {(currentPage-1 >= 1) && <Pagination.Prev onClick={() => setCurrentPage(currentPage-1)} />}
             {(currentPage-3 >= 1) && <Pagination.Ellipsis  />}

@@ -63,10 +63,11 @@ const CustomAccordionInput = React.forwardRef(({name, value, index, eventKey, on
     return (
         <Form.Control
             name={name} 
-            value={value ? `${value} ${index + 1}` : ``} 
+            value={value} 
             type={value.type} 
-            readOnly={!isEdit}
+            readOnly={true}
             onClick={decoratedOnClick}
+            style={{cursor: 'pointer'}}
             ref={ref as any}
         />
     );
