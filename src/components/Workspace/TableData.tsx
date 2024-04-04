@@ -90,7 +90,7 @@ export function TableData() {
             {
                 searchData.length > 15 && 
                 <CustomPagination 
-                    size={data.length} 
+                    size={searchData.length} 
                     currentPage={currentPage} 
                     setCurrentPage={setCurrentPage} 
                 />

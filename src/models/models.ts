@@ -174,7 +174,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Позиция',
                 value: [''],
                 type: 'string',
-                required: false,
+                required: true,
                 visable: true,
                 valueFrom: 'name_of_the_invoice',
                 count: 1,

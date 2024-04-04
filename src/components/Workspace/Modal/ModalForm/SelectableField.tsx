@@ -6,58 +6,64 @@ import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-    const {name, value, isEdit, handleChange, index}: 
-    {name: string, value: BaseField, isEdit: boolean, handleChange: (event: any) => void, index: number} = props;
-    const [isOpen, setIsOpen] = useState(false);
-    const portalRef = useRef<HTMLDivElement>(null);
-    
-    return(
-        <Form.Group key={name}>
-          <Form.Label>{value.key}</Form.Label>
-          <div className="d-flex">
-            <Dropdown
-            className="w-100 d-flex"
-            onSelect={(value) => 
-              handleChange({target:{name: name, value: value}})
-            }>
-              <DropdownToggle as={CustomToggle} isEdit={isEdit} required={value.required}>
-                {(value.type === 'number' && (value.value[index] as number <= 0)) ? '' : value.value[index]}
-              </DropdownToggle>
-              <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
-                {value.selectData?.map((el: Object) => {          
-                  return (
-                    <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
-                        {Object.entries(el).map(([key2, value2]) => {
-                        if (key2 !== 'id') return `${value2} `
-                        })}
-                    </Dropdown.Item>)
-                  }
-                )}
-              </Dropdown.Menu>
-            </Dropdown>
-            {isEdit &&
-            <CustomAccordionBut 
-              eventKey={value.selectable}
-              onClick={() => setIsOpen(!isOpen)} 
-            />}
-          </div>
-          <Accordion.Collapse eventKey={value.selectable as string}>
-            <div className="accordionContainer" ref={portalRef}>
-              {
-              (portalRef.current !== undefined && portalRef.current !== null) 
-              ? createPortal2(portalRef, value.selectable) 
-              : <div className="1"></div>
+  const {name, value, index, formikValue, isEdit, setFieldValue, setCreateSub, errors}: 
+  {name: string, value: BaseField, index: number, formikValue: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any} = props;
+  const [isOpen, setIsOpen] = useState(false);
+  const portalRef = useRef<HTMLDivElement>(null);
+  const accordionRef = useRef<HTMLDivElement>(null);
+
+  return(
+    <Form.Group key={name}>
+      <Form.Label>{value.key}</Form.Label>
+      <div className="d-flex">
+        <Dropdown
+        className="w-100 d-flex"
+        onSelect={(value) => 
+          setFieldValue(`${name}[${index}]`, value)
+        }
+        >
+          <DropdownToggle 
+          as={CustomToggle} 
+          isEdit={isEdit} 
+          error={!!errors[name] && !!errors[name][index] && errors[name][index]}>
+            {formikValue}
+          </DropdownToggle>
+          <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
+            {value.selectData?.map((el: Object) => {          
+              return (
+                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
+                  {Object.entries(el).map(([key2, value2]) => {
+                  if (key2 !== 'id') return `${value2} `
+                  })}
+                </Dropdown.Item>)
               }
-            </div>
-          </Accordion.Collapse>
-        </Form.Group>   
-    )
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+        {isEdit &&
+        <CustomAccordionBut 
+          eventKey={value.selectable}
+          onClick={() => setIsOpen(!isOpen)} 
+          ref={accordionRef}
+        />}
+      </div>
+      <Accordion.Collapse eventKey={value.selectable as string}>
+        <div className="accordionContainer" ref={portalRef}>
+          {
+          (portalRef.current !== undefined && portalRef.current !== null) 
+          ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub) 
+          : <div className="1"></div>
+          }
+        </div>
+      </Accordion.Collapse>
+    </Form.Group>   
+  )
 }
 
-const createPortal2 = (portalRef: any, table: any) => {
+const createPortal2 = (portalRef: any, table: any, accordionRef: any, setCreateSub: any) => {
   return(
     createPortal(
-    <ModalForm isCreate={true} table={table} element={defaultElementOfTable.get(table)} />
+    <ModalForm isCreate={true} isEdit={true} table={table} accordionRef={accordionRef} element={defaultElementOfTable.get(table)} setCreateSub={setCreateSub} />
     , portalRef.current)
   )
 }
@@ -69,6 +75,7 @@ const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => 
   return (
       <Button
       className="btn btn-primary d-flex ms-2"
+      style={{width: '40px', height: '40px'}}
       onClick={decoratedOnClick}
       ref={ref as any}
       >
@@ -77,11 +84,11 @@ const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => 
   );
 })
 
-const CustomToggle = React.forwardRef(({ children, onClick, isEdit, required }: any, ref) => (
+const CustomToggle = React.forwardRef(({ children, onClick, isEdit, error }: any, ref) => (
+  <div className="d-flex flex-column w-100">
     <Form.Control
       value={children}
       type='select'
-      required={required}
       ref={ref as any}
       readOnly={!isEdit}
       onClick={(e) => {
@@ -91,7 +98,12 @@ const CustomToggle = React.forwardRef(({ children, onClick, isEdit, required }: 
       className="d-block w-100"
       style={{cursor: 'pointer'}}
       onChange={() => (null)}
+      isInvalid={!!error}
     />
+    <Form.Control.Feedback type="invalid">
+      {error}
+    </Form.Control.Feedback>
+   </div>
   ));
 
 const CustomMenu = React.forwardRef(
@@ -110,7 +122,7 @@ const CustomMenu = React.forwardRef(
             className="mx-3 my-2"
             style={{width: 'calc(100% - 2rem)'}}
             placeholder="Поиск..."
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {setValue(e.target.value)}}
             value={value}
           />
           <ul className="list-unstyled w-100">

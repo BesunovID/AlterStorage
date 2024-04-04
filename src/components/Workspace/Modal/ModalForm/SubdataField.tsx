@@ -1,74 +1,94 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import { Form, Accordion, useAccordionButton } from "react-bootstrap"
-import { createPortal } from "react-dom";
-import { BaseElement, BaseField, urlList } from "../../../../models/models";
-import { ModalForm } from "./index";
+import { BaseElement, BaseField } from "../../../../models/models";
+import { SelectableField } from "./SelectableField";
 
 
 export function SubdataField(props: any) {
-    const {name, value, element, index, table, isEdit, setNewElement}: 
-    {name: string, value: BaseField, element: BaseElement, index: number, table: urlList, isEdit: boolean, setNewElement: any} = props;
+    const {name, value, formikValue, errors, element, index, isEdit, handleChange, setFieldValue, setCreateSub}: 
+    {name: string, value: BaseField, formikValue: any, errors: any, element: BaseElement, index: number, isEdit: boolean, handleChange: any, setFieldValue: any, setCreateSub: any} = props;
     const [isOpen, setIsOpen] = useState(false);
     const accordionRef = useRef<HTMLInputElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
-
-/*
-    const formElement: BaseElement = Object.entries(element).reduce((newObj, [elKey, elValue]) => {
-        if ((value.childrens as Array<string>).includes(elKey)){
-            newObj[elKey] = {
-                ...elValue,
-                'value': [elValue.value[index] as any]
-            }
-        }
-        return(newObj)
-    }, {} as BaseElement) */
 
     return(
         <Form.Group key={index}>
           <Form.Label>{`${value.key} ${index + 1}`}</Form.Label>
           <CustomAccordionInput
             name={name}
-            value={element[value.valueFrom as string].value[index]}
-            index={index}
+            value={formikValue[element[name].valueFrom as string][index]}
+            type={element[name].type}
+            error={!!errors[name] && !!errors[name][index] && errors[name][index]}
             eventKey={index.toString()}
             onClick={() => setIsOpen(!isOpen)}
-            isEdit={isEdit}
             ref={accordionRef}
           />
           <Accordion.Collapse eventKey={index.toString()}>
+            <Accordion>
             <div className="accordionContainer" ref={portalRef}>
               {
-              (portalRef.current !== undefined && portalRef.current !== null 
-              && accordionRef.current !== undefined && accordionRef.current !== null) 
-              ? createPortal2(portalRef, accordionRef, element, index, table, name, setNewElement, isEdit) 
-              : <div className="1"></div>
+                <div className="rounded p-2 my-2" style={{backgroundColor: '#458b7460'}}>
+                    {Object.entries(element).map(([key, value]) => (
+                        (element[key].subject === name && element[key].visable) &&
+                        (!element[key].selectable ? 
+                        <Form.Group key={`${key} ${index}`}>
+                            <Form.Label className="mt-1">{value.key}</Form.Label>
+                            <Form.Control 
+                                name={`${key}[${index}]`} 
+                                value={formikValue[key][index]} 
+                                type={value.type} 
+                                onChange={handleChange} 
+                                readOnly={!isEdit} 
+                                maxLength={value.maxLength} 
+                                minLength={value.minLength} 
+                                isInvalid={!!errors[key] &&
+                                    !!(errors[key] as string[])[index]}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                                {!!errors[key] &&
+                                !!errors[key][index] &&
+                                errors[key][index]}
+                            </Form.Control.Feedback>
+                        </Form.Group> :
+                        <SelectableField 
+                            key={`${key} ${index}`}
+                            name={key}
+                            value={element[key]}
+                            formikValue={formikValue[key][index]}
+                            index={index}
+                            isEdit={isEdit}
+                            setFieldValue={setFieldValue} 
+                            setCreateSub={setCreateSub}
+                            errors={errors}
+                        />)
+                    ))}
+                </div>
               }
             </div>
+            </Accordion>
           </Accordion.Collapse>
         </Form.Group>   
     )
 }
 
-const createPortal2 = (portalRef: any, accordionRef: any, element: any, index: number, table: any, subject: string, setNewElement: any, isEdit: boolean) => {
-    return(
-        createPortal(
-        <ModalForm accordionRef={accordionRef} isEdit={isEdit} isCreate={true} isSubField={true} table={table} element={element} subject={subject} index={index} setNewElement={setNewElement} />
-        , portalRef.current)
-    )
-}
-
-const CustomAccordionInput = React.forwardRef(({name, value, index, eventKey, onClick, isEdit}: any, ref) => {
+const CustomAccordionInput = React.forwardRef(({name, value, type, error, eventKey, onClick}: any, ref) => {
     const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
 
     return (
+        <>
         <Form.Control
             name={name} 
             value={value} 
-            type={value.type} 
+            type={type} 
+            isInvalid={!!error}
             readOnly={true}
             onClick={decoratedOnClick}
             style={{cursor: 'pointer'}}
             ref={ref as any}
         />
+        <Form.Control.Feedback type="invalid">
+            {error}
+        </Form.Control.Feedback>
+        </>
     );
 })
