@@ -27,7 +27,7 @@ interface PayloadShowModalElement {
 interface PayloadSortTable {
     data: BaseElement[]
     sortedByField: string
-    sortedRevers: boolean
+    sortedDirection: number
 }
 
 const initialState: TableState = {
@@ -60,8 +60,7 @@ export const tableSlice = createSlice({
         sortTable(state, action: PayloadAction<PayloadSortTable>){
             state.data = action.payload.data
             state.sortedByField = action.payload.sortedByField
-            if (action.payload.sortedRevers)
-                state.sortedDirection *= -1
+            state.sortedDirection = action.payload.sortedDirection
         },
         showModalElement(state, action: PayloadAction<PayloadShowModalElement>){
             state.modalIsOpen = action.payload.isOpen

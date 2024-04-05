@@ -22,8 +22,9 @@ export function TableData() {
     const [searchData, setSearchData] = useState<BaseElement[]>(JSON.parse(JSON.stringify(data)))
 
     useEffect(() => {
-
-    }, [searchData])
+        console.log(sortDirect);
+        setSearchData(JSON.parse(JSON.stringify(data)))
+    }, [data])
 
     return(
         loading ? 
@@ -50,15 +51,15 @@ export function TableData() {
                                 onClick={() => dispatch(sortProductsTable(
                                     key, 
                                     data, 
-                                    tableSelector.sortedByField, 
-                                    tableSelector.sortedDirection
+                                    sortBy, 
+                                    sortDirect
                                 ))}>
                                     {value.key}
                                     {
-                                    (sortBy === key) && (sortDirect === 1) && `  ▲`
+                                    (sortBy === key) && (sortDirect === -1) && `  ▲`
                                     }
                                     {
-                                    (sortBy === key) && (sortDirect === -1) && `  ▼`
+                                    (sortBy === key) && (sortDirect === 1) && `  ▼`
                                     }
                                 </th> 
                                     

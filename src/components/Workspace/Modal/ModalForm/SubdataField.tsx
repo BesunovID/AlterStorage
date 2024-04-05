@@ -16,7 +16,7 @@ export function SubdataField(props: any) {
           <Form.Label>{`${value.key} ${index + 1}`}</Form.Label>
           <CustomAccordionInput
             name={name}
-            value={formikValue[element[name].valueFrom as string][index]}
+            value={formikValue[name][index]}
             type={element[name].type}
             error={!!errors[name] && !!errors[name][index] && errors[name][index]}
             eventKey={index.toString()}

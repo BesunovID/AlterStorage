@@ -60,14 +60,16 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
     const arrayOfSort = [...data];
     const revers: boolean = (field === sortedByField);
 
-    if (!revers) sortedDirection = 1;
+    revers ? (sortedDirection *= -1) : (sortedDirection = 1);
 
     arrayOfSort.sort((a, b) => {
         let newA = a[field];
         let newB = b[field];
-        
+
+        return newA.value[0].toString().localeCompare(newB.value[0].toString(), undefined, {numeric: true, sensitivity: "base"})
+        /*
         if (newA.type === 'number' && newB.type === 'number') {
-            if (newA.value === undefined && newB.value === undefined){
+            if (newA.value[0] === '' && newB.value[0] === ''){
                 const aID = a['id'].value[0] as number
                 const bID = b['id'].value[0] as number
                 return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
@@ -99,13 +101,13 @@ export const sortProductsTable = (field: string, data: BaseElement[], sortedByFi
                 const bID = b['id'].value[0] as number
                 return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
             }
-        }
+        }*/
     }); 
 
-    const newData = revers ? arrayOfSort.reverse() : arrayOfSort;
+    const newData = (sortedDirection === -1) ? arrayOfSort.reverse() : arrayOfSort;
 
     return (dispatch: AppDispatch) => {
-        dispatch(tableSlice.actions.sortTable({data: newData, sortedByField: field, sortedRevers: revers}))
+        dispatch(tableSlice.actions.sortTable({data: newData, sortedByField: field, sortedDirection: sortedDirection}))
     }
 }
 

@@ -28,12 +28,22 @@ export function ModalForm(props: any) {
         .entries(newElement)
         .reduce((newObj, [elKey, elValue]) => {
             if (elValue.visable) {
-                newObj[elKey] = [];
-                elValue.value.map((val, index) => {
-                    if (val === -1)
-                        newObj[elKey][index] = ''
-                    else newObj[elKey][index] = val as string
-                })
+                if (elValue.valueFrom){
+                    const arr = [...new Array(elValue.count)].map((_,i) => i+1);
+                    newObj[elKey] = [];
+                    arr.map((_,index) => {
+                        newElement[elValue.valueFrom as string].value[index] !== undefined ?
+                        newObj[elKey][index] = newElement[elValue.valueFrom as string].value[index] as string :
+                        newObj[elKey][index] = '';
+                    })
+                } else {
+                    newObj[elKey] = [];
+                    elValue.value.map((val, index) => {
+                        if (val === -1)
+                            newObj[elKey][index] = ''
+                        else newObj[elKey][index] = val as string
+                    })
+                }
             } 
             return(newObj)
         }, {} as {[key: string] : string[]});
@@ -166,7 +176,7 @@ export function ModalForm(props: any) {
         }
         if (props.isCreate && props.isEdit !== isEdit) {
             setIsEdit(props.isEdit);
-        }     
+        } 
     }, [setNewElement, isEdit, props.element, props.isEdit, loading, createSub])
 
 
@@ -229,6 +239,7 @@ export function ModalForm(props: any) {
                 } else if (value.visable && value.childrens && !props.subject) {
                     if (value.count !== undefined){
                         const arr = [...new Array(value.count)].map((_,i) => i+1);
+
                         return(
                         <>
                             {arr.map((_, index) => 
