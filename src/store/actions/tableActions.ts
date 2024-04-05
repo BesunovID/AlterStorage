@@ -56,61 +56,6 @@ export const showProductsTable = (link: urlList) => {
     }
 }
 
-export const sortProductsTable = (field: string, data: BaseElement[], sortedByField: string, sortedDirection: number) => {
-    const arrayOfSort = [...data];
-    const revers: boolean = (field === sortedByField);
-
-    revers ? (sortedDirection *= -1) : (sortedDirection = 1);
-
-    arrayOfSort.sort((a, b) => {
-        let newA = a[field];
-        let newB = b[field];
-
-        return newA.value[0].toString().localeCompare(newB.value[0].toString(), undefined, {numeric: true, sensitivity: "base"})
-        /*
-        if (newA.type === 'number' && newB.type === 'number') {
-            if (newA.value[0] === '' && newB.value[0] === ''){
-                const aID = a['id'].value[0] as number
-                const bID = b['id'].value[0] as number
-                return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
-            }
-            else if (newA === undefined)
-                return (-1 * sortedDirection)
-            else if (newB === undefined)
-                return (1 * sortedDirection)
-            else {
-                if ((Number(newA.value[0]) - Number(newB.value[0])) > 1) return (1 * sortedDirection)
-                else if ((Number(newA.value[0]) - Number(newB.value[0])) < 1) return (-1 * sortedDirection)
-                else{
-                    const aID = a['id'].value[0] as number
-                    const bID = b['id'].value[0] as number
-                    return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
-                }
-            }
-        } else {
-            if (((newA.value[0] as string).toLowerCase() >
-                (newB.value[0] as string).toLowerCase()) &&
-                (Number(newA.value[0]) - Number(newB.value[0]) > 1))
-                return (1 * sortedDirection)
-            else if (((newA.value[0] as string).toLowerCase() <
-                (newB.value[0] as string).toLowerCase()) && 
-                (Number(newA.value[0]) - Number(newB.value[0]) > 1)) 
-                return (-1 * sortedDirection)
-            else{
-                const aID = a['id'].value[0] as number
-                const bID = b['id'].value[0] as number
-                return(aID - bID ? (1 * sortedDirection) : (-1 * sortedDirection))
-            }
-        }*/
-    }); 
-
-    const newData = (sortedDirection === -1) ? arrayOfSort.reverse() : arrayOfSort;
-
-    return (dispatch: AppDispatch) => {
-        dispatch(tableSlice.actions.sortTable({data: newData, sortedByField: field, sortedDirection: sortedDirection}))
-    }
-}
-
 export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: urlList) => {
     return(dispatch: AppDispatch) => {
         dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}))

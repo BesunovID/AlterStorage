@@ -10,19 +10,34 @@ export function TableData() {
     const userRole = useAppSelector(state => state.users.myProfile.role)
     const dispatch = useAppDispatch();
 
-    const [currentPage, setCurrentPage] = useState<number>(1);
-
     const data = tableSelector.data; 
     const currentTable = tableSelector.currentUrl;
     const baseElement = tableSelector.element;
     const loading = tableSelector.loading;
-    const sortBy = tableSelector.sortedByField;
-    const sortDirect = tableSelector.sortedDirection;
 
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [sortField, setSortField] = useState('id');
+    const [sortedDirection, setSortedDirection] = useState(1);
     const [searchData, setSearchData] = useState<BaseElement[]>(JSON.parse(JSON.stringify(data)))
 
+    const handleSortTable = (field: string, data: BaseElement[]) => {
+        const arrayOfSort = [...data];
+    
+        if (sortField === field) {
+            setSortedDirection(sortedDirection * -1);
+            setSortField(field);
+        }
+    
+        arrayOfSort.sort((a, b) => {
+            let newA = a[field];
+            let newB = b[field];
+            return newA.value[0].toString().localeCompare(newB.value[0].toString(), undefined, {numeric: true, sensitivity: "base"})
+        }); 
+    
+        (sortedDirection === -1) ? setSearchData(arrayOfSort.reverse()) : setSearchData(arrayOfSort);
+    }
+
     useEffect(() => {
-        console.log(sortDirect);
         setSearchData(JSON.parse(JSON.stringify(data)))
     }, [data])
 
@@ -48,19 +63,11 @@ export function TableData() {
                                 (baseElement[key].childrens === undefined) && (key !== 'id_2') && (key !== 'number_invoice_2') &&
                                 <th 
                                 key={key} 
-                                onClick={() => dispatch(sortProductsTable(
-                                    key, 
-                                    data, 
-                                    sortBy, 
-                                    sortDirect
-                                ))}>
+                                onClick={() => handleSortTable(key, searchData)}
+                                >
                                     {value.key}
-                                    {
-                                    (sortBy === key) && (sortDirect === -1) && `  ▲`
-                                    }
-                                    {
-                                    (sortBy === key) && (sortDirect === 1) && `  ▼`
-                                    }
+                                    {(sortField === key) && (sortedDirection === -1) && `  ▲`}
+                                    {(sortField === key) && (sortedDirection === 1) && `  ▼`}
                                 </th> 
                                     
                             ))}
