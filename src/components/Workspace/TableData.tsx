@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { Button, Form, InputGroup, Pagination, Spinner, Table } from 'react-bootstrap';
-import { deleteElement, showModalElement, sortProductsTable } from '../../store/actions/tableActions';
+import { deleteElement, showModalElement } from '../../store/actions/tableActions';
 import { BaseElement } from '../../models/models';
 import { useEffect, useState } from 'react';
 
@@ -23,18 +23,25 @@ export function TableData() {
     const handleSortTable = (field: string, data: BaseElement[]) => {
         const arrayOfSort = [...data];
     
-        if (sortField === field) {
-            setSortedDirection(sortedDirection * -1);
-            setSortField(field);
-        }
-    
         arrayOfSort.sort((a, b) => {
             let newA = a[field];
             let newB = b[field];
             return newA.value[0].toString().localeCompare(newB.value[0].toString(), undefined, {numeric: true, sensitivity: "base"})
         }); 
-    
-        (sortedDirection === -1) ? setSearchData(arrayOfSort.reverse()) : setSearchData(arrayOfSort);
+
+        if (sortField === field) {
+            if (sortedDirection === 1) {
+                setSortedDirection(-1);
+                setSearchData(arrayOfSort.reverse());
+            } else {
+                setSortedDirection(1);
+                setSearchData(arrayOfSort);
+            }
+        } else {
+            setSortedDirection(1);
+            setSortField(field);
+            setSearchData(arrayOfSort);
+        }
     }
 
     useEffect(() => {
