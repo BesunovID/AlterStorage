@@ -18,7 +18,8 @@ export function ModalForm(props: any) {
     const table: urlList = props.table;
     const userRole = useAppSelector(state => state.users.myProfile.role)
 
-    const [loading, setLoading] = useState(!props.isSubField ? true : false);
+    const [loading, setLoading] = useState(!props.isCreate ? true : false);
+    const [firstLoad, setFirstLoad] = useState(true);
     const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === -1));
     const [createSub, setCreateSub] = useState(false);
     const [submitName, setSubmitName] = useState('');
@@ -176,8 +177,12 @@ export function ModalForm(props: any) {
         }
         if (props.isCreate && props.isEdit !== isEdit) {
             setIsEdit(props.isEdit);
-        } 
-    }, [setNewElement, isEdit, props.element, props.isEdit, loading, createSub])
+        }
+        if (props.isOpen && firstLoad) {
+            setLoading(true);
+            setFirstLoad(false);
+        }
+    }, [setNewElement, isEdit, props.element, props.isEdit, props.isOpen, loading, createSub])
 
 
     return(

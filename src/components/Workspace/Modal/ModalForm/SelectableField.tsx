@@ -51,7 +51,7 @@ export function SelectableField(props: any) {
         <div className="accordionContainer" ref={portalRef}>
           {
           (portalRef.current !== undefined && portalRef.current !== null) 
-          ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub) 
+          ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub, isOpen) 
           : <div className="1"></div>
           }
         </div>
@@ -60,10 +60,10 @@ export function SelectableField(props: any) {
   )
 }
 
-const createPortal2 = (portalRef: any, table: any, accordionRef: any, setCreateSub: any) => {
+const createPortal2 = (portalRef: any, table: any, accordionRef: any, setCreateSub: any, isOpen: any) => {
   return(
     createPortal(
-    <ModalForm isCreate={true} isEdit={true} table={table} accordionRef={accordionRef} element={defaultElementOfTable.get(table)} setCreateSub={setCreateSub} />
+    <ModalForm isCreate={true} isEdit={true} isOpen={isOpen} table={table} accordionRef={accordionRef} element={defaultElementOfTable.get(table)} setCreateSub={setCreateSub} />
     , portalRef.current)
   )
 }
