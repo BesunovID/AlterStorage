@@ -8,7 +8,7 @@ export const changeDirection = (particlesDots: ParticlesDots[]) => {
         const newParticlesDots = particlesDots.map(e => (
             operation(e)
         ));
-        dispatch(particlesSlice.actions.setMove({particles: newParticlesDots}))   
+        dispatch(particlesSlice.actions.setMove({particles: newParticlesDots}))  
     }
 }
 

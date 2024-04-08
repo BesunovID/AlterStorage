@@ -4,20 +4,25 @@ import { changeDirection } from '../store/actions/particlesActions';
 import style from '../styles/Particles.module.scss'
 
 export function Particles() {
+    const visable = !document.hidden;
     const initial = useRef(false);
     const dispatch = useAppDispatch();
     const particles = useAppSelector(state => state.particles.particles);
 
     useEffect(() => {
-        if (initial.current){
-            const timeoutID = setTimeout(() => dispatch(changeDirection(particles)), 2000)
-            return () => clearTimeout(timeoutID);
+        if (visable) {
+            if (initial.current){
+                const timeoutID = setTimeout(() => dispatch(changeDirection(particles)), 2000)
+                return () => clearTimeout(timeoutID);
+            } else {
+                const timeoutID = setTimeout(() => dispatch(changeDirection(particles)));
+                initial.current = true;
+                setTimeout(() => {return () => clearTimeout(timeoutID)}, 2000);
+            }
         } else {
-            const timeoutID = setTimeout(() => dispatch(changeDirection(particles)));
-            initial.current = true;
-            return () => clearTimeout(timeoutID);
+            initial.current = false;
         }
-    }, [particles])
+    }, [particles, visable])
     
 
     return(
