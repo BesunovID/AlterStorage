@@ -18,7 +18,8 @@ export const getProfile = () => {
             }})
             .then((res) => {
                 const profile = res.data.find((profile: any) => profile.username === localStorage.getItem('USERNAME'))
-                dispatch(usersSlice.actions.myProfile({data: profile}))
+                console.log(profile);
+                dispatch(usersSlice.actions.myProfile({data: profile}));
             })
         } catch(e) {
             alert('Ошибка!')

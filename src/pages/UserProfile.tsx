@@ -7,7 +7,6 @@ import { getProfile } from "../store/actions/usersActions";
 
 export function UserProfile() {
     const isAuth = useAppSelector(state => state.auth.isAuth)
-
     const dispatch = useAppDispatch();
 
     useEffect(() => {
