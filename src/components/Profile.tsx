@@ -1,24 +1,53 @@
-import { Container } from "react-bootstrap";
-import { useAppSelector } from "../hooks/redux";
+import { useState } from "react";
+import { Button, Container, Form } from "react-bootstrap";
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { IUser, UserEnumField } from "../models/models";
+import { updateUser } from "../store/actions/usersActions";
 
 
-export function Profile() {
-    const profileData = useAppSelector(state => state.users.myProfile)
+export function Profile(props: any) {
+    const dispatch = useAppDispatch();
+    const [user, setUser] = useState<IUser>(props.user);
+
+    const [isEdit, setIsEdit] = useState<boolean>(false);
 
     return(
-        <Container fluid>
-            {
-                Object.entries(profileData).map(([key, value]) => (
-                    <div className="d-flex">
-                        {key !== 'password' && 
-                         <p className='p-2 fst-italic'>{key}</p>
-                        }
-                        {key !== 'password' && 
-                         <p className='p-2 text-success fw-bold'>{value ? value : 'Не указан'}</p>
-                        }
-                    </div>
-                ))
-            }
-        </Container>
+        <Form>
+            {Object.entries(user as IUser).map(([key, value]) => (
+                (key !== 'id') && (key !== 'password') && 
+                <Form.Group key={key}>
+                    <Form.Label className="mt-1">{UserEnumField[key as keyof typeof UserEnumField]}</Form.Label>
+                    {key !== 'role' ? 
+                    <Form.Control 
+                        name={key} 
+                        value={value} 
+                        type='text'
+                        readOnly={key === 'username' || !isEdit} 
+                        onChange={(newValue) => setUser(prevState => ({
+                            ...prevState as IUser,
+                            [key]: newValue.target.value,
+                        }))}
+                    /> : 
+                    <Form.Select 
+                    value={value} 
+                    disabled={!isEdit}
+                    onChange={(value) => setUser(prevState => ({
+                        ...prevState as IUser,
+                        [key]: value.target.value,
+                    }))}>
+                        <option value='user'>Пользователь</option>
+                        <option value='moderator'>Модератор</option>
+                        <option value='admin'>Админ</option>
+                    </Form.Select>
+                    }
+                </Form.Group>
+            ))}
+            {!isEdit && <Button className="d-block mx-auto mt-3" onClick={() => setIsEdit(true)}>Изменить</Button>}
+            {isEdit && 
+            <div className="buttons">
+                <Button variant="success" className="mt-3" onClick={() => dispatch(updateUser(user))}>Сохранить</Button>
+                <Button variant="danger" className="mt-3" onClick={() => setIsEdit(false)}>Отменить</Button>
+            </div>}
+        </Form>
     )
 }

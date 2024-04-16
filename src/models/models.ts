@@ -1,10 +1,21 @@
 export interface IUser {
+    id?: number
     username: string
     email: string
     first_name?: string
     last_name?: string
     role?: string
     password: string
+}
+
+export enum UserEnumField {
+    id = 'ID',
+    username = 'Логин',
+    email = 'Email',
+    first_name = 'Имя',
+    last_name = 'Фамилия',
+    role = 'Роль',
+    password = 'Пароль',
 }
 
 export type BaseField = {

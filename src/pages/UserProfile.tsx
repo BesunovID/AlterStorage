@@ -8,11 +8,12 @@ import { Spinner } from "react-bootstrap";
 
 export function UserProfile() {
     const isAuth = useAppSelector(state => state.auth.isAuth)
+    const myProfile = useAppSelector(state => state.users.myProfile)
     const [loading, setLoading] = useState(true);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        isAuth && dispatch(getProfile()).then((res) => res && setLoading(false))
+        isAuth && loading && dispatch(getProfile()).then((res) => res && setLoading(false))
     }, [isAuth])
     
     if (!isAuth) {
@@ -24,7 +25,8 @@ export function UserProfile() {
         <div className="bg-grey d-flex align-items-center justify-content-center">
             <Spinner animation="border" />
         </div> :
-        <Profile />
-        
+        <div className="col-6 mx-auto">
+            <Profile user={myProfile} />
+        </div>
     )
 }
