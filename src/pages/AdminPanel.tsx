@@ -28,7 +28,7 @@ export function AdminPanel() {
         <div className="bg-grey d-flex align-items-center justify-content-center">
             <Spinner animation="border" />
         </div> :
-        <div className="admin col-6 mx-auto">
+        <div className="admin col-md-6 col-sm-10 col-12 px-sm-0 px-2 mx-auto">
             <ListGroup as="ol" numbered className="my-2">
                 {allUsers.map((user, index) => (
                     <ListGroup.Item

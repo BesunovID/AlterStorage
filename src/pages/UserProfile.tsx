@@ -25,7 +25,7 @@ export function UserProfile() {
         <div className="bg-grey d-flex align-items-center justify-content-center">
             <Spinner animation="border" />
         </div> :
-        <div className="col-6 mx-auto">
+        <div className="col-md-7 col-sm-10 col-12 mx-auto border border-top-0 border-bottom-0 p-3" style={{height: 'calc(100vh - 48px)'}}>
             <Profile user={myProfile} />
         </div>
     )
