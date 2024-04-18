@@ -21,7 +21,6 @@ export function SubdataField(props: any) {
         })
         newElement[name].count = newElement[name].count - 1;
         setNewElement(newElement);
-        console.log(newElement);
     }
 
     return(
@@ -37,7 +36,8 @@ export function SubdataField(props: any) {
                 onClick={() => setIsOpen(!isOpen)}
                 ref={accordionRef}
             />
-            {(element[name].count as number) > 1 && <Button variant="danger" className="mx-2" onClick={() => handleDel()}>-</Button>}
+            {(element[name].count as number) > 1 && 
+            <Button variant="danger" className="ms-2" onClick={() => handleDel()} style={{width: '35px', height: '40px'}}>-</Button>}
           </div>
           <Accordion.Collapse eventKey={index.toString()}>
             <Accordion>
@@ -91,7 +91,7 @@ const CustomAccordionInput = React.forwardRef(({name, value, type, error, eventK
     const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
 
     return (
-        <div className="d-flex flex-direction-column">
+        <div className="d-flex flex-column flex-grow-1">
         <Form.Control
             name={name} 
             value={value} 
