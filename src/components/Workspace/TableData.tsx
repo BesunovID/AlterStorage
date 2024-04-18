@@ -50,7 +50,7 @@ export function TableData() {
 
     return(
         loading ? 
-        <div className="bg-grey d-flex align-self-center align-items-md-center justify-content-center"  style={{minHeight: '60vh'}}>
+        <div className="bg-grey d-flex align-self-center align-items-center justify-content-center"  style={{minHeight: '60vh'}}>
             <Spinner animation="border" />
         </div> :
         <>
@@ -170,21 +170,23 @@ const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData
     }, [searchValue, searchField])
 
     return(
-        <InputGroup className='mb-2 mx-2 w-50'>
+        <InputGroup className='mb-2 ms-2' style={{width: 'calc(100% - 2rem)'}}>
             <InputGroup.Text id='search'>Поиск</InputGroup.Text>
             <Form.Control
                 aria-label="Поиск"
                 value={searchValue}
                 onChange={(event: any) => setSearchValue(event.target.value)}
+                style={{width: '50%'}}
             />
             <InputGroup.Text id='in'>в</InputGroup.Text>
             <Form.Select
                 value={searchField}
                 onChange={(event: any) => setSearchField(event.target.value)}
+                style={{minWidth: '150px'}}
             >
                 <option value={''}>любом</option>
                 {Object.entries(data[0]).map(([key, value]) => 
-                    <option key={key} value={key}>{value.key}</option>
+                    value.visable && <option key={key} value={key}>{value.key}</option>
                 )
                 }
             </Form.Select>

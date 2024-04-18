@@ -10,7 +10,7 @@ export function Workspace() {
         <Container fluid className={'flex-md-grow-1'}>
             <Row className={''}>
                 <MainMenu />
-                <div className='d-flex flex-column align-items-start col-md-10 p-0'>
+                <div className='d-flex flex-column align-items-start col-sm-9 col-md-10 p-0'>
                     {isOpen &&
                         <>
                             <TableData />

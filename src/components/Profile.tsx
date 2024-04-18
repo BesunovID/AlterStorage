@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button, Container, Form } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { Button, Form } from "react-bootstrap";
+import { useAppDispatch } from "../hooks/redux";
 import { IUser, UserEnumField } from "../models/models";
 import { updateUser } from "../store/actions/usersActions";
 
@@ -44,8 +44,8 @@ export function Profile(props: any) {
             ))}
             {!isEdit && <Button className="d-block mx-auto mt-3" onClick={() => setIsEdit(true)}>Изменить</Button>}
             {isEdit && 
-            <div className="buttons">
-                <Button variant="success" className="mt-3" onClick={() => dispatch(updateUser(user))}>Сохранить</Button>
+            <div className="buttons d-flex justify-content-center">
+                <Button variant="success" className="mt-3 me-2" onClick={() => dispatch(updateUser(user))}>Сохранить</Button>
                 <Button variant="danger" className="mt-3" onClick={() => setIsEdit(false)}>Отменить</Button>
             </div>}
         </Form>
