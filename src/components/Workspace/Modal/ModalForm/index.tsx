@@ -95,6 +95,8 @@ export function ModalForm(props: any) {
         Promise.all(promises).then(() => {
             setLoading(false);
             setNewElement(JSON.parse(JSON.stringify(selectData)));
+            console.log('update');
+            console.log(selectData);
         })
     }
 
@@ -132,6 +134,7 @@ export function ModalForm(props: any) {
             props.setCreateSub && props.setCreateSub(true);
             if (props.accordionRef.current !== undefined && props.accordionRef.current !== null) {
                 props.accordionRef.current.click();
+                setNewElement(defaultElementOfTable.get(table));
             }
         });  
     }
@@ -220,7 +223,7 @@ export function ModalForm(props: any) {
                             formikValue={values[key][0]}
                             isEdit={isEdit} 
                             setFieldValue={setFieldValue}
-                            setCreateSub={props.setCreateSub ? props.setCreateSub : setCreateSub}
+                            setCreateSub={setCreateSub}
                             errors={errors}
                         />)
                     else return(
@@ -259,7 +262,7 @@ export function ModalForm(props: any) {
                                     isEdit={isEdit} 
                                     handleChange={handleChange}
                                     setFieldValue={setFieldValue}
-                                    setCreateSub={props.setCreateSub ? props.setCreateSub : setCreateSub}
+                                    setCreateSub={setCreateSub}
                                 />
                             )}
                             {isEdit && <Button className='d-block mt-3 mx-auto' onClick={() => {handleAddField(key, values)}}>Добавить позицию (+)</Button>}
