@@ -95,8 +95,6 @@ export function ModalForm(props: any) {
         Promise.all(promises).then(() => {
             setLoading(false);
             setNewElement(JSON.parse(JSON.stringify(selectData)));
-            console.log('update');
-            console.log(selectData);
         })
     }
 
@@ -263,6 +261,7 @@ export function ModalForm(props: any) {
                                     handleChange={handleChange}
                                     setFieldValue={setFieldValue}
                                     setCreateSub={setCreateSub}
+                                    setNewElement={setNewElement}
                                 />
                             )}
                             {isEdit && <Button className='d-block mt-3 mx-auto' onClick={() => {handleAddField(key, values)}}>Добавить позицию (+)</Button>}
