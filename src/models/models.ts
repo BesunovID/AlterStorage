@@ -118,6 +118,7 @@ export const defaultElementOfTable: ListOfTables = {
                 required: true,
                 visable: true,
                 selectable: 'finished_product',
+                valueFrom: 'name',
                 selectData: [],
             },
             'description': {
@@ -418,6 +419,9 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'number',
                 required: false,
                 visable: true,
+                selectable: 'unit_of_measur',
+                valueFrom: 'name',
+                selectData: [],
             },
             'rack': {
                 key: 'Стеллаж',
@@ -426,6 +430,7 @@ export const defaultElementOfTable: ListOfTables = {
                 required: false,
                 visable: true,
                 selectable: 'rack',
+                valueFrom: 'rack',
                 selectData: [],
             },
             'shelf': {
@@ -435,6 +440,7 @@ export const defaultElementOfTable: ListOfTables = {
                 required: false,
                 visable: true,
                 selectable: 'shelf',
+                valueFrom: 'shell',
                 selectData: [],
             },
             'box': {
@@ -484,6 +490,7 @@ export const defaultElementOfTable: ListOfTables = {
                 required: true,
                 visable: true,
                 selectable: 'assemblings',
+                valueFrom: 'id',
                 selectData: [],
             },
             'quantity': {
@@ -500,18 +507,20 @@ export const defaultElementOfTable: ListOfTables = {
                 required: false,
             },
         },
-        'unit_of_measure': {
+        'unit_of_measur': {
             'id': {
                 key: 'ID',
                 value: [-1],
                 type: 'number',
                 required: false,
+                visable: false,
             },
             'name': {
                 key: 'Наименование',
                 value: [''],
                 type: 'text',
                 required: true,
+                visable: true,
                 minLength: 1,
                 maxLength: 100,
             },
@@ -520,6 +529,7 @@ export const defaultElementOfTable: ListOfTables = {
                 value: [''],
                 type: 'text',
                 required: false,
+                visable: true,
                 minLength: 0,
                 maxLength: 100,
             },
@@ -602,6 +612,14 @@ export type ParticlesDots = {
     deg: number
 }
 
+export type AlertStatus = 'success'|'erros'|'warning'|'info'
+
+export interface IAlert {
+    id: number,
+    status: AlertStatus,
+    message: string,
+    timeout: number,
+}
 /*
 
 export interface IData {

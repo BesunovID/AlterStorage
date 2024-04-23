@@ -1,9 +1,8 @@
 import React from "react"
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Particles } from "../components/Particles";
 import { useAppDispatch } from "../hooks/redux";
 import { login } from "../store/actions/authActions";
-import { getProfile } from "../store/actions/usersActions";
 import style from '../styles/Auth.module.scss'
 
 export function Login() {

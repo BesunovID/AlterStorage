@@ -39,7 +39,6 @@ const initialState: TableState = {
     modalIsOpen: false,
     element: {},
     currentUrl: urlList.main
-
 }
 
 export const tableSlice = createSlice({

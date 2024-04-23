@@ -3,13 +3,15 @@ import tableReducer from "./slices/tableSlice";
 import authReducer from "./slices/authSlice";
 import particlesReducer from "./slices/particlesSlice";
 import usersReducer from "./slices/usersSlice";
+import alertsReducer from "./slices/alertsSlice";
 
 
 const rootReducer = combineReducers({
     auth: authReducer,
     particles: particlesReducer,
     tables: tableReducer,
-    users: usersReducer
+    users: usersReducer,
+    alerts: alertsReducer
 })
 
 export function setupStore() {

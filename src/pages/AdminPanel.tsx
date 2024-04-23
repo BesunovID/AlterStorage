@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Button, Form, ListGroup, Modal, Spinner } from "react-bootstrap";
+import { Button, ListGroup, Modal, Spinner } from "react-bootstrap";
 import { Navigate } from "react-router-dom"
 import { Profile } from "../components/Profile";
 import { useAppDispatch, useAppSelector } from "../hooks/redux"
-import { IUser, UserEnumField } from "../models/models";
-import { getAllUsers, updateUser } from "../store/actions/usersActions";
+import { IUser } from "../models/models";
+import { getAllUsers } from "../store/actions/usersActions";
 
 
 export function AdminPanel() {
@@ -47,7 +47,6 @@ export function AdminPanel() {
             <Modal 
                 show={user !== undefined ? true : false} 
                 onHide={() => setUser(undefined)}
-                className={'border'}
             >
                 <Modal.Header closeButton className="fw-bold">
                     {(user as IUser)?.username}

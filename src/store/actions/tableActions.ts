@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Toast } from "react-bootstrap";
 import { AppDispatch } from ".."
 import { BaseElement, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
@@ -68,12 +69,10 @@ export const createElement = (element: BaseElement, link: urlList) => {
     return async() => {
         await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
-            alert('Элемент успешно создан!');
+            return 'success'
         })
         .catch((e) => {
-            alert('Ошибка создания!' + e.message);
-        }) 
-        .finally(() => {
+            return 'error'
         })
     }
 }
@@ -84,13 +83,11 @@ export const updateElement = (element: BaseElement, link: urlList) => {
     return async(dispatch: AppDispatch) => {
         await customAxios.patch(`/${link}/${id}/`, returnedData)
         .then(() => {
-            alert('Элемент успешно обновлен!');
             dispatch(showProductsTable(link));
+            return 'success'
         })
         .catch((e) => {
-            alert('Ошибка обновления!' + e.message);
-        }) 
-        .finally(() => {
+            return 'error'
         })
     }
 }
@@ -99,13 +96,11 @@ export const deleteElement = (elementID: number, link: urlList) => {
     return async(dispatch: AppDispatch) => {
         await customAxios.delete(`/${link}/${elementID}/`)
         .then(() => {
-            alert('Элемент удален!');
             dispatch(showProductsTable(link));
+            return 'success'
         })
         .catch((e) => {
-            alert('Ошибка удаления!' + e.message);
-        }) 
-        .finally(() => {
+            return 'error'
         })
     }
 }

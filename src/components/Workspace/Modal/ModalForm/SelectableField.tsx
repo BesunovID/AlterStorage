@@ -31,7 +31,7 @@ export function SelectableField(props: any) {
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
             {value.selectData?.map((el: Object) => {          
               return (
-                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
+                <Dropdown.Item key={(el as any).id} eventKey={(el as any)[`${value.valueFrom}`]} style={{overflowX: 'hidden'}}>
                   {Object.entries(el).map(([key2, value2]) => {
                   if (key2 !== 'id') return `${value2} `
                   })}
@@ -74,6 +74,7 @@ const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => 
   const isCurrentEventKey = activeEventKey === eventKey;
   return (
       <Button
+      variant="success"
       className="btn btn-primary d-flex ms-2"
       style={{width: '40px', height: '40px'}}
       onClick={decoratedOnClick}
@@ -87,7 +88,7 @@ const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => 
 const CustomToggle = React.forwardRef(({ children, onClick, isEdit, error }: any, ref) => (
   <div className="d-flex flex-column w-100">
     <Form.Control
-      value={children}
+      value={children.toString() !== '0' ? children : ''}
       type='select'
       ref={ref as any}
       readOnly={!isEdit}
@@ -126,10 +127,14 @@ const CustomMenu = React.forwardRef(
             value={value}
           />
           <ul className="list-unstyled w-100">
-            {React.Children.toArray(children).filter(
-              (child) =>
-                !value || (child as any).props.children.toString().toLowerCase().indexOf(value.toLowerCase()) != -1
-            ).slice(0, 5)}
+            {React.Children.toArray(children).length > 0 
+            ?
+            React.Children.toArray(children).filter((child) =>
+              !value || (child as any).props.children.toString().toLowerCase().indexOf(value.toLowerCase()) != -1
+            ).slice(0, 5) 
+            :
+            <p className='ms-3'>Данные отсутствуют</p>
+            }
           </ul>
         </div>
       );

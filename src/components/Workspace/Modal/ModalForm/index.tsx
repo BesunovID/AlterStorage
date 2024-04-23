@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Accordion, Button, Form, Spinner } from "react-bootstrap";
+import { Accordion, Button, Form, Spinner, Toast } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 import { BaseElement, defaultElementOfTable, urlList } from "../../../../models/models";
 import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
@@ -29,7 +29,7 @@ export function ModalForm(props: any) {
         .entries(newElement)
         .reduce((newObj, [elKey, elValue]) => {
             if (elValue.visable) {
-                if (elValue.valueFrom){
+                if (elValue.valueFrom && elValue.childrens){
                     const arr = [...new Array(elValue.count)].map((_,i) => i+1);
                     newObj[elKey] = [];
                     arr.map((_,index) => {
@@ -112,9 +112,10 @@ export function ModalForm(props: any) {
 
         setIsEdit(false);
         if (newValues['id'].value[0] === -1){ 
-            dispatch(createElement(newValues, table)).then(() =>
-                dispatch(showModalElement(false, defaultElementOfTable.get(table), table))
-            );
+            dispatch(createElement(newValues, table)).then((res) => {
+                dispatch(showModalElement(false, defaultElementOfTable.get(table), table));
+                
+            });
         }else{
             dispatch(updateElement(newValues, table)).then(() =>
                 dispatch(showModalElement(false, defaultElementOfTable.get(table), table))
@@ -229,7 +230,7 @@ export function ModalForm(props: any) {
                             <Form.Label className="mt-1">{value.key}</Form.Label>
                             <Form.Control 
                                 name={`${key}[0]`} 
-                                value={values[key][0]} 
+                                value={values[key][0].toString() !== '0' ? values[key][0] : ''}
                                 type={value.type} 
                                 onChange={handleChange} 
                                 readOnly={!isEdit} 
@@ -271,8 +272,8 @@ export function ModalForm(props: any) {
                 }
             })}
             {!isEdit && !props.isSubField && <Button disabled={userRole === 'user'} className="d-block mt-3 mx-auto" onClick={() => setIsEdit(true)}>Редактировать</Button>}
-            {isEdit && !props.isCreate && <Button className="d-block mt-3 mx-auto" type="submit" name='base' onClick={() => setSubmitName('base')}>Сохранить</Button>}
-            {isEdit && props.isCreate && !props.isSubField && <Button className='d-block mt-3 mx-auto' type="submit" name='sub' onClick={() => setSubmitName('sub')}>Создать</Button>}
+            {isEdit && !props.isCreate && <Button variant="success" className="d-block mt-3 mx-auto" type="submit" name='base' onClick={() => setSubmitName('base')}>Сохранить</Button>}
+            {isEdit && props.isCreate && !props.isSubField && <Button variant="success" className='d-block mt-3 mx-auto' type="submit" name='sub' onClick={() => setSubmitName('sub')}>Создать</Button>}
             </Accordion>
         </Form>
         )}
