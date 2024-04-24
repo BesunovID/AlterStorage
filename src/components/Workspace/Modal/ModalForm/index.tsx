@@ -20,7 +20,7 @@ export function ModalForm(props: any) {
 
     const [loading, setLoading] = useState(!props.isCreate ? true : false);
     const [firstLoad, setFirstLoad] = useState(true);
-    const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === -1));
+    const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === '-1'));
     const [createSub, setCreateSub] = useState(false);
     const [submitName, setSubmitName] = useState('');
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)));
@@ -40,7 +40,7 @@ export function ModalForm(props: any) {
                 } else {
                     newObj[elKey] = [];
                     elValue.value.map((val, index) => {
-                        if (val === -1)
+                        if (val === '-1')
                             newObj[elKey][index] = ''
                         else newObj[elKey][index] = val as string
                     })
@@ -93,7 +93,7 @@ export function ModalForm(props: any) {
             }
         });
         Promise.all(promises).then(() => {
-            setLoading(false);
+            //setLoading(false);
             setNewElement(JSON.parse(JSON.stringify(selectData)));
         })
     }
@@ -169,9 +169,10 @@ export function ModalForm(props: any) {
 
     useEffect(() => {
         if (loading){
-            if (Object.keys(newElement).find((e) => newElement[e].selectable)) 
-                getTableData();
-            else setLoading(false);
+           // if (Object.keys(newElement).find((e) => newElement[e].selectable)) 
+           //     getTableData();
+           // else setLoading(false);
+           setLoading(false);
         }
         if (createSub) {
             getTableData();

@@ -20,7 +20,8 @@ export enum UserEnumField {
 
 export type BaseField = {
     key: string
-    value: Array<string> | Array<number>
+    value: Array<string>
+    visableValue?: Array<string>
     type: string
     required: boolean
     childrens?: Array<string>
@@ -50,7 +51,7 @@ export const defaultElementOfTable: ListOfTables = {
         'FIO_emploeey': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 required: false,
                 type: 'number',
             },
@@ -106,14 +107,15 @@ export const defaultElementOfTable: ListOfTables = {
         'assemblings': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
             },
             'item': {
                 key: 'Готовый продукт',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: true,
                 visable: true,
@@ -134,7 +136,7 @@ export const defaultElementOfTable: ListOfTables = {
         'finished_product': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -161,7 +163,7 @@ export const defaultElementOfTable: ListOfTables = {
         'invoice_number': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false
@@ -196,7 +198,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'id_2': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -214,7 +216,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'actual_quantity': {
                 key: 'Фактическое кол-во',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: true,
                 visable: true,
@@ -222,17 +224,19 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'storage_position': {
                 key: 'Складская позиция',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: false,
                 visable: true,
                 subject: 'positions',
                 selectable: 'storage_positions',
+                valueFrom: 'name',
                 selectData: [],
             },
             'price_per_unit': {
                 key: 'Цена за единицу',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: true,
                 visable: true,
@@ -240,12 +244,14 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'provider': {
                 key: 'Поставщик',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: false,
                 visable: true,
                 subject: 'positions',
                 selectable: 'provider',
+                valueFrom: 'name',
                 selectData: [],
             },
             'manufacturer': {
@@ -260,7 +266,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'quantity_invoice': {
                 key: 'Количество по накладной',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -268,7 +274,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'summa': {
                 key: 'Сумма',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -276,7 +282,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'number_invoice_2': {
                 key: 'Номер накладной',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -286,7 +292,7 @@ export const defaultElementOfTable: ListOfTables = {
         'provider': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -340,7 +346,7 @@ export const defaultElementOfTable: ListOfTables = {
         'rack': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -358,7 +364,7 @@ export const defaultElementOfTable: ListOfTables = {
         'shelf': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -376,7 +382,7 @@ export const defaultElementOfTable: ListOfTables = {
         'storage_positions': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -408,14 +414,15 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'count': {
                 key: 'Общее количество',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
                 visable: true,
             },
             'units': {
                 key: 'Единицы измерения',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: false,
                 visable: true,
@@ -425,7 +432,8 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'rack': {
                 key: 'Стеллаж',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: false,
                 visable: true,
@@ -435,7 +443,8 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'shelf': {
                 key: 'Полка',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: false,
                 visable: true,
@@ -454,7 +463,7 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'price': {
                 key: 'Цена за единицу',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
                 visable: true,
@@ -469,48 +478,55 @@ export const defaultElementOfTable: ListOfTables = {
                 maxLength: 200,
             },
             'connectAssembling_Storage_Position': {
-                key: 'connectAssembling_Storage_Position',
-                value: [-1],
-                type: 'number',
-                required: false,
-                visable: false,
+                key: 'Сборка ',
+                value: [''],
+                type: 'text',
+                required: true,
+                visable: true,
+                valueFrom: 'assembling',
+                count: 1,
                 childrens: ['id_2', 'quantity', 'storage_position', 'assembling'],
             },
             'id_2': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
+                subject: 'connectAssembling_Storage_Position',
             },
             'assembling': {
                 key: 'Номер сборки',
-                value: [-1],
+                value: [''],
+                visableValue: [''],
                 type: 'number',
                 required: true,
                 visable: true,
                 selectable: 'assemblings',
                 valueFrom: 'id',
                 selectData: [],
+                subject: 'connectAssembling_Storage_Position',
             },
             'quantity': {
                 key: 'Количество в сборке',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: true,
                 visable: true,
+                subject: 'connectAssembling_Storage_Position',
             },
             'storage_position': {
                 key: 'Номер складской позиции',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
+                subject: 'connectAssembling_Storage_Position',
             },
         },
         'unit_of_measur': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -537,7 +553,7 @@ export const defaultElementOfTable: ListOfTables = {
         'write_down': {
             'id': {
                 key: 'ID',
-                value: [-1],
+                value: ['-1'],
                 type: 'number',
                 required: false,
                 visable: false,
@@ -551,20 +567,20 @@ export const defaultElementOfTable: ListOfTables = {
             },
             'count': {
                 key: 'Количество',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
                 visable: true,
             },
             'storage_pos': {
                 key: 'Позиция на складе',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
             },
             'fio_employee': {
                 key: 'Сотрудник',
-                value: [-1],
+                value: [''],
                 type: 'number',
                 required: false,
             },
@@ -581,11 +597,14 @@ export const defaultElementOfTable: ListOfTables = {
     get: function(url: string) {
         const newObj: BaseElement = {};
         for(let field in defaultElementOfTable.tables[url]) {
-           // newObj[field] = {...defaultElementOfTable.tables[url][field]};
             newObj[field] = {
                 ...defaultElementOfTable.tables[url][field],
-                value: [...defaultElementOfTable.tables[url][field].value as any]
-            }
+                value: [...defaultElementOfTable.tables[url][field].value],
+                
+            };
+            if (defaultElementOfTable.tables[url][field].visableValue !== undefined)
+                newObj[field].visableValue = [...defaultElementOfTable.tables[url][field].visableValue as string[]]
+            
         }
         return newObj
     }

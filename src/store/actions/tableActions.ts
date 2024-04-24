@@ -1,5 +1,4 @@
 import axios from "axios";
-import { Toast } from "react-bootstrap";
 import { AppDispatch } from ".."
 import { BaseElement, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
@@ -18,43 +17,70 @@ export const showProductsTable = (link: urlList) => {
     return async (dispatch: AppDispatch) => {
         dispatch(tableSlice.actions.startLoading());
         try{
-            await customAxios.get(`/${link}/`).then((res) => {  
-                res.data.map((e: Object) => {
-                    const newElement = defaultElementOfTable.get(link);
-                    Object.entries(e).map(([key, value]) => {
-                        if (newElement[key].childrens !== undefined){
-                            newElement[key].count = (value as Array<Object>).length;
-                            Object.values((value as Array<Object>)).map((value2, index) => (
-                                Object.entries(value2).map(([key2, value2]) => {
-                                    if(newElement[key2].type === 'text' 
-                                    || newElement[key2].type === 'datetime-local'){
-                                        if (key2 === 'number_invoice'){
-                                            newElement['number_invoice_2'].value[index] = (value2 as string).toString();
-                                        } else newElement[key2].value[index] = value2 as string;
-                                    } else {
-                                        if (key2 === 'id'){
-                                            newElement['id_2'].value[index] = Number(value2 as number);
-                                        } else if (key2 === 'number_invoice'){
-                                            newElement['number_invoice_2'].value[index] = Number(value2 as number);
-                                        } else newElement[key2].value[index] = Number(value2 as number);
-                                    }   
-                                })
-                            ))
-                        } else {
-                            if(newElement[key].type === 'text' 
-                            || newElement[key].type === 'datetime-local'){
-                                if (value !== null) newElement[key].value[0] = (value as string).toString();
-                            } else newElement[key].value[0] = (Number(value as number));
-                        }
-                    })
-                    data.push(newElement)
+            await customAxios.get(`/${link}/`).then((res) => { 
+                const promises: Array<Promise<any>> = [];
+                const allSelectData: {[key: string]: Array<Object>} = {}
+
+                Object.keys(emptyElement).map((key) => {
+                    if (emptyElement[key].selectable) {
+                        promises.push(getSubData(emptyElement[key].selectable as string, allSelectData, key))
+                    }
                 })
-                dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement}));
+                Promise.all(promises).then(() => {
+                    res.data.map((e: Object) => {
+                        const newElement: BaseElement = defaultElementOfTable.get(link);
+            
+                        Object.entries(e).map(([key, val]) => {
+                            const value = (val === null) ? '' : 
+                            (newElement[key].childrens !== undefined ? val : val.toString());
+
+                            if (newElement[key].selectable){
+                                newElement[key].selectData = [...allSelectData[key]]
+                                if (value !== '')
+                                    (newElement[key].visableValue as any)[0] = (allSelectData[key].find((el: any) => el.id.toString() === value) as {[key: string]: any})[newElement[key].valueFrom as string]
+                            } 
+                            if (newElement[key].childrens !== undefined){
+                                newElement[key].count = (value as Array<Object>).length;
+                                Object.values((value as Array<Object>)).map((element, index) => (
+                                    Object.entries(element).map(([key2, val2]) => {
+                                        const value2 = (val2 === null) ? '' : val2.toString();
+                                        if (key2 === 'id'){
+                                            newElement['id_2'].value[index] = value2;
+                                        } else if (key2 === 'number_invoice'){
+                                            newElement['number_invoice_2'].value[index] = value2;
+                                        } else {
+                                            if (newElement[key2].selectable){
+                                                newElement[key2].selectData = [...allSelectData[key2]];
+                                                if (value2 !== '') 
+                                                    (newElement[key2].visableValue as any)[index] = (allSelectData[key2].find((el: any) => el.id.toString() === value2) as {[key: string]: any})[newElement[key2].valueFrom as string]
+                                            } 
+                                            newElement[key2].value[index] = value2;
+                                        }
+                                    })
+                                ))
+                            } else {
+                                newElement[key].value[0] = value;
+                            }
+                        })
+                        data.push(newElement)
+                    })
+                    dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement}));
+                })
             })
         } catch(e) {
             console.log('error', e)
         }
     }
+}
+
+const getSubData = (table: string, data: {[key: string]: Array<Object>}, key: string) => {
+    return axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${table}/`, {
+        headers: {
+            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+        }
+    }).then((res) => {
+        data[key] = [...res.data]
+    })
 }
 
 export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: urlList) => {
@@ -78,7 +104,7 @@ export const createElement = (element: BaseElement, link: urlList) => {
 }
 
 export const updateElement = (element: BaseElement, link: urlList) => {
-    const id = element['id'].value[0] as number;
+    const id = Number(element['id'].value[0]);
     const returnedData = restructData(element);
     return async(dispatch: AppDispatch) => {
         await customAxios.patch(`/${link}/${id}/`, returnedData)
@@ -92,7 +118,7 @@ export const updateElement = (element: BaseElement, link: urlList) => {
     }
 }
 
-export const deleteElement = (elementID: number, link: urlList) => {
+export const deleteElement = (elementID: string, link: urlList) => {
     return async(dispatch: AppDispatch) => {
         await customAxios.delete(`/${link}/${elementID}/`)
         .then(() => {
@@ -120,7 +146,7 @@ const restructData = (data: BaseElement): {} => {
                 arr.map((_, index) => {
                     const subject = (data[key].childrens as Array<any>).reduce((newObj, child) => {
                         if (data[child].visable){
-                            if (data[child].type === 'number' && (data[child].value[index] as number) > 0){
+                            if (data[child].type === 'number' && (Number(data[child].value[index])) > 0){
                                 newObj[child] = Number(data[child].value[index])
                             } else if (data[child].type !== 'number' && (data[child].value[index] as string) !== '') {
                                 newObj[child] = data[child].value[index].toString();
@@ -132,8 +158,8 @@ const restructData = (data: BaseElement): {} => {
                 })
             } else {
                 if (value.type === 'number') {
-                    if (value.value[0] as number > 0)
-                        newData[key] = value.value[0];
+                    if (Number(value.value[0]) > 0)
+                        newData[key] = Number(value.value[0]);
                 } else
                     newData[key] = value.value[0];
             }

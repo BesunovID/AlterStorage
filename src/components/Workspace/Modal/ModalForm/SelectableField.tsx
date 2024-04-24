@@ -26,12 +26,15 @@ export function SelectableField(props: any) {
           as={CustomToggle} 
           isEdit={isEdit} 
           error={!!errors[name] && !!errors[name][index] && errors[name][index]}>
-            {formikValue}
+            {value.selectData?.find((el: any) => el.id.toString() === formikValue.toString()) 
+            ? (value.selectData?.find((el: any) => el.id.toString() === formikValue.toString()) as any)[`${value.valueFrom}`]
+            : ''
+          }
           </DropdownToggle>
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
             {value.selectData?.map((el: Object) => {          
               return (
-                <Dropdown.Item key={(el as any).id} eventKey={(el as any)[`${value.valueFrom}`]} style={{overflowX: 'hidden'}}>
+                <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
                   {Object.entries(el).map(([key2, value2]) => {
                   if (key2 !== 'id') return `${value2} `
                   })}
@@ -88,7 +91,7 @@ const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => 
 const CustomToggle = React.forwardRef(({ children, onClick, isEdit, error }: any, ref) => (
   <div className="d-flex flex-column w-100">
     <Form.Control
-      value={children.toString() !== '0' ? children : ''}
+      value={children !== '0' ? children : ''}
       type='select'
       ref={ref as any}
       readOnly={!isEdit}

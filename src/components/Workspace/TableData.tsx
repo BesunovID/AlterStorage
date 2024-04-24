@@ -67,7 +67,10 @@ export function TableData() {
                         <tr>
                             <th style={{width: '60px'}}></th>
                             {Object.entries(baseElement).map(([key, value]) => (
-                                (baseElement[key].childrens === undefined) && (key !== 'id_2') && (key !== 'number_invoice_2') &&
+                                (baseElement[key].childrens === undefined) && 
+                                (key !== 'id_2') && 
+                                (key !== 'number_invoice_2') && 
+                                (key !== 'storage_position') &&
                                 <th 
                                 key={key} 
                                 onClick={() => handleSortTable(key, searchData)}
@@ -75,24 +78,22 @@ export function TableData() {
                                     {value.key}
                                     {(sortField === key) && (sortedDirection === -1) && `  ▲`}
                                     {(sortField === key) && (sortedDirection === 1) && `  ▼`}
-                                </th> 
-                                    
+                                </th>  
                             ))}
                         </tr>
                     </thead>
                     <tbody>
                         {searchData.map((e: BaseElement) => (
-                            <tr key={`${e['id'].value[0]} + ${tableSelector.currentUrl}`}>
+                            <tr key={`${e['id'].value[0]}`}>
                                 <td style={{maxWidth: '40px'}}>   
-                                    <Button onClick={() => dispatch(deleteElement(e['id'].value[0] as number, currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
+                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => dispatch(deleteElement(e['id'].value[0], currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                                 </td>
                                 {Object.entries(e).map(([keys, val]) => (
-                                    (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') &&
+                                    (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') && (keys !== 'storage_position') &&
                                     <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
                                     {
-                                        (val.type === 'number' && val.value[0] as number <= 0) 
-                                        ? '' 
-                                        : val.value.length > 1 ? `${val.value[0]}, ...` : val.value[0]
+                                        val.visableValue ? val.visableValue[0] : 
+                                        (val.value.length > 1 ? `${val.value[0]} ...` : val.value[0])
                                     }
                                     </td>  
                                 ))}
@@ -153,15 +154,15 @@ const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData
                 if (searchField === ''){
                     return(
                         Object.values(e).find((value) => {
-                            return (value.value as string[]).find((str) => {
-                                return str.toString().toLowerCase().includes(searchValue.toLowerCase())
+                            return value.value.find((str) => {
+                                return str.toLowerCase().includes(searchValue.toLowerCase())
                             })
                         })
                     )
                 } else {
                     return(
-                        (e[searchField].value as string[]).find((str) => {
-                            return str.toString().toLowerCase().includes(searchValue.toLowerCase())
+                        e[searchField].value.find((str) => {
+                            return str.toLowerCase().includes(searchValue.toLowerCase())
                         })
                     )
                 }
