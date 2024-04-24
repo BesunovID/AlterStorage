@@ -59,18 +59,18 @@ export function TableData() {
             <Spinner animation="border" />
         </div> :
         <>
-            <Button className="m-2" onClick={() => dispatch(showModalElement(true, baseElement))}  disabled={userRole === 'user'}>
+            {userRole !== 'user' && <Button className="mx-2 mt-2" onClick={() => dispatch(showModalElement(true, baseElement))}  disabled={userRole === 'user'}>
                 Добавить элемент
-            </Button>
+            </Button>}
             {data.length > 0 ?
             <>
             <CustomSearch data={data} setSearchData={setSearchData} />
             {searchData.length > 0 ?
-            <div className='overflow-auto border ' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', marginLeft: '0.5rem', resize: 'both'}}>
+            <div className='overflow-auto border mt-2' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', marginLeft: '0.5rem', resize: 'both'}}>
                 <Table striped bordered hover className='overflow-hidden'>
                     <thead>
                         <tr>
-                            <th style={{width: '60px'}}></th>
+                            {userRole !== 'user' && <th style={{width: '60px'}}></th>}
                             {Object.entries(baseElement).map(([key, value]) => (
                                 (baseElement[key].childrens === undefined) && 
                                 (key !== 'id_2') && 
@@ -90,9 +90,9 @@ export function TableData() {
                     <tbody>
                         {searchData.map((e: BaseElement) => (
                             <tr key={`${e['id'].value[0]}`}>
-                                <td style={{maxWidth: '40px'}}>   
+                                {userRole !== 'user' && <td style={{maxWidth: '40px'}}>   
                                     <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e['id'].value[0])} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
-                                </td>
+                                </td>}
                                 {Object.entries(e).map(([keys, val]) => (
                                     (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') && (keys !== 'storage_position_2') &&
                                     <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
@@ -176,7 +176,7 @@ const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData
     }, [searchValue, searchField])
 
     return(
-        <InputGroup className='mb-2 ms-2' style={{width: 'calc(100% - 2rem)'}}>
+        <InputGroup className='mx-2 mt-2' style={{width: 'calc(100% - 2rem)'}}>
             <InputGroup.Text id='search'>Поиск</InputGroup.Text>
             <Form.Control
                 aria-label="Поиск"

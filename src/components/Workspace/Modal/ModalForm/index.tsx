@@ -199,6 +199,10 @@ export function ModalForm(props: any) {
 
 
     return(
+        loading ? 
+        <div className="bg-grey d-flex align-items-center justify-content-center">
+            <Spinner animation="border" />
+        </div> :
         <Formik 
         onSubmit={(values) => handleSubmit(values)} 
         initialValues={initialValues} 
@@ -217,11 +221,7 @@ export function ModalForm(props: any) {
         {({ handleSubmit, handleChange, setFieldValue, values, errors }) => (
         <Form noValidate onSubmit={handleSubmit} className={props.isCreate && "rounded p-2 my-2"} style={props.isCreate && {backgroundColor: '#458b7460'}}>
             <Accordion>
-            {loading ? 
-            <div className="bg-grey d-flex align-items-center justify-content-center">
-                <Spinner animation="border" />
-            </div> :
-            Object.entries(newElement).map(([key, value]) => {
+            {Object.entries(newElement).map(([key, value]) => {
                 if (value.visable && value.childrens === undefined && value.subject === props.subject) {
                     if (value.selectable)
                         return(
