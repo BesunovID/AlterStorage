@@ -69,7 +69,14 @@ export function ModalForm(props: any) {
                         errors[key][index] = 'Заполните все поля!'
                     } else if (!newElement[key].childrens && !val){
                         errors[key][index] = 'Заполните поле!'
-                    }
+                    } 
+                })
+            }
+            if (newElement[key].type === 'email'){
+                if (errors[key] === undefined) errors[key] = [];
+                value.map((val, index) => { 
+                    if (val && !val.match(/^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$/))
+                        errors[key][index] = 'Почта не соответствует формату!'
                 })
             }
             
@@ -204,7 +211,7 @@ export function ModalForm(props: any) {
             }, {} as {[key: string]: string[]}); 
             return (errors)
         }}
-        validateOnMount={true}
+        validateOnMount={false}
         enableReinitialize={true}
         >
         {({ handleSubmit, handleChange, setFieldValue, values, errors }) => (
@@ -250,7 +257,7 @@ export function ModalForm(props: any) {
                 } else if (value.visable && value.childrens && !props.subject) {
                     if (value.count !== undefined){
                         const arr = [...new Array(value.count)].map((_,i) => i+1);
-                        
+
                         return(
                         <>
                             {arr.map((_, index) => 
