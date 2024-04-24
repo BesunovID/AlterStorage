@@ -227,7 +227,7 @@ export const defaultElementOfTable: ListOfTables = {
                 value: [''],
                 visableValue: [''],
                 type: 'number',
-                required: false,
+                required: true,
                 visable: true,
                 subject: 'positions',
                 selectable: 'storage_positions',
@@ -485,7 +485,7 @@ export const defaultElementOfTable: ListOfTables = {
                 visable: true,
                 valueFrom: 'assembling',
                 count: 1,
-                childrens: ['id_2', 'quantity', 'storage_position', 'assembling'],
+                childrens: ['id_2', 'quantity', 'storage_position_2', 'assembling'],
             },
             'id_2': {
                 key: 'ID',
@@ -515,7 +515,7 @@ export const defaultElementOfTable: ListOfTables = {
                 visable: true,
                 subject: 'connectAssembling_Storage_Position',
             },
-            'storage_position': {
+            'storage_position_2': {
                 key: 'Номер складской позиции',
                 value: [''],
                 type: 'number',
@@ -603,7 +603,9 @@ export const defaultElementOfTable: ListOfTables = {
                 
             };
             if (defaultElementOfTable.tables[url][field].visableValue !== undefined)
-                newObj[field].visableValue = [...defaultElementOfTable.tables[url][field].visableValue as string[]]
+                newObj[field].visableValue = [...defaultElementOfTable.tables[url][field].visableValue as string[]];
+            if (defaultElementOfTable.tables[url][field].selectData !== undefined)
+                newObj[field].selectData = [...defaultElementOfTable.tables[url][field].selectData as Object[]]
             
         }
         return newObj

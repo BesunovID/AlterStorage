@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Accordion, Button, Form, Spinner, Toast } from "react-bootstrap";
+import { Accordion, Button, Form, Spinner } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 import { BaseElement, defaultElementOfTable, urlList } from "../../../../models/models";
 import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
@@ -111,14 +111,14 @@ export function ModalForm(props: any) {
         });
 
         setIsEdit(false);
-        if (newValues['id'].value[0] === -1){ 
+        if (newValues['id'].value[0] === '-1'){ 
             dispatch(createElement(newValues, table)).then((res) => {
-                dispatch(showModalElement(false, defaultElementOfTable.get(table), table));
+                dispatch(showModalElement(false, undefined, table));
                 
             });
         }else{
             dispatch(updateElement(newValues, table)).then(() =>
-                dispatch(showModalElement(false, defaultElementOfTable.get(table), table))
+                dispatch(showModalElement(false, undefined, table))
             );
         } 
     }
@@ -146,6 +146,7 @@ export function ModalForm(props: any) {
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
+                    visableValue: newElement[elKey].visableValue !== undefined ? [...newElement[elKey].visableValue as string[]] : undefined,
                     selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                 }
             } else if (elKey === name && elValue.count !== undefined) {
@@ -159,7 +160,9 @@ export function ModalForm(props: any) {
             } else {
                 newObj[elKey] = {
                     ...elValue,
-                    value: [...newValue as string[]]
+                    value: [...newValue as string[]],
+                    visableValue: newElement[elKey].visableValue !== undefined ? [...newElement[elKey].visableValue as string[]] : undefined,
+                    selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                 }
             }
             return(newObj)
@@ -247,7 +250,7 @@ export function ModalForm(props: any) {
                 } else if (value.visable && value.childrens && !props.subject) {
                     if (value.count !== undefined){
                         const arr = [...new Array(value.count)].map((_,i) => i+1);
-
+                        
                         return(
                         <>
                             {arr.map((_, index) => 
@@ -266,7 +269,13 @@ export function ModalForm(props: any) {
                                     setNewElement={setNewElement}
                                 />
                             )}
-                            {isEdit && <Button className='d-block mt-3 mx-auto' onClick={() => {handleAddField(key, values)}}>Добавить позицию (+)</Button>}
+                            {isEdit && 
+                            <Button 
+                            className='d-block mt-3 mx-auto' 
+                            onClick={() => {handleAddField(key, values)}}
+                            >
+                                Добавить {key === 'positions' ? `позицию` : `сборку`} (+)
+                            </Button>}
                         </>
                         )
                     }

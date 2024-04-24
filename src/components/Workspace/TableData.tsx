@@ -12,7 +12,7 @@ export function TableData() {
 
     const data = tableSelector.data; 
     const currentTable = tableSelector.currentUrl;
-    const baseElement = tableSelector.element;
+    const baseElement = tableSelector.emptyElement;
     const loading = tableSelector.loading;
 
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -44,6 +44,11 @@ export function TableData() {
         }
     }
 
+    const handleDeleteElement = (id: string) => {
+        const accept = window.confirm('Вы уверены что хотите удалить этот элемент?');
+        accept && dispatch(deleteElement(id, currentTable));
+    }
+
     useEffect(() => {
         setSearchData(JSON.parse(JSON.stringify(data)))
     }, [data])
@@ -70,7 +75,7 @@ export function TableData() {
                                 (baseElement[key].childrens === undefined) && 
                                 (key !== 'id_2') && 
                                 (key !== 'number_invoice_2') && 
-                                (key !== 'storage_position') &&
+                                (key !== 'storage_position_2') &&
                                 <th 
                                 key={key} 
                                 onClick={() => handleSortTable(key, searchData)}
@@ -86,10 +91,10 @@ export function TableData() {
                         {searchData.map((e: BaseElement) => (
                             <tr key={`${e['id'].value[0]}`}>
                                 <td style={{maxWidth: '40px'}}>   
-                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => dispatch(deleteElement(e['id'].value[0], currentTable))} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
+                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e['id'].value[0])} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                                 </td>
                                 {Object.entries(e).map(([keys, val]) => (
-                                    (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') && (keys !== 'storage_position') &&
+                                    (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') && (keys !== 'storage_position_2') &&
                                     <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
                                     {
                                         val.visableValue ? val.visableValue[0] : 

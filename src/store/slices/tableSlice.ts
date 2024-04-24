@@ -9,6 +9,7 @@ interface TableState {
     sortedByField: string
     sortedDirection: number
     modalIsOpen: boolean
+    emptyElement: BaseElement
     element: BaseElement
     currentUrl: urlList
 }
@@ -32,11 +33,12 @@ interface PayloadSortTable {
 
 const initialState: TableState = {
     tableIsOpen: false,
-    loading: true,
+    loading: false,
     data: [],
     sortedByField: 'id',
     sortedDirection: 1,
     modalIsOpen: false,
+    emptyElement: {},
     element: {},
     currentUrl: urlList.main
 }
@@ -46,14 +48,14 @@ export const tableSlice = createSlice({
     initialState,
     reducers: {
         startLoading(state: TableState){
+            state.tableIsOpen = true
             state.loading = true
         },
         showTable(state: TableState, action: PayloadAction<PayloadShowTable>){
-            state.tableIsOpen = true
             state.modalIsOpen = false
             state.data = action.payload.data
             state.currentUrl = action.payload.table
-            state.element = action.payload.emptyElement
+            state.emptyElement = action.payload.emptyElement
             state.loading = false
         },
         sortTable(state, action: PayloadAction<PayloadSortTable>){
@@ -64,7 +66,7 @@ export const tableSlice = createSlice({
         showModalElement(state, action: PayloadAction<PayloadShowModalElement>){
             state.modalIsOpen = action.payload.isOpen
             if(action.payload.element)
-                state.element = action.payload.element
+                state.element = action.payload.element;
         },
     }
 })

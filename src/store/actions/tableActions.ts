@@ -23,7 +23,7 @@ export const showProductsTable = (link: urlList) => {
 
                 Object.keys(emptyElement).map((key) => {
                     if (emptyElement[key].selectable) {
-                        promises.push(getSubData(emptyElement[key].selectable as string, allSelectData, key))
+                        promises.push(getSubData(emptyElement[key].selectable as string, emptyElement, allSelectData, key))
                     }
                 })
                 Promise.all(promises).then(() => {
@@ -48,6 +48,8 @@ export const showProductsTable = (link: urlList) => {
                                             newElement['id_2'].value[index] = value2;
                                         } else if (key2 === 'number_invoice'){
                                             newElement['number_invoice_2'].value[index] = value2;
+                                        } else if (key === 'connectAssembling_Storage_Position' && key2 === 'storage_position'){
+                                            newElement['storage_position_2'].value[index] = value2;
                                         } else {
                                             if (newElement[key2].selectable){
                                                 newElement[key2].selectData = [...allSelectData[key2]];
@@ -73,13 +75,14 @@ export const showProductsTable = (link: urlList) => {
     }
 }
 
-const getSubData = (table: string, data: {[key: string]: Array<Object>}, key: string) => {
+const getSubData = (table: string, emptyElement: BaseElement, selectData: {[key: string]: Array<Object>}, key: string) => {
     return axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${table}/`, {
         headers: {
             'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
         }
     }).then((res) => {
-        data[key] = [...res.data]
+        emptyElement[key].selectData = [...res.data];
+        selectData[key] = [...res.data];
     })
 }
 
@@ -148,8 +151,8 @@ const restructData = (data: BaseElement): {} => {
                         if (data[child].visable){
                             if (data[child].type === 'number' && (Number(data[child].value[index])) > 0){
                                 newObj[child] = Number(data[child].value[index])
-                            } else if (data[child].type !== 'number' && (data[child].value[index] as string) !== '') {
-                                newObj[child] = data[child].value[index].toString();
+                            } else if (data[child].type !== 'number' && data[child].value[index] !== '') {
+                                newObj[child] = data[child].value[index];
                             }
                         }
                         return(newObj)

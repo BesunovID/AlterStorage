@@ -12,7 +12,7 @@ export function ModalWindow() {
     const element = useAppSelector(state => state.tables.element)
 
     const handleClose = () => {
-        dispatch(showModalElement(false, defaultElementOfTable.get(currentUrl)));
+        dispatch(showModalElement(false));
     }
 
     return(

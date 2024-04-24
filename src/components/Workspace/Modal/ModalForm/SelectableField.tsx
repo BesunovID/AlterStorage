@@ -26,8 +26,8 @@ export function SelectableField(props: any) {
           as={CustomToggle} 
           isEdit={isEdit} 
           error={!!errors[name] && !!errors[name][index] && errors[name][index]}>
-            {value.selectData?.find((el: any) => el.id.toString() === formikValue.toString()) 
-            ? (value.selectData?.find((el: any) => el.id.toString() === formikValue.toString()) as any)[`${value.valueFrom}`]
+            {value.selectData?.find((el: any) => el.id.toString() === formikValue) 
+            ? (value.selectData?.find((el: any) => el.id.toString() === formikValue) as any)[`${value.valueFrom}`]
             : ''
           }
           </DropdownToggle>
