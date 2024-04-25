@@ -11,12 +11,12 @@ interface TableState {
     modalIsOpen: boolean
     emptyElement: BaseElement
     element: BaseElement
-    currentUrl: urlList
+    currentUrl: string
 }
 
 interface PayloadShowTable {
     data: BaseElement[]
-    table: urlList
+    table: string
     emptyElement: BaseElement
 }
 
@@ -40,7 +40,7 @@ const initialState: TableState = {
     modalIsOpen: false,
     emptyElement: {},
     element: {},
-    currentUrl: urlList.main
+    currentUrl: ''
 }
 
 export const tableSlice = createSlice({

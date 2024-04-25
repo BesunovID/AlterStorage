@@ -31,10 +31,11 @@ export function SelectableField(props: any) {
           as={CustomToggle} 
           isEdit={isEdit} 
           error={!!errors[name] && !!errors[name][index] && errors[name][index]}>
-            {value.selectData?.find((el: any) => el.id.toString() === formikValue) 
+            {
+            value.selectData?.find((el: any) => el.id.toString() === formikValue) 
             ? (value.selectData?.find((el: any) => el.id.toString() === formikValue) as any)[`${value.valueFrom}`]
             : ''
-          }
+            }
           </DropdownToggle>
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}} loading={loading}>
             {value.selectData?.map((el: Object) => {          

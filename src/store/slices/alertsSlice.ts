@@ -3,8 +3,9 @@ import { AlertStatus, IAlert } from "../../models/models"
 
 interface PayloadAddAlert {
     status: AlertStatus
+    header: string
     message: string
-    delay?: number
+    timeout?: number
 }
 
 interface PayloadDelAlert {
@@ -27,10 +28,10 @@ export const alertsSlice = createSlice({
             state.alerts.push({
                 id: state.alerts.length > 0 ? state.alerts[state.alerts.length - 1].id + 1 : 0, 
                 status: action.payload.status, 
+                header: action.payload.header,
                 message: action.payload.message,
-                ...(action.payload.delay && {delay: action.payload.delay})
+                ...(action.payload.timeout && {timeout: action.payload.timeout})
             })
-            console.log(state.alerts.length);
         },
         delAlert(state, action: PayloadAction<PayloadDelAlert>){
             state.alerts.splice(state.alerts.findIndex((el) => el.id === action.payload.id), 1)

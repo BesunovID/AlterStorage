@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { Accordion, Button, Form } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { BaseElement, urlList } from "../../../../models/models";
+import { BaseElement, BaseField, urlList } from "../../../../models/models";
 import { createElement, updateElement } from "../../../../store/actions/tableActions";
 import { SelectableField } from "./SelectableField";
 import { SubdataField } from "./SubdataField";
@@ -15,7 +15,7 @@ export function ModalForm(props: any) {
     const { Formik } = formik;
 
     const element: BaseElement = props.element;
-    const table: urlList = props.table;
+    const table: string = props.table;
     const userRole = useAppSelector(state => state.users.myProfile.role);
 
     const [loading, setLoading] = useState(!props.isOpen ? false : true);
@@ -203,12 +203,12 @@ export function ModalForm(props: any) {
         {({ handleSubmit, handleChange, setFieldValue, values, errors }) => (
         <Form noValidate onSubmit={handleSubmit} className={props.isCreate && "rounded p-2 my-2"} style={props.isCreate && {backgroundColor: '#458b7460'}}>
             <Accordion>
-            {Object.entries(newElement).map(([key, value]) => {
+            {Object.entries(newElement).map(([key, value]: [string, BaseField], index) => {
                 if (value.visable && value.childrens === undefined && value.subject === props.subject) {
                     if (value.selectable)
                         return(
                         <SelectableField 
-                            key={`${key} ${props.isCreate}`}
+                            key={index}
                             name={key}
                             value={value}
                             index={0}
@@ -220,7 +220,7 @@ export function ModalForm(props: any) {
                             loading={loading}
                         />)
                     else return(
-                        <Form.Group key={`${key}`}>
+                        <Form.Group key={index}>
                             <Form.Label className="mt-1">{value.key}</Form.Label>
                             <Form.Control 
                                 name={`${key}[0]`} 
@@ -245,7 +245,7 @@ export function ModalForm(props: any) {
                         <>
                             {arr.map((_, index) => 
                                 <SubdataField 
-                                    key={`${key} ${index}`}
+                                    key={index}
                                     name={key}
                                     value={value}
                                     formikValue={values}
@@ -261,6 +261,7 @@ export function ModalForm(props: any) {
                             )}
                             {isEdit && 
                             <Button 
+                            key={index}
                             className='d-block mt-3 mx-auto' 
                             onClick={() => {handleAddField(key, values)}}
                             >

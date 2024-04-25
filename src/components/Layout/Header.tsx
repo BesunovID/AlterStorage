@@ -9,6 +9,7 @@ export function Header() {
     const navigate = useNavigate();
     const username = useAppSelector(state => state.auth.username);
     const userRole = useAppSelector(state => state.users.myProfile.role);
+    const alerts = useAppSelector(state => state.alerts.alerts);
     const [show, setShow] = useState(false);
 
     return(
@@ -31,6 +32,7 @@ export function Header() {
                     </Offcanvas>
                     <Nav.Link href='/storage' className="d-none d-sm-block ms-10">Управление складом</Nav.Link>
                     {userRole === 'admin' && <Nav.Link href='/admin' className="d-none d-sm-block ms-10">Администрирование</Nav.Link>}
+                    <Button className="d-none d-sm-block me-0" variant="danger" onClick={() => console.log(alerts.map((alert) => alert.message))}> * </Button>
                     <Dropdown id='dropdown-profile' className="d-none d-sm-block col-sm-2 ms-auto">
                         <Dropdown.Toggle>{username}</Dropdown.Toggle>
                         <Dropdown.Menu>

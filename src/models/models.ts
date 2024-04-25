@@ -23,6 +23,7 @@ export type BaseField = {
     value: Array<string>
     visableValue?: Array<string>
     type: string
+    main?: boolean
     required: boolean
     childrens?: Array<string>
     count?: number
@@ -44,6 +45,7 @@ type ListOfTables = {
         [table: string]: BaseElement
     }
     get: Function
+    mainField: Function
 }
 
 export const defaultElementOfTable: ListOfTables = {
@@ -62,6 +64,7 @@ export const defaultElementOfTable: ListOfTables = {
                 required: true,
                 visable: true,
                 type: 'text',
+                main: true,
                 minLength: 1,
                 maxLength: 255,
             },
@@ -71,6 +74,7 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'text',
                 required: true,
                 visable: true,
+                main: true,
                 minLength: 1,
                 maxLength: 255,
             },
@@ -80,6 +84,7 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'text',
                 required: false,
                 visable: true,
+                main: true,
                 minLength: 0,
                 maxLength: 255,
             },
@@ -124,6 +129,7 @@ export const defaultElementOfTable: ListOfTables = {
                 value: [''],
                 visableValue: [''],
                 type: 'number',
+                main: true,
                 required: true,
                 visable: true,
                 selectable: 'finished_product',
@@ -152,6 +158,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Наименование',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 visable: true,
                 minLength: 1,
@@ -179,6 +186,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Номер накладной',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 visable: true,
                 minLength: 1,
@@ -308,6 +316,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Наименование',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 visable: true,
                 minLength: 1,
@@ -362,6 +371,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Номер',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 visable: true,
                 minLength: 1,
@@ -380,6 +390,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Номер',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 visable: true,
                 minLength: 1,
@@ -398,6 +409,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Обозначение',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 minLength: 1,
                 maxLength: 100,
@@ -542,6 +554,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Наименование',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 visable: true,
                 minLength: 1,
@@ -577,6 +590,7 @@ export const defaultElementOfTable: ListOfTables = {
                 value: [''],
                 visableValue: [''],
                 type: 'number',
+                main: true,
                 required: true,
                 visable: true,
                 selectable: 'storage_positions',
@@ -627,21 +641,28 @@ export const defaultElementOfTable: ListOfTables = {
             
         }
         return newObj
+    },
+    mainField: function(url: string) {
+        const main: string[] = [];
+        for(let field in defaultElementOfTable.tables[url]) {
+            defaultElementOfTable.tables[url][field].main && main.push(field);
+        }
+        return main
     }
 }
 
 export enum urlList {
-    main = '',
-    FIO_emploeey = 'FIO_emploeey',
-    assemblings = 'assemblings',
-    finished_product = 'finished_product',
-    invoice_number = 'invoice_number',
-    provider = 'provider',
-    rack = 'rack',
-    shelf = 'shelf',
-    storage_positions = 'storage_positions',
-    unit_of_measure = 'unit_of_measure',
-    write_down ='write_down'
+    'main' = 'Главная',
+    'storage_positions' = 'Складские позиции',
+    'assemblings' = 'Сборки',
+    'finished_product' = 'Готовые продукты',
+    'invoice_number' = 'Накладные',
+    'write_down' ='Списания',
+    'rack' = 'Стеллажи',
+    'shelf' = 'Полки',
+    'provider' = 'Поставщики',
+    'unit_of_measur' = 'Единицы измерения',
+    'FIO_emploeey' = 'Сотрудники',
 }
 
 export type ParticlesDots = {
@@ -656,6 +677,7 @@ export type AlertStatus = 'success'|'erros'|'warning'|'info'
 export interface IAlert {
     id: number,
     status: AlertStatus,
+    header: string,
     message: string,
     timeout?: number,
 }

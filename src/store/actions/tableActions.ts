@@ -12,7 +12,7 @@ const customAxios = axios.create({
     }
 })
 
-export const showProductsTable = (link: urlList) => {
+export const showProductsTable = (link: string) => {
     const emptyElement: BaseElement = defaultElementOfTable.get(link);
     const data: BaseElement[] = [];
     return async (dispatch: AppDispatch) => {
@@ -87,20 +87,27 @@ const getSubData = (table: string, emptyElement: BaseElement, selectData: {[key:
     })
 }
 
-export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: urlList) => {
+export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: string) => {
     return(dispatch: AppDispatch) => {
         dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}));
         if (table && !isOpen) dispatch(showProductsTable(table));
     }
 }
 
-export const createElement = (element: BaseElement, link: urlList) => {
+export const createElement = (element: BaseElement, link: string) => {
     const returnedData = restructData(element);
+    const table = {...urlList};
+
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
             dispatch(showModalElement(false, undefined, link));
-            dispatch(addAlert('success', 'Элемент успешно создан!', 5000));
+            dispatch(addAlert(
+                'success', 
+                `${table[link as keyof typeof urlList]}`, 
+                `Элемент ${element[defaultElementOfTable.mainField(link)].value[0]} успешно создан!`, 
+                10000)
+            );
             return 'success'
         })
         .catch((e) => {
@@ -110,14 +117,21 @@ export const createElement = (element: BaseElement, link: urlList) => {
     }
 }
 
-export const updateElement = (element: BaseElement, link: urlList) => {
+export const updateElement = (element: BaseElement, link: string) => {
     const id = Number(element['id'].value[0]);
+    const table = {...urlList};
     const returnedData = restructData(element);
+
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.patch(`/${link}/${id}/`, returnedData)
         .then(() => {
             dispatch(showModalElement(false, undefined, link));
-            dispatch(addAlert('success', 'Элемент успешно обновлен!', 5000));
+            dispatch(addAlert(
+                'success', 
+                `${table[link as keyof typeof urlList]}`, 
+                `Элемент ${element[defaultElementOfTable.mainField(link)].value[0]} успешно обновлен!`, 
+                10000)
+            );
             return 'success'
         })
         .catch((e) => {
@@ -127,16 +141,26 @@ export const updateElement = (element: BaseElement, link: urlList) => {
     }
 }
 
-export const deleteElement = (elementID: string, link: urlList) => {
+export const deleteElement = (element: BaseElement, link: string) => {
+    const id = element['id'].value[0];
+    const table = {...urlList};
+
     return async(dispatch: AppDispatch) => {
-        await customAxios.delete(`/${link}/${elementID}/`)
+        const result = await customAxios.delete(`/${link}/${id}/`)
         .then(() => {
             dispatch(showProductsTable(link));
+            dispatch(addAlert(
+                'success', 
+                `${table[link as keyof typeof urlList]}`, 
+                `Элемент ${element[defaultElementOfTable.mainField(link)].value[0]} удален!`, 
+                10000)
+            );
             return 'success'
         })
         .catch((e) => {
             return 'error'
         })
+        return result
     }
 }
 

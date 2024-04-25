@@ -43,9 +43,9 @@ export function TableData() {
         }
     }
 
-    const handleDeleteElement = (id: string) => {
+    const handleDeleteElement = (element: BaseElement) => {
         const accept = window.confirm('Вы уверены что хотите удалить этот элемент?');
-        accept && dispatch(deleteElement(id, currentTable));
+        accept && dispatch(deleteElement(element, currentTable));
     }
 
     useEffect(() => {
@@ -90,7 +90,7 @@ export function TableData() {
                         {searchData.map((e: BaseElement) => (
                             <tr key={`${e['id'].value[0]}`}>
                                 {userRole !== 'user' && <td style={{maxWidth: '40px'}}>   
-                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e['id'].value[0])} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
+                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                                 </td>}
                                 {Object.entries(e).map(([keys, val]) => (
                                     (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') && (keys !== 'storage_position_2') &&
