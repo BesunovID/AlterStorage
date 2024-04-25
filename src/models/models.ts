@@ -657,7 +657,7 @@ export interface IAlert {
     id: number,
     status: AlertStatus,
     message: string,
-    timeout: number,
+    timeout?: number,
 }
 /*
 

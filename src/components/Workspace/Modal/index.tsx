@@ -1,6 +1,5 @@
-import { Modal } from "react-bootstrap";
+import { Modal, ModalDialog } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { defaultElementOfTable } from "../../../models/models";
 import { showModalElement } from "../../../store/actions/tableActions";
 import { ModalForm } from "./ModalForm/index";
 
@@ -17,7 +16,7 @@ export function ModalWindow() {
 
     return(
         <>
-            <Modal show={isOpen} onHide={handleClose}>
+            <Modal show={isOpen} onHide={handleClose} style={{overflowY: 'scroll'}}>
                 <Modal.Header closeButton>
                 </Modal.Header>
                 <Modal.Body>

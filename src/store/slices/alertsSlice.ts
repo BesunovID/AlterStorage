@@ -2,7 +2,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { AlertStatus, IAlert } from "../../models/models"
 
 interface PayloadAddAlert {
-    alert: IAlert
+    status: AlertStatus
+    message: string
+    delay?: number
 }
 
 interface PayloadDelAlert {
@@ -22,7 +24,13 @@ export const alertsSlice = createSlice({
     initialState,
     reducers: {
         addAlert(state, action: PayloadAction<PayloadAddAlert>){
-            state.alerts.push(action.payload.alert)
+            state.alerts.push({
+                id: state.alerts.length > 0 ? state.alerts[state.alerts.length - 1].id + 1 : 0, 
+                status: action.payload.status, 
+                message: action.payload.message,
+                ...(action.payload.delay && {delay: action.payload.delay})
+            })
+            console.log(state.alerts.length);
         },
         delAlert(state, action: PayloadAction<PayloadDelAlert>){
             state.alerts.splice(state.alerts.findIndex((el) => el.id === action.payload.id), 1)

@@ -1,11 +1,12 @@
 import { AppDispatch } from ".."
-import { IAlert } from "../../models/models"
+import { useAppSelector } from "../../hooks/redux"
+import { AlertStatus, IAlert } from "../../models/models"
 import {alertsSlice} from "../slices/alertsSlice"
 
 
-export const addAlert = ( alert: IAlert ) => {
+export const addAlert = ( status: AlertStatus, message: string, delay?: number ) => {
     return async (dispatch: AppDispatch) => {
-        dispatch(alertsSlice.actions.addAlert({alert: alert}))
+        dispatch(alertsSlice.actions.addAlert({status: status, message: message, delay: delay}))
     }
 }
 

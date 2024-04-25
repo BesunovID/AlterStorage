@@ -16,7 +16,7 @@ export function MainMenu() {
     }
     return(
         <>
-            <div className='main-manu d-sm-block d-none col-sm-3 col-md-2 p-0 bg-light' style={{height: 'calc(100vh - 48px)'}}>
+            <div className='main-manu d-sm-block d-none col-sm-3 col-md-2 p-0 bg-light' style={{height: 'calc(100vh - 58px)'}}>
                 <ToggleButtonGroup name='tables-btn-choose' className='w-100 pt-2 border-none' type='radio' defaultValue={selectBtn} onChange={handleChooseTable} vertical>
                     <ToggleButton id="main-btn-1" value={urlList.storage_positions} disabled={loading} variant={selectBtn === 'storage_positions' ? "primary" : 'outline-dark'} className={style.button}>Складские позиции</ToggleButton>
                     <ToggleButton id="main-btn-2" value={urlList.finished_product} disabled={loading} variant={selectBtn === 'finished_product' ? "primary" : 'outline-dark'} className={style.button}>Готовые продукты</ToggleButton>

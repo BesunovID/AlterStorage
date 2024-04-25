@@ -4,7 +4,6 @@ import { deleteElement, showModalElement } from '../../store/actions/tableAction
 import { BaseElement } from '../../models/models';
 import { useEffect, useState } from 'react';
 
-
 export function TableData() {
     const tableSelector = useAppSelector(state => state.tables);
     const userRole = useAppSelector(state => state.users.myProfile.role)

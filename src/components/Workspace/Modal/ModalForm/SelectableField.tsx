@@ -1,16 +1,21 @@
 import React, { useContext, useRef, useState } from "react"
-import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button, AccordionContext } from "react-bootstrap"
+import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button, AccordionContext, Spinner } from "react-bootstrap"
 import { createPortal } from "react-dom";
 import { BaseField, defaultElementOfTable } from "../../../../models/models";
 import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-  const {name, value, index, formikValue, isEdit, setFieldValue, setCreateSub, errors}: 
-  {name: string, value: BaseField, index: number, formikValue: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any} = props;
+  const {name, value, index, formikValue, isEdit, setFieldValue, setCreateSub, errors, loading}: 
+  {name: string, value: BaseField, index: number, formikValue: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
+
   const [isOpen, setIsOpen] = useState(false);
   const portalRef = useRef<HTMLDivElement>(null);
   const accordionRef = useRef<HTMLDivElement>(null);
+
+  const handleCreate = () => {
+    setIsOpen(!isOpen);
+  }
 
   return(
     <Form.Group key={name}>
@@ -31,7 +36,7 @@ export function SelectableField(props: any) {
             : ''
           }
           </DropdownToggle>
-          <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}}>
+          <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}} loading={loading}>
             {value.selectData?.map((el: Object) => {          
               return (
                 <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
@@ -46,16 +51,16 @@ export function SelectableField(props: any) {
         {isEdit &&
         <CustomAccordionBut 
           eventKey={value.selectable}
-          onClick={() => setIsOpen(!isOpen)} 
+          onClick={() => handleCreate()} 
           ref={accordionRef}
         />}
       </div>
       <Accordion.Collapse eventKey={value.selectable as string}>
         <div className="accordionContainer" ref={portalRef}>
           {
-          (portalRef.current !== undefined && portalRef.current !== null) 
-          ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub, isOpen) 
-          : <div className="1"></div>
+            (portalRef.current !== undefined && portalRef.current !== null) 
+            ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub, isOpen) 
+            : <div className="placeholder"></div>
           }
         </div>
       </Accordion.Collapse>
@@ -66,15 +71,16 @@ export function SelectableField(props: any) {
 const createPortal2 = (portalRef: any, table: any, accordionRef: any, setCreateSub: any, isOpen: any) => {
   return(
     createPortal(
-    <ModalForm isCreate={true} isEdit={true} isOpen={isOpen} table={table} accordionRef={accordionRef} element={defaultElementOfTable.get(table)} setCreateSub={setCreateSub} />
+    <ModalForm isCreate={true} isEdit={true} isOpen={isOpen} element={defaultElementOfTable.get(table)} table={table} accordionRef={accordionRef} setCreateSub={setCreateSub} />
     , portalRef.current)
   )
 }
 
 const CustomAccordionBut = React.forwardRef(({ eventKey, onClick}: any, ref) => {
   const { activeEventKey } = useContext(AccordionContext);
-  const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
   const isCurrentEventKey = activeEventKey === eventKey;
+  const decoratedOnClick = useAccordionButton(eventKey, () => onClick());
+  
   return (
       <Button
       variant="success"
@@ -111,7 +117,7 @@ const CustomToggle = React.forwardRef(({ children, onClick, isEdit, error }: any
   ));
 
 const CustomMenu = React.forwardRef(
-    ({ children, style, className, 'aria-labelledby': labeledBy }:any, ref) => {
+    ({ children, style, className, 'aria-labelledby': labeledBy, loading }:any, ref) => {
         const [value, setValue] = useState('');
 
       return (
@@ -130,13 +136,17 @@ const CustomMenu = React.forwardRef(
             value={value}
           />
           <ul className="list-unstyled w-100">
-            {React.Children.toArray(children).length > 0 
+            {loading ? 
+            <div className="bg-grey d-flex align-items-center justify-content-center">
+              <Spinner animation="border" />
+            </div> : 
+            (React.Children.toArray(children).length > 0 
             ?
             React.Children.toArray(children).filter((child) =>
               !value || (child as any).props.children.toString().toLowerCase().indexOf(value.toLowerCase()) != -1
             ).slice(0, 5) 
             :
-            <p className='ms-3'>Данные отсутствуют</p>
+            <p className='ms-3'>Данные отсутствуют</p>)
             }
           </ul>
         </div>

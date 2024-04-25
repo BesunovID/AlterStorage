@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { Accordion, Button, Form, Spinner } from "react-bootstrap";
+import { Accordion, Button, Form } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { BaseElement, defaultElementOfTable, urlList } from "../../../../models/models";
-import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
+import { BaseElement, urlList } from "../../../../models/models";
+import { createElement, updateElement } from "../../../../store/actions/tableActions";
 import { SelectableField } from "./SelectableField";
 import { SubdataField } from "./SubdataField";
 import * as formik from 'formik';
@@ -16,9 +16,9 @@ export function ModalForm(props: any) {
 
     const element: BaseElement = props.element;
     const table: urlList = props.table;
-    const userRole = useAppSelector(state => state.users.myProfile.role)
+    const userRole = useAppSelector(state => state.users.myProfile.role);
 
-    const [loading, setLoading] = useState(!props.isCreate ? true : false);
+    const [loading, setLoading] = useState(!props.isOpen ? false : true);
     const [firstLoad, setFirstLoad] = useState(true);
     const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === '-1'));
     const [createSub, setCreateSub] = useState(false);
@@ -89,18 +89,20 @@ export function ModalForm(props: any) {
         const promises = Object.keys(newElement).map((e) => {
             if (newElement[e].selectable){
                 return(
-                axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${newElement[e].selectable}/`, {
-                    headers: {
-                        'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
-                    }
-                }).then((res) => {
-                    selectData[e].selectData = [...res.data]
-                })
+                    axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${newElement[e].selectable}/`, {
+                        headers: {
+                            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+                        }
+                    }).then((res) => {
+                        selectData[e].selectData = [...res.data]
+                    })
                 )
             }
         });
         Promise.all(promises).then(() => {
-            //setLoading(false);
+            setLoading(false);
+            firstLoad && setFirstLoad(false);
+            createSub && setCreateSub(false);
             setNewElement(JSON.parse(JSON.stringify(selectData)));
         })
     }
@@ -119,14 +121,9 @@ export function ModalForm(props: any) {
 
         setIsEdit(false);
         if (newValues['id'].value[0] === '-1'){ 
-            dispatch(createElement(newValues, table)).then((res) => {
-                dispatch(showModalElement(false, undefined, table));
-                
-            });
+            dispatch(createElement(newValues, table))
         }else{
-            dispatch(updateElement(newValues, table)).then(() =>
-                dispatch(showModalElement(false, undefined, table))
-            );
+            dispatch(updateElement(newValues, table))
         } 
     }
 
@@ -140,7 +137,7 @@ export function ModalForm(props: any) {
             props.setCreateSub && props.setCreateSub(true);
             if (props.accordionRef.current !== undefined && props.accordionRef.current !== null) {
                 props.accordionRef.current.click();
-                setNewElement(defaultElementOfTable.get(table));
+                setNewElement(JSON.parse(JSON.stringify(element)));
             }
         });  
     }
@@ -178,31 +175,16 @@ export function ModalForm(props: any) {
     }
 
     useEffect(() => {
-        if (loading){
-           // if (Object.keys(newElement).find((e) => newElement[e].selectable)) 
-           //     getTableData();
-           // else setLoading(false);
-           setLoading(false);
-        }
         if (createSub) {
             getTableData();
-            setCreateSub(false);
-        }
-        if (props.isCreate && props.isEdit !== isEdit) {
-            setIsEdit(props.isEdit);
         }
         if (props.isOpen && firstLoad) {
-            setLoading(true);
-            setFirstLoad(false);
-        }
-    }, [setNewElement, isEdit, props.element, props.isEdit, props.isOpen, loading, createSub])
+            getTableData();
+        } 
+    }, [setNewElement, isEdit, props.element, props.isOpen, loading, createSub])
 
 
     return(
-        loading ? 
-        <div className="bg-grey d-flex align-items-center justify-content-center">
-            <Spinner animation="border" />
-        </div> :
         <Formik 
         onSubmit={(values) => handleSubmit(values)} 
         initialValues={initialValues} 
@@ -235,6 +217,7 @@ export function ModalForm(props: any) {
                             setFieldValue={setFieldValue}
                             setCreateSub={setCreateSub}
                             errors={errors}
+                            loading={loading}
                         />)
                     else return(
                         <Form.Group key={`${key}`}>

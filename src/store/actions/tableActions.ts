@@ -2,6 +2,7 @@ import axios from "axios";
 import { AppDispatch } from ".."
 import { BaseElement, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
+import { addAlert } from "./alertsActions";
 
 const customAxios = axios.create({
     baseURL: process.env.REACT_APP_BASE_STORAGE_URL,
@@ -88,21 +89,24 @@ const getSubData = (table: string, emptyElement: BaseElement, selectData: {[key:
 
 export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: urlList) => {
     return(dispatch: AppDispatch) => {
-        dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}))
+        dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}));
         if (table && !isOpen) dispatch(showProductsTable(table));
     }
 }
 
 export const createElement = (element: BaseElement, link: urlList) => {
     const returnedData = restructData(element);
-    return async() => {
-        await customAxios.post(`/${link}/`, returnedData)
+    return async(dispatch: AppDispatch) => {
+        const result = await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
+            dispatch(showModalElement(false, undefined, link));
+            dispatch(addAlert('success', 'Элемент успешно создан!', 5000));
             return 'success'
         })
         .catch((e) => {
             return 'error'
         })
+        return result
     }
 }
 
@@ -110,14 +114,16 @@ export const updateElement = (element: BaseElement, link: urlList) => {
     const id = Number(element['id'].value[0]);
     const returnedData = restructData(element);
     return async(dispatch: AppDispatch) => {
-        await customAxios.patch(`/${link}/${id}/`, returnedData)
+        const result = await customAxios.patch(`/${link}/${id}/`, returnedData)
         .then(() => {
-            dispatch(showProductsTable(link));
+            dispatch(showModalElement(false, undefined, link));
+            dispatch(addAlert('success', 'Элемент успешно обновлен!', 5000));
             return 'success'
         })
         .catch((e) => {
             return 'error'
         })
+        return result
     }
 }
 
