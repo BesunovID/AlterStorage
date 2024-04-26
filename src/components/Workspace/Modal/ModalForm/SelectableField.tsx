@@ -13,6 +13,10 @@ export function SelectableField(props: any) {
   const portalRef = useRef<HTMLDivElement>(null);
   const accordionRef = useRef<HTMLDivElement>(null);
 
+  const fields: string[] = defaultElementOfTable.mainField(value.selectable);
+  const findElement = value.selectData?.find((el: any) => el.id.toString() === formikValue);
+  const visableValue = findElement ? fields.map(field => (findElement as any)[field]).join(' ') : '';
+
   const handleCreate = () => {
     setIsOpen(!isOpen);
   }
@@ -31,19 +35,13 @@ export function SelectableField(props: any) {
           as={CustomToggle} 
           isEdit={isEdit} 
           error={!!errors[name] && !!errors[name][index] && errors[name][index]}>
-            {
-            value.selectData?.find((el: any) => el.id.toString() === formikValue) 
-            ? (value.selectData?.find((el: any) => el.id.toString() === formikValue) as any)[`${value.valueFrom}`]
-            : ''
-            }
+            {visableValue}
           </DropdownToggle>
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}} loading={loading}>
             {value.selectData?.map((el: Object) => {          
               return (
                 <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
-                  {Object.entries(el).map(([key2, value2]) => {
-                  if (key2 !== 'id') return `${value2} `
-                  })}
+                  {fields.map(field => (el as any)[field]).join(' ')}
                 </Dropdown.Item>)
               }
             )}

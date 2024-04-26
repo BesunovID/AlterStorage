@@ -12,7 +12,7 @@ export function Toasts() {
     }, [toasts])
     
     return(
-        <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 1 }}>    
+        <ToastContainer position="bottom-end" className="p-4" style={{ zIndex: 2000 }}>    
             {[...toasts.slice(-4)].reverse().map((toast) => (
                 <Toast 
                 key={toast.id}

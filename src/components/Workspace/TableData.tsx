@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { Button, Form, InputGroup, Pagination, Spinner, Table } from 'react-bootstrap';
 import { deleteElement, showModalElement } from '../../store/actions/tableActions';
-import { BaseElement } from '../../models/models';
+import { BaseElement, defaultElementOfTable } from '../../models/models';
 import { useEffect, useState } from 'react';
 
 export function TableData() {
@@ -49,7 +49,8 @@ export function TableData() {
     }
 
     useEffect(() => {
-        setSearchData(JSON.parse(JSON.stringify(data)))
+        setSearchData(JSON.parse(JSON.stringify(data)));
+        setCurrentPage(1);
     }, [data])
 
     return(
@@ -131,9 +132,9 @@ const CustomPagination = (
 
     return(
         <Pagination className='mx-auto mt-2'>
-            {(currentPage-3 >= 1) && <Pagination.First onClick={() => setCurrentPage(currentPage-2)} />}
+            {(currentPage-3 >= 1) && <Pagination.First onClick={() => setCurrentPage(1)} />}
             {(currentPage-1 >= 1) && <Pagination.Prev onClick={() => setCurrentPage(currentPage-1)} />}
-            {(currentPage-3 >= 1) && <Pagination.Ellipsis  />}
+            {(currentPage-3 >= 1) && <Pagination.Ellipsis disabled />}
 
             {(currentPage-2 >= 1) && <Pagination.Item onClick={() => setCurrentPage(currentPage-2)}>{currentPage-2}</Pagination.Item>}
             {(currentPage-1 >= 1) && <Pagination.Item onClick={() => setCurrentPage(currentPage-1)}>{currentPage-1}</Pagination.Item>}
@@ -141,9 +142,9 @@ const CustomPagination = (
             {(currentPage+1 <= lastPage) && <Pagination.Item onClick={() => setCurrentPage(currentPage+1)}>{currentPage+1}</Pagination.Item>}
             {(currentPage+2 <= lastPage) && <Pagination.Item onClick={() => setCurrentPage(currentPage+2)}>{currentPage+2}</Pagination.Item>}
 
-            {(currentPage+3 <= lastPage) && <Pagination.Ellipsis  />}
+            {(currentPage+3 <= lastPage) && <Pagination.Ellipsis disabled />}
             {(currentPage+1 <= lastPage) && <Pagination.Next onClick={() => setCurrentPage(currentPage+1)} />}
-            {(currentPage+3 <= lastPage) && <Pagination.Last onClick={() => setCurrentPage(currentPage+2)} />}
+            {(currentPage+3 <= lastPage) && <Pagination.Last onClick={() => setCurrentPage(lastPage)} />}
         </Pagination>
     )
 }

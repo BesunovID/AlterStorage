@@ -33,9 +33,8 @@ export function ModalForm(props: any) {
                     const arr = [...new Array(elValue.count)].map((_,i) => i+1);
                     newObj[elKey] = [];
                     arr.map((_,index) => {
-                        newElement[elValue.valueFrom as string].value[index] !== undefined ?
-                        newObj[elKey][index] = newElement[elValue.valueFrom as string].value[index] as string :
-                        newObj[elKey][index] = '';
+                        const value = elValue.valueFrom!.map(field => newElement[field].value[index]).join(' ');
+                        newObj[elKey][index] = value;
                     })
                 } else {
                     newObj[elKey] = [];

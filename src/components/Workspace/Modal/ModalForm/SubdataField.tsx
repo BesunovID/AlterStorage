@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { Form, Accordion, useAccordionButton, Button } from "react-bootstrap"
-import { BaseElement, BaseField } from "../../../../models/models";
+import { BaseElement, BaseField, defaultElementOfTable } from "../../../../models/models";
 import { SelectableField } from "./SelectableField";
 
 
@@ -10,6 +10,15 @@ export function SubdataField(props: any) {
     const [isOpen, setIsOpen] = useState(false);
     const accordionRef = useRef<HTMLInputElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
+
+  /*  const elName = value.valueFrom!.map(field => 
+        element[field].selectable ? 
+        defaultElementOfTable.mainField(element[field].selectable).map((field2: string) => 
+            element[field].selectData?.find((data) => (data as any).id === formikValue[field2][index])
+        ) :
+        formikValue[field][index]
+    ).join(' ');
+    console.log(elName);*/
 
     const handleDel = () => {
         const newElement = JSON.parse(JSON.stringify(element));
@@ -29,7 +38,7 @@ export function SubdataField(props: any) {
           <div className={'d-flex'}>
             <CustomAccordionInput
                 name={name}
-                value={formikValue[element[name].valueFrom as string][index]}
+                value={value.valueFrom!.map(field => formikValue[field][index]).join(' ')}
                 type={element[name].type}
                 error={!!errors[name] && !!errors[name][index] && errors[name][index]}
                 eventKey={index.toString()}

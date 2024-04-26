@@ -27,7 +27,7 @@ export type BaseField = {
     required: boolean
     childrens?: Array<string>
     count?: number
-    valueFrom?: string
+    valueFrom?: string[]
     maxLength?: number
     minLength?: number
     selectable?: string
@@ -74,7 +74,6 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'text',
                 required: true,
                 visable: true,
-                main: true,
                 minLength: 1,
                 maxLength: 255,
             },
@@ -84,7 +83,6 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'text',
                 required: false,
                 visable: true,
-                main: true,
                 minLength: 0,
                 maxLength: 255,
             },
@@ -92,6 +90,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Должность',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: false,
                 visable: true,
                 minLength: 0,
@@ -101,6 +100,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Телефон',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: false,
                 visable: true,
                 minLength: 0,
@@ -133,7 +133,6 @@ export const defaultElementOfTable: ListOfTables = {
                 required: true,
                 visable: true,
                 selectable: 'finished_product',
-                valueFrom: 'name',
                 selectData: [],
             },
             'description': {
@@ -205,7 +204,7 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'string',
                 required: true,
                 visable: true,
-                valueFrom: 'name_of_the_invoice',
+                valueFrom: ['name_of_the_invoice'],
                 count: 1,
                 childrens: ['id_2', 'name_of_the_invoice', 'actual_quantity', 'price_per_unit',
                     'manufacturer', 'quantity_invoice', 'summa', 'number_invoice_2', 
@@ -246,7 +245,6 @@ export const defaultElementOfTable: ListOfTables = {
                 visable: true,
                 subject: 'positions',
                 selectable: 'storage_positions',
-                valueFrom: 'name',
                 selectData: [],
             },
             'price_per_unit': {
@@ -266,7 +264,6 @@ export const defaultElementOfTable: ListOfTables = {
                 visable: true,
                 subject: 'positions',
                 selectable: 'provider',
-                valueFrom: 'name',
                 selectData: [],
             },
             'manufacturer': {
@@ -419,6 +416,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Наименование',
                 value: [''],
                 type: 'text',
+                main: true,
                 required: true,
                 minLength: 1,
                 maxLength: 200,
@@ -446,7 +444,6 @@ export const defaultElementOfTable: ListOfTables = {
                 required: false,
                 visable: true,
                 selectable: 'unit_of_measur',
-                valueFrom: 'name',
                 selectData: [],
             },
             'rack': {
@@ -457,7 +454,6 @@ export const defaultElementOfTable: ListOfTables = {
                 required: false,
                 visable: true,
                 selectable: 'rack',
-                valueFrom: 'rack',
                 selectData: [],
             },
             'shelf': {
@@ -468,7 +464,6 @@ export const defaultElementOfTable: ListOfTables = {
                 required: false,
                 visable: true,
                 selectable: 'shelf',
-                valueFrom: 'shell',
                 selectData: [],
             },
             'box': {
@@ -502,7 +497,7 @@ export const defaultElementOfTable: ListOfTables = {
                 type: 'text',
                 required: true,
                 visable: true,
-                valueFrom: 'assembling',
+                valueFrom: ['assembling', 'quantity'],
                 count: 1,
                 childrens: ['id_2', 'quantity', 'storage_position_2', 'assembling'],
             },
@@ -522,7 +517,6 @@ export const defaultElementOfTable: ListOfTables = {
                 required: true,
                 visable: true,
                 selectable: 'assemblings',
-                valueFrom: 'id',
                 selectData: [],
                 subject: 'connectAssembling_Storage_Position',
             },
@@ -595,7 +589,6 @@ export const defaultElementOfTable: ListOfTables = {
                 visable: true,
                 selectable: 'storage_positions',
                 selectData: [],
-                valueFrom: 'name', 
             },
             'count': {
                 key: 'Количество',
@@ -613,7 +606,6 @@ export const defaultElementOfTable: ListOfTables = {
                 visable: true,
                 selectable: 'FIO_emploeey',
                 selectData: [],
-                valueFrom: 'surname', 
             },
             'purpose': {
                 key: 'Цель списания',
@@ -672,7 +664,7 @@ export type ParticlesDots = {
     deg: number
 }
 
-export type AlertStatus = 'success'|'erros'|'warning'|'info'
+export type AlertStatus = 'success'|'danger'|'warning'|'info'
 
 export interface IAlert {
     id: number,

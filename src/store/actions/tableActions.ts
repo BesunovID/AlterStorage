@@ -36,9 +36,12 @@ export const showProductsTable = (link: string) => {
                             (newElement[key].childrens !== undefined ? val : val.toString());
 
                             if (newElement[key].selectable){
-                                newElement[key].selectData = [...allSelectData[key]]
-                                if (value !== '')
-                                    (newElement[key].visableValue as any)[0] = (allSelectData[key].find((el: any) => el.id.toString() === value) as {[key: string]: any})[newElement[key].valueFrom as string]
+                                newElement[key].selectData = [...allSelectData[key]];
+                                if (value !== ''){
+                                    const fields: string[] = defaultElementOfTable.mainField(newElement[key].selectable);
+                                    const findElement = allSelectData[key].find((el: any) => el.id.toString() === value);
+                                    (newElement[key].visableValue as string[])[0] = fields.map(field => (findElement as any)[field]).join(' ');
+                                }    
                             } 
                             if (newElement[key].childrens !== undefined){
                                 newElement[key].count = (value as Array<Object>).length;
@@ -54,8 +57,11 @@ export const showProductsTable = (link: string) => {
                                         } else {
                                             if (newElement[key2].selectable){
                                                 newElement[key2].selectData = [...allSelectData[key2]];
-                                                if (value2 !== '') 
-                                                    (newElement[key2].visableValue as any)[index] = (allSelectData[key2].find((el: any) => el.id.toString() === value2) as {[key: string]: any})[newElement[key2].valueFrom as string]
+                                                if (value2 !== '') {
+                                                    const fields: string[] = defaultElementOfTable.mainField(newElement[key2].selectable);
+                                                    const findElement = allSelectData[key2].find((el: any) => el.id.toString() === value2);
+                                                    (newElement[key2].visableValue as string[])[index] = fields.map(field => (findElement as any)[field]).join(' ');
+                                                }
                                             } 
                                             newElement[key2].value[index] = value2;
                                         }
@@ -105,12 +111,28 @@ export const createElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${element[defaultElementOfTable.mainField(link)].value[0]} успешно создан!`, 
+                `Элемент ${getElementName(link, element)} успешно создан!`, 
                 10000)
             );
             return 'success'
         })
         .catch((e) => {
+            if (e?.response?.status === 500) {
+                dispatch(addAlert(
+                    'danger', 
+                    `${table[link as keyof typeof urlList]}`, 
+                    `Ошибка на сервере (${e.response.statusText}), попробуйте позже!`, 
+                    10000)
+                )
+            }
+            if (e?.response?.status === 404) {
+                dispatch(addAlert(
+                    'danger', 
+                    `${table[link as keyof typeof urlList]}`, 
+                    `Ошибка создания, неверный формат данных!`, 
+                    10000)
+                );
+            }
             return 'error'
         })
         return result
@@ -121,6 +143,7 @@ export const updateElement = (element: BaseElement, link: string) => {
     const id = Number(element['id'].value[0]);
     const table = {...urlList};
     const returnedData = restructData(element);
+    console.log(element);
 
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.patch(`/${link}/${id}/`, returnedData)
@@ -129,12 +152,28 @@ export const updateElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${element[defaultElementOfTable.mainField(link)].value[0]} успешно обновлен!`, 
+                `Элемент ${getElementName(link, element)} успешно обновлен!`, 
                 10000)
             );
             return 'success'
         })
         .catch((e) => {
+            if (e?.response?.status === 500) {
+                dispatch(addAlert(
+                    'danger', 
+                    `${table[link as keyof typeof urlList]}`, 
+                    `Ошибка на сервере (${e.response.statusText}), попробуйте позже!`, 
+                    10000)
+                )
+            }
+            if (e?.response?.status === 404) {
+                dispatch(addAlert(
+                    'danger', 
+                    `${table[link as keyof typeof urlList]}`, 
+                    `Ошибка обновления, неверный формат данных!`, 
+                    10000)
+                );
+            }
             return 'error'
         })
         return result
@@ -152,18 +191,50 @@ export const deleteElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${element[defaultElementOfTable.mainField(link)].value[0]} удален!`, 
+                `Элемент ${getElementName(link, element)} удален!`, 
                 10000)
             );
             return 'success'
         })
         .catch((e) => {
+            if (e?.response?.status === 500) {
+                dispatch(addAlert(
+                    'danger', 
+                    `${table[link as keyof typeof urlList]}`, 
+                    `Ошибка на сервере (${e.response.statusText}), попробуйте позже!`, 
+                    10000)
+                )
+            }
+            if (e?.response?.status === 404) {
+                dispatch(addAlert(
+                    'danger', 
+                    `${table[link as keyof typeof urlList]}`, 
+                    `Ошибка удаления, неверный формат данных!`, 
+                    10000)
+                );
+            }
             return 'error'
         })
         return result
     }
 }
 
+const getElementName = (table: string, element: BaseElement) => {
+    const name = `${element.id.value[0]}: ` + defaultElementOfTable.mainField(table).map((field: string) => 
+        element[field].selectable ? 
+        (
+            defaultElementOfTable.mainField(element[field].selectable).map((field2: string) => 
+                (element[field].selectData?.find((e: any) => (
+                    e.id === Number(element[field].value[0])
+                )) as {[key: string]: string})[field2]
+            ).join(' ')
+        )
+        :
+        element[field].value[0]
+    ).join(' ');
+
+    return name;
+}
 
 const restructData = (data: BaseElement): {} => {
     const newData: {[k: string]: any} = {};
@@ -178,7 +249,16 @@ const restructData = (data: BaseElement): {} => {
                 const arr = [...new Array(value.count)].map((_,i) => i+1);
                 arr.map((_, index) => {
                     const subject = (data[key].childrens as Array<any>).reduce((newObj, child) => {
-                        if (data[child].visable){
+                        if (child === 'id_2' && data[child].value[index]){
+                            newObj['id'] = Number(data[child].value[index])
+                        }
+                        else if (child === 'storage_position_2' && data[child].value[index]){
+                            newObj['storage_position'] = Number(data[child].value[index])
+                        }
+                        else if (child === 'number_invoice_2' && data[child].value[index]){
+                            newObj['number_invoice'] = Number(data[child].value[index])
+                        }
+                        else if (data[child].visable){
                             if (data[child].type === 'number' && (Number(data[child].value[index])) > 0){
                                 newObj[child] = Number(data[child].value[index])
                             } else if (data[child].type !== 'number' && data[child].value[index] !== '') {
