@@ -29,49 +29,8 @@ export const showProductsTable = (link: string) => {
                 })
                 Promise.all(promises).then(() => {
                     res.data.map((e: Object) => {
-                        const newElement: BaseElement = defaultElementOfTable.get(link);
-            
-                        Object.entries(e).map(([key, val]) => {
-                            const value = (val === null) ? '' : 
-                            (newElement[key].childrens !== undefined ? val : val.toString());
-
-                            if (newElement[key].selectable){
-                                newElement[key].selectData = [...allSelectData[key]];
-                                if (value !== ''){
-                                    const fields: string[] = defaultElementOfTable.mainField(newElement[key].selectable);
-                                    const findElement = allSelectData[key].find((el: any) => el.id.toString() === value);
-                                    (newElement[key].visableValue as string[])[0] = fields.map(field => (findElement as any)[field]).join(' ');
-                                }    
-                            } 
-                            if (newElement[key].childrens !== undefined){
-                                newElement[key].count = (value as Array<Object>).length;
-                                Object.values((value as Array<Object>)).map((element, index) => (
-                                    Object.entries(element).map(([key2, val2]) => {
-                                        const value2 = (val2 === null) ? '' : val2.toString();
-                                        if (key2 === 'id'){
-                                            newElement['id_2'].value[index] = value2;
-                                        } else if (key2 === 'number_invoice'){
-                                            newElement['number_invoice_2'].value[index] = value2;
-                                        } else if (key === 'connectAssembling_Storage_Position' && key2 === 'storage_position'){
-                                            newElement['storage_position_2'].value[index] = value2;
-                                        } else {
-                                            if (newElement[key2].selectable){
-                                                newElement[key2].selectData = [...allSelectData[key2]];
-                                                if (value2 !== '') {
-                                                    const fields: string[] = defaultElementOfTable.mainField(newElement[key2].selectable);
-                                                    const findElement = allSelectData[key2].find((el: any) => el.id.toString() === value2);
-                                                    (newElement[key2].visableValue as string[])[index] = fields.map(field => (findElement as any)[field]).join(' ');
-                                                }
-                                            } 
-                                            newElement[key2].value[index] = value2;
-                                        }
-                                    })
-                                ))
-                            } else {
-                                newElement[key].value[0] = value;
-                            }
-                        })
-                        data.push(newElement)
+                        const newElement = setElementValue(e, link, allSelectData);
+                        data.push(newElement);
                     })
                     dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement}));
                 })
@@ -93,6 +52,62 @@ const getSubData = (table: string, emptyElement: BaseElement, selectData: {[key:
     })
 }
 
+const setElementValue = (e: Object, link: string, allSelectData: {[key: string]: Array<Object>}) => {
+    const newElement: BaseElement = defaultElementOfTable.get(link);
+    Object.entries(e).map(([key, val]) => {
+        if (newElement[key].childrens !== undefined){
+            const value: Array<Object> = val;
+            newElement[key].count = value.length;
+            Object.values(value).map((element, index) => (
+                Object.entries(element).map(([key2, val2]) => {
+                    const value2: string = (val2 === null) ? '' : val2.toString();
+                    if (key2 === 'id'){
+                        newElement['id_2'].value[index] = value2;
+                    } else if (key2 === 'number_invoice'){
+                        newElement['number_invoice_2'].value[index] = value2;
+                    } else if (key === 'connectAssembling_Storage_Position' && key2 === 'storage_position'){
+                        newElement['storage_position_2'].value[index] = value2;
+                    } else {
+                        if (newElement[key2].selectable)
+                            newElement[key2].selectData = [...allSelectData[key2]]
+                        newElement[key2].value[index] = value2;
+                    }
+                })
+            ))
+        } else {
+            const value: string = (val === null) ? '' : val.toString();
+            newElement[key].value[0] = value;
+            if (newElement[key].selectable)
+                newElement[key].selectData = [...allSelectData[key]]
+        }
+    });
+    setElementVisableValues(newElement);
+
+    return newElement
+}
+
+const setElementVisableValues = (newElement: BaseElement) => {
+    Object.values(newElement).map((value) => { 
+        value.value.map((val, index) => {
+            if (value.selectable) {
+                const findElement = value.selectData?.find((el: any) => 
+                    el.id.toString() === val
+                );
+                value.visableValue[index] = findElement !== undefined ?
+                    value.valueFrom.map(field => 
+                        (findElement as {[key: string]: string})[field]
+                    ).join(' ') : '';
+            } else {
+                value.visableValue[index] = value.valueFrom.map(field => 
+                    newElement[field].value[index]).join(' ');
+            }
+        })
+    });
+
+    return newElement
+}
+
+
 export const showModalElement = (isOpen: boolean, element?: BaseElement, table?: string) => {
     return(dispatch: AppDispatch) => {
         dispatch(tableSlice.actions.showModalElement({isOpen: isOpen, element: element}));
@@ -107,7 +122,6 @@ export const createElement = (element: BaseElement, link: string) => {
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.post(`/${link}/`, returnedData)
         .then(() => {
-            dispatch(showModalElement(false, undefined, link));
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
@@ -125,7 +139,7 @@ export const createElement = (element: BaseElement, link: string) => {
                     10000)
                 )
             }
-            if (e?.response?.status === 404) {
+            if (e?.response?.status === 400) {
                 dispatch(addAlert(
                     'danger', 
                     `${table[link as keyof typeof urlList]}`, 
@@ -143,7 +157,6 @@ export const updateElement = (element: BaseElement, link: string) => {
     const id = Number(element['id'].value[0]);
     const table = {...urlList};
     const returnedData = restructData(element);
-    console.log(element);
 
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.patch(`/${link}/${id}/`, returnedData)
@@ -152,7 +165,7 @@ export const updateElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${getElementName(link, element)} успешно обновлен!`, 
+                `Элемент ${id}: ${getElementName(link, element)} успешно обновлен!`, 
                 10000)
             );
             return 'success'
@@ -166,7 +179,7 @@ export const updateElement = (element: BaseElement, link: string) => {
                     10000)
                 )
             }
-            if (e?.response?.status === 404) {
+            if (e?.response?.status === 400) {
                 dispatch(addAlert(
                     'danger', 
                     `${table[link as keyof typeof urlList]}`, 
@@ -191,7 +204,7 @@ export const deleteElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${getElementName(link, element)} удален!`, 
+                `Элемент ${id}: ${getElementName(link, element)} удален!`, 
                 10000)
             );
             return 'success'
@@ -205,7 +218,7 @@ export const deleteElement = (element: BaseElement, link: string) => {
                     10000)
                 )
             }
-            if (e?.response?.status === 404) {
+            if (e?.response?.status === 400) {
                 dispatch(addAlert(
                     'danger', 
                     `${table[link as keyof typeof urlList]}`, 
@@ -220,18 +233,10 @@ export const deleteElement = (element: BaseElement, link: string) => {
 }
 
 const getElementName = (table: string, element: BaseElement) => {
-    const name = `${element.id.value[0]}: ` + defaultElementOfTable.mainField(table).map((field: string) => 
-        element[field].selectable ? 
-        (
-            defaultElementOfTable.mainField(element[field].selectable).map((field2: string) => 
-                (element[field].selectData?.find((e: any) => (
-                    e.id === Number(element[field].value[0])
-                )) as {[key: string]: string})[field2]
-            ).join(' ')
-        )
-        :
-        element[field].value[0]
-    ).join(' ');
+    const name = Object.values(element).map((value) => {
+        if (value.main) 
+            return value.visableValue[0]
+    }).join(' ')
 
     return name;
 }

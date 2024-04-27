@@ -6,16 +6,18 @@ import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-  const {name, value, index, formikValue, isEdit, setFieldValue, setCreateSub, errors, loading}: 
-  {name: string, value: BaseField, index: number, formikValue: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
+  const {name, value, index, formikValues, isEdit, setFieldValue, setCreateSub, errors, loading}: 
+  {name: string, value: BaseField, index: number, formikValues: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
 
   const [isOpen, setIsOpen] = useState(false);
   const portalRef = useRef<HTMLDivElement>(null);
   const accordionRef = useRef<HTMLDivElement>(null);
 
-  const fields: string[] = defaultElementOfTable.mainField(value.selectable);
-  const findElement = value.selectData?.find((el: any) => el.id.toString() === formikValue);
-  const visableValue = findElement ? fields.map(field => (findElement as any)[field]).join(' ') : '';
+  
+
+  const findElement = value.selectData?.find((el: any) => el.id.toString() === formikValues)
+  const visableValue = findElement !== undefined ? value.valueFrom.map((field) => 
+    (findElement as {[key: string]: string})[field]).join(' ') : '';
 
   const handleCreate = () => {
     setIsOpen(!isOpen);
@@ -38,12 +40,18 @@ export function SelectableField(props: any) {
             {visableValue}
           </DropdownToggle>
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}} loading={loading}>
-            {value.selectData?.map((el: Object) => {          
-              return (
+            {value.selectData?.map((el: Object) => (
+              ((value.subject === 'connectAssembling_Storage_Position') &&
+              (name === 'assembling') && ((el as any).id in formikValues[name])) ? 
+              (
+                undefined
+              ) :
+              (
                 <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
-                  {fields.map(field => (el as any)[field]).join(' ')}
-                </Dropdown.Item>)
-              }
+                  {value.valueFrom.map(field => (el as any)[field]).join(' ')}
+                </Dropdown.Item>
+              )
+            )
             )}
           </Dropdown.Menu>
         </Dropdown>
@@ -58,7 +66,7 @@ export function SelectableField(props: any) {
         <div className="accordionContainer" ref={portalRef}>
           {
             (portalRef.current !== undefined && portalRef.current !== null) 
-            ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub, isOpen) 
+            ? createPortal2(portalRef, value.selectable, accordionRef, setCreateSub, isOpen, index) 
             : <div className="placeholder"></div>
           }
         </div>
@@ -67,10 +75,10 @@ export function SelectableField(props: any) {
   )
 }
 
-const createPortal2 = (portalRef: any, table: any, accordionRef: any, setCreateSub: any, isOpen: any) => {
+const createPortal2 = (portalRef: any, table: any, accordionRef: any, setCreateSub: any, isOpen: any, index: number) => {
   return(
     createPortal(
-    <ModalForm isCreate={true} isEdit={true} isOpen={isOpen} element={defaultElementOfTable.get(table)} table={table} accordionRef={accordionRef} setCreateSub={setCreateSub} />
+    <ModalForm isCreate={true} isEdit={true} isOpen={isOpen} element={defaultElementOfTable.get(table)} index={index} table={table} accordionRef={accordionRef} setCreateSub={setCreateSub} />
     , portalRef.current)
   )
 }

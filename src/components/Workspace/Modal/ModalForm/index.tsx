@@ -1,9 +1,9 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Accordion, Button, Form } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { BaseElement, BaseField, urlList } from "../../../../models/models";
-import { createElement, updateElement } from "../../../../store/actions/tableActions";
+import { BaseElement, BaseField } from "../../../../models/models";
+import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
 import { SelectableField } from "./SelectableField";
 import { SubdataField } from "./SubdataField";
 import * as formik from 'formik';
@@ -18,30 +18,30 @@ export function ModalForm(props: any) {
     const table: string = props.table;
     const userRole = useAppSelector(state => state.users.myProfile.role);
 
+    const formID = props.index !== undefined ? `${table}${props.index}` : `${table}0`;
+
     const [loading, setLoading] = useState(!props.isOpen ? false : true);
     const [firstLoad, setFirstLoad] = useState(true);
     const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === '-1'));
     const [createSub, setCreateSub] = useState(false);
-    const [submitName, setSubmitName] = useState('');
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)));
-
+    
     const initialValues: {[key: string] : string[]} = Object
         .entries(newElement)
         .reduce((newObj, [elKey, elValue]) => {
             if (elValue.visable) {
-                if (elValue.valueFrom && elValue.childrens){
+                if (elValue.childrens){
                     const arr = [...new Array(elValue.count)].map((_,i) => i+1);
                     newObj[elKey] = [];
                     arr.map((_,index) => {
-                        const value = elValue.valueFrom!.map(field => newElement[field].value[index]).join(' ');
-                        newObj[elKey][index] = value;
+                        newObj[elKey][index] = newElement[elKey].visableValue[index];
                     })
                 } else {
                     newObj[elKey] = [];
                     elValue.value.map((val, index) => {
                         if (val === '-1')
                             newObj[elKey][index] = ''
-                        else newObj[elKey][index] = val as string
+                        else newObj[elKey][index] = val
                     })
                 }
             } 
@@ -106,13 +106,8 @@ export function ModalForm(props: any) {
         })
     }
 
-    const handleSubmit = (values: any) => {
-        if (submitName === 'base'){
-            handleSave(values);
-        } else handleCreateSubData(values); 
-    }
-
     const handleSave = (values: any) => {
+        console.log('save');
         const newValues = JSON.parse(JSON.stringify(newElement));
         Object.entries(values).map(([key, value]) => {
             newValues[key].value = [...(value as Array<string>)]
@@ -121,9 +116,11 @@ export function ModalForm(props: any) {
         setIsEdit(false);
         if (newValues['id'].value[0] === '-1'){ 
             dispatch(createElement(newValues, table))
+            .then((res) => res === 'success' && dispatch(showModalElement(false, undefined, table)))
         }else{
             dispatch(updateElement(newValues, table))
-        } 
+            .then((res) => res === 'success' && dispatch(showModalElement(false, undefined, table)))
+        }
     }
 
     const handleCreateSubData = (values: any) => {
@@ -149,7 +146,7 @@ export function ModalForm(props: any) {
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
-                    visableValue: newElement[elKey].visableValue !== undefined ? [...newElement[elKey].visableValue as string[]] : undefined,
+                    visableValue: [...newElement[elKey].visableValue],
                     selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                 }
             } else if (elKey === name && elValue.count !== undefined) {
@@ -158,13 +155,14 @@ export function ModalForm(props: any) {
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
+                    visableValue: [...newElement[elKey].visableValue],
                     count: newCount
                 }
             } else {
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
-                    visableValue: newElement[elKey].visableValue !== undefined ? [...newElement[elKey].visableValue as string[]] : undefined,
+                    visableValue: [...newElement[elKey].visableValue],
                     selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                 }
             }
@@ -185,7 +183,7 @@ export function ModalForm(props: any) {
 
     return(
         <Formik 
-        onSubmit={(values) => handleSubmit(values)} 
+        onSubmit={(values) => props.isCreate ? handleCreateSubData(values) : handleSave(values)} 
         initialValues={initialValues} 
         validate={(values) => {
             const errors = Object.entries(validate(values)).reduce((newObj, [key, value]): any => {
@@ -199,8 +197,8 @@ export function ModalForm(props: any) {
         validateOnMount={false}
         enableReinitialize={true}
         >
-        {({ handleSubmit, handleChange, setFieldValue, values, errors }) => (
-        <Form noValidate onSubmit={handleSubmit} className={props.isCreate && "rounded p-2 my-2"} style={props.isCreate && {backgroundColor: '#458b7460'}}>
+        {({ handleSubmit, handleChange, setFieldValue, submitForm, values, errors }) => (
+        <Form key={formID} noValidate onSubmit={handleSubmit} className={props.isCreate && "rounded p-2 my-2"} style={props.isCreate && {backgroundColor: '#458b7460'}}>
             <Accordion>
             {Object.entries(newElement).map(([key, value]: [string, BaseField], index) => {
                 if (value.visable && value.childrens === undefined && value.subject === props.subject) {
@@ -272,8 +270,8 @@ export function ModalForm(props: any) {
                 }
             })}
             {!isEdit && !props.isSubField && <Button disabled={userRole === 'user'} className="d-block mt-3 mx-auto" onClick={() => setIsEdit(true)}>Редактировать</Button>}
-            {isEdit && !props.isCreate && <Button variant="success" className="d-block mt-3 mx-auto" type="submit" name='base' onClick={() => setSubmitName('base')}>Сохранить</Button>}
-            {isEdit && props.isCreate && !props.isSubField && <Button variant="success" className='d-block mt-3 mx-auto' type="submit" name='sub' onClick={() => setSubmitName('sub')}>Создать</Button>}
+            {isEdit && !props.isCreate && <Button variant="success" className="d-block mt-3 mx-auto" onClick={() => {submitForm()}}>Сохранить</Button>}
+            {isEdit && props.isCreate && !props.isSubField && <Button variant="success" className='d-block mt-3 mx-auto' onClick={() => {submitForm()}}>Создать</Button>}
             </Accordion>
         </Form>
         )}
