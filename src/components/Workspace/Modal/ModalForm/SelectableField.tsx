@@ -6,16 +6,14 @@ import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-  const {name, value, index, formikValues, isEdit, setFieldValue, setCreateSub, errors, loading}: 
-  {name: string, value: BaseField, index: number, formikValues: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
+  const {name, value, index, formikValue, isEdit, setFieldValue, setCreateSub, errors, loading}: 
+  {name: string, value: BaseField, index: number, formikValue: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
 
   const [isOpen, setIsOpen] = useState(false);
   const portalRef = useRef<HTMLDivElement>(null);
   const accordionRef = useRef<HTMLDivElement>(null);
 
-  
-
-  const findElement = value.selectData?.find((el: any) => el.id.toString() === formikValues)
+  const findElement = value.selectData?.find((el: any) => el.id.toString() === formikValue)
   const visableValue = findElement !== undefined ? value.valueFrom.map((field) => 
     (findElement as {[key: string]: string})[field]).join(' ') : '';
 
@@ -41,11 +39,11 @@ export function SelectableField(props: any) {
           </DropdownToggle>
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}} loading={loading}>
             {value.selectData?.map((el: Object) => (
-              ((value.subject === 'connectAssembling_Storage_Position') &&
-              (name === 'assembling') && ((el as any).id in formikValues[name])) ? 
+             /* ((value.subject === 'connectAssembling_Storage_Position') &&
+              (name === 'assembling') && ((el as any).id in formikValue)) ? 
               (
                 undefined
-              ) :
+              ) :*/
               (
                 <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
                   {value.valueFrom.map(field => (el as any)[field]).join(' ')}

@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios, { all } from "axios";
 import { AppDispatch } from ".."
-import { BaseElement, defaultElementOfTable, urlList } from "../../models/models"
+import { BaseElement, BaseField, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
 import { addAlert } from "./alertsActions";
 
@@ -22,16 +22,15 @@ export const showProductsTable = (link: string) => {
                 const promises: Array<Promise<any>> = [];
                 const allSelectData: {[key: string]: Array<Object>} = {}
 
-                Object.keys(emptyElement).map((key) => {
-                    if (emptyElement[key].selectable) {
-                        promises.push(getSubData(emptyElement[key].selectable as string, emptyElement, allSelectData, key))
-                    }
-                })
-                Promise.all(promises).then(() => {
-                    res.data.map((e: Object) => {
-                        const newElement = setElementValue(e, link, allSelectData);
+                checkSelectable(emptyElement, allSelectData, promises);
+
+                Promise.all(promises).then(async () => {
+                    const result = res.data.map(async (e: Object) => {
+                        const newElement = await setElementValue(e, link, allSelectData);
+                        console.log(newElement);
                         data.push(newElement);
                     })
+                    await Promise.all(result);
                     dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement}));
                 })
             })
@@ -41,18 +40,39 @@ export const showProductsTable = (link: string) => {
     }
 }
 
-const getSubData = (table: string, emptyElement: BaseElement, selectData: {[key: string]: Array<Object>}, key: string) => {
-    return axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${table}/`, {
+const checkSelectable = (element: BaseElement, allSelectData: {[key: string]: Array<Object>}, promises: Array<Promise<any>>) => {
+    Object.keys(element).map((key) => {
+        if (element[key].selectable) {
+            !(key in allSelectData) && promises.push(getSubData(element, key, allSelectData));
+        
+            const subElement: BaseElement = defaultElementOfTable.get(element[key].selectable);
+            element[key].valueFrom.map((field) => (
+                subElement[field].selectable && !(field in allSelectData) &&
+                checkSelectable(subElement, allSelectData, promises)
+            ))
+        }
+    })
+}
+
+const getSubData = async (emptyElement: BaseElement, key: string, selectData?: {[key: string]: Array<Object>}) => {
+    const table = emptyElement[key].selectable;
+    if (selectData) selectData[key] = [];
+    const result = await axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${table}/`, {
         headers: {
             'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
         }
     }).then((res) => {
         emptyElement[key].selectData = [...res.data];
-        selectData[key] = [...res.data];
+        if (selectData) selectData[key] = [...res.data];
+        return 'success'
+    }).catch(() => {
+        return 'error'
     })
+
+    return result
 }
 
-const setElementValue = (e: Object, link: string, allSelectData: {[key: string]: Array<Object>}) => {
+const setElementValue = async (e: Object, link: string, allSelectData: {[key: string]: Array<Object>}) => {
     const newElement: BaseElement = defaultElementOfTable.get(link);
     Object.entries(e).map(([key, val]) => {
         if (newElement[key].childrens !== undefined){
@@ -81,27 +101,50 @@ const setElementValue = (e: Object, link: string, allSelectData: {[key: string]:
                 newElement[key].selectData = [...allSelectData[key]]
         }
     });
-    setElementVisableValues(newElement);
 
-    return newElement
+    return await setElementVisableValues(newElement, allSelectData);
 }
 
-const setElementVisableValues = (newElement: BaseElement) => {
-    Object.values(newElement).map((value) => { 
-        value.value.map((val, index) => {
-            if (value.selectable) {
-                const findElement = value.selectData?.find((el: any) => 
-                    el.id.toString() === val
-                );
-                value.visableValue[index] = findElement !== undefined ?
-                    value.valueFrom.map(field => 
-                        (findElement as {[key: string]: string})[field]
-                    ).join(' ') : '';
-            } else {
-                value.visableValue[index] = value.valueFrom.map(field => 
-                    newElement[field].value[index]).join(' ');
+const setElementVisableValues = async (newElement: BaseElement, allSelectData: {[key: string]: Array<Object>}) => {
+
+    const setSelectableValue = (elementField: BaseField) => {
+        const valueFrom: BaseElement = defaultElementOfTable.get(elementField.selectable);
+
+      /*  elementField.valueFrom.map((field) => {
+            if (valueFrom[field].selectable) {
+                valueFrom[field].selectData = [...allSelectData[field]];
+                valueFrom[field].value = [(findValue as {[key: string]: string})[field]];
+                setSelectableValue(valueFrom[field]);
             }
-        })
+        })*/
+
+        elementField.value.map((val, index) => {
+            const findValue = elementField.selectData?.find((el: any) => 
+                el.id.toString() === val);
+            const visableValue = elementField.valueFrom.map((field) => { 
+                if (valueFrom[field].selectable){
+                    valueFrom[field].selectData = [...allSelectData[field]];
+                    valueFrom[field].value = [(findValue as {[key: string]: string})[field]];
+                    setSelectableValue(valueFrom[field]);
+                } else {
+                   /* findValue !== undefined ?
+                    baseElement.visableValue[index] = (findValue as {[key: string]: string})[field] :
+                    baseElement.visableValue[index] = '';*/
+                    return (findValue !== undefined ? 
+                    (findValue as {[key: string]: string})[field] : '')
+                }
+            }).join(' ');
+
+            return visableValue
+        }) 
+    }
+    
+    Object.values(newElement).map((value) => { 
+        if (value.selectable) {
+            setSelectableValue(value);
+        } else {
+            value.visableValue = [...value.value];
+        }
     });
 
     return newElement

@@ -604,7 +604,7 @@ export const defaultElementOfTable: ListOfTables = {
                 key: 'Номер сборки',
                 value: [''],
                 visableValue: [''],
-                valueFrom: ['id'],
+                valueFrom: ['item'],
                 type: 'number',
                 required: true,
                 visable: true,
