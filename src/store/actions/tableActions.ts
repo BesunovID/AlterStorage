@@ -1,6 +1,6 @@
-import axios, { all } from "axios";
+import axios from "axios";
 import { AppDispatch } from ".."
-import { BaseElement, BaseField, defaultElementOfTable, urlList } from "../../models/models"
+import { AllSelectData, BaseElement, BaseField, defaultElementOfTable, urlList } from "../../models/models"
 import { tableSlice } from "../slices/tableSlice"
 import { addAlert } from "./alertsActions";
 
@@ -20,18 +20,20 @@ export const showProductsTable = (link: string) => {
         try{
             await customAxios.get(`/${link}/`).then((res) => { 
                 const promises: Array<Promise<any>> = [];
-                const allSelectData: {[key: string]: Array<Object>} = {}
+                const allSelectData: AllSelectData = {}
 
-                checkSelectable(emptyElement, allSelectData, promises);
+                setSubData(emptyElement, allSelectData, promises);
 
                 Promise.all(promises).then(async () => {
                     const result = res.data.map(async (e: Object) => {
                         const newElement = await setElementValue(e, link, allSelectData);
-                        console.log(newElement);
                         data.push(newElement);
                     })
                     await Promise.all(result);
-                    dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement}));
+                    data.sort((a, b) => {
+                        return Number(b.id.value[0]) - Number(a.id.value[0])
+                    }); 
+                    dispatch(tableSlice.actions.showTable({data: data, table: link, emptyElement: emptyElement, allSelectData: allSelectData}));
                 })
             })
         } catch(e) {
@@ -40,7 +42,7 @@ export const showProductsTable = (link: string) => {
     }
 }
 
-const checkSelectable = (element: BaseElement, allSelectData: {[key: string]: Array<Object>}, promises: Array<Promise<any>>) => {
+export const setSubData = (element: BaseElement, allSelectData: AllSelectData, promises: Array<Promise<any>>) => {
     Object.keys(element).map((key) => {
         if (element[key].selectable) {
             !(key in allSelectData) && promises.push(getSubData(element, key, allSelectData));
@@ -48,22 +50,26 @@ const checkSelectable = (element: BaseElement, allSelectData: {[key: string]: Ar
             const subElement: BaseElement = defaultElementOfTable.get(element[key].selectable);
             element[key].valueFrom.map((field) => (
                 subElement[field].selectable && !(field in allSelectData) &&
-                checkSelectable(subElement, allSelectData, promises)
+                setSubData(subElement, allSelectData, promises)
             ))
         }
     })
 }
 
-const getSubData = async (emptyElement: BaseElement, key: string, selectData?: {[key: string]: Array<Object>}) => {
+const getSubData = async (emptyElement: BaseElement, key: string, selectData: AllSelectData) => {
     const table = emptyElement[key].selectable;
-    if (selectData) selectData[key] = [];
+
     const result = await axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${table}/`, {
         headers: {
             'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
         }
     }).then((res) => {
-        emptyElement[key].selectData = [...res.data];
-        if (selectData) selectData[key] = [...res.data];
+        emptyElement[key].selectData = [...res.data].sort((a, b) => {
+            return Number(b.id) - Number(a.id)
+        });
+        selectData[key] = [...res.data].sort((a, b) => {
+            return Number(b.id) - Number(a.id)
+        });
         return 'success'
     }).catch(() => {
         return 'error'
@@ -72,7 +78,13 @@ const getSubData = async (emptyElement: BaseElement, key: string, selectData?: {
     return result
 }
 
-const setElementValue = async (e: Object, link: string, allSelectData: {[key: string]: Array<Object>}) => {
+export const setAllSelectData = (allSelectData: AllSelectData) => {
+    return (dispatch: AppDispatch) => {
+        dispatch(tableSlice.actions.setAllSelectData({data: allSelectData}))
+    }
+}
+
+const setElementValue = async (e: Object, link: string, allSelectData: AllSelectData) => {
     const newElement: BaseElement = defaultElementOfTable.get(link);
     Object.entries(e).map(([key, val]) => {
         if (newElement[key].childrens !== undefined){
@@ -94,7 +106,7 @@ const setElementValue = async (e: Object, link: string, allSelectData: {[key: st
                     }
                 })
             ))
-        } else {
+        } else {;
             const value: string = (val === null) ? '' : val.toString();
             newElement[key].value[0] = value;
             if (newElement[key].selectable)
@@ -105,43 +117,35 @@ const setElementValue = async (e: Object, link: string, allSelectData: {[key: st
     return await setElementVisableValues(newElement, allSelectData);
 }
 
-const setElementVisableValues = async (newElement: BaseElement, allSelectData: {[key: string]: Array<Object>}) => {
+export const setElementVisableValues = async (newElement: BaseElement, allSelectData: AllSelectData) => {
 
     const setSelectableValue = (elementField: BaseField) => {
         const valueFrom: BaseElement = defaultElementOfTable.get(elementField.selectable);
 
-      /*  elementField.valueFrom.map((field) => {
-            if (valueFrom[field].selectable) {
-                valueFrom[field].selectData = [...allSelectData[field]];
-                valueFrom[field].value = [(findValue as {[key: string]: string})[field]];
-                setSelectableValue(valueFrom[field]);
-            }
-        })*/
-
-        elementField.value.map((val, index) => {
+        const result = elementField.value.map((val) => {
             const findValue = elementField.selectData?.find((el: any) => 
-                el.id.toString() === val);
+                el.id.toString() === val.toString());
             const visableValue = elementField.valueFrom.map((field) => { 
                 if (valueFrom[field].selectable){
                     valueFrom[field].selectData = [...allSelectData[field]];
                     valueFrom[field].value = [(findValue as {[key: string]: string})[field]];
-                    setSelectableValue(valueFrom[field]);
+                    const res: string[] = setSelectableValue(valueFrom[field]);
+                    return res.join(' ')
                 } else {
-                   /* findValue !== undefined ?
-                    baseElement.visableValue[index] = (findValue as {[key: string]: string})[field] :
-                    baseElement.visableValue[index] = '';*/
                     return (findValue !== undefined ? 
                     (findValue as {[key: string]: string})[field] : '')
                 }
             }).join(' ');
 
             return visableValue
-        }) 
+        });
+
+        return result
     }
     
     Object.values(newElement).map((value) => { 
         if (value.selectable) {
-            setSelectableValue(value);
+            value.visableValue = setSelectableValue(value);
         } else {
             value.visableValue = [...value.value];
         }
@@ -164,11 +168,11 @@ export const createElement = (element: BaseElement, link: string) => {
 
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.post(`/${link}/`, returnedData)
-        .then(() => {
+        .then((res) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${getElementName(link, element)} успешно создан!`, 
+                `Элемент ${res.data.id}: ${getElementName(element)} успешно создан!`, 
                 10000)
             );
             return 'success'
@@ -208,7 +212,7 @@ export const updateElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${id}: ${getElementName(link, element)} успешно обновлен!`, 
+                `Элемент ${id}: ${getElementName(element)} успешно обновлен!`, 
                 10000)
             );
             return 'success'
@@ -247,7 +251,7 @@ export const deleteElement = (element: BaseElement, link: string) => {
             dispatch(addAlert(
                 'success', 
                 `${table[link as keyof typeof urlList]}`, 
-                `Элемент ${id}: ${getElementName(link, element)} удален!`, 
+                `Элемент ${id}: ${getElementName(element)} удален!`, 
                 10000)
             );
             return 'success'
@@ -275,7 +279,7 @@ export const deleteElement = (element: BaseElement, link: string) => {
     }
 }
 
-const getElementName = (table: string, element: BaseElement) => {
+const getElementName = (element: BaseElement) => {
     const name = Object.values(element).map((value) => {
         if (value.main) 
             return value.visableValue[0]
@@ -306,7 +310,7 @@ const restructData = (data: BaseElement): {} => {
                         else if (child === 'number_invoice_2' && data[child].value[index]){
                             newObj['number_invoice'] = Number(data[child].value[index])
                         }
-                        else if (data[child].visable){
+                        else if (data[child].inForm){
                             if (data[child].type === 'number' && (Number(data[child].value[index])) > 0){
                                 newObj[child] = Number(data[child].value[index])
                             } else if (data[child].type !== 'number' && data[child].value[index] !== '') {

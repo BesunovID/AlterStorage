@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { urlList, BaseElement } from "../../models/models"
+import { urlList, BaseElement, AllSelectData } from "../../models/models"
 
 
 interface TableState {
     tableIsOpen: boolean
     loading: boolean
     data: BaseElement[]
+    allSelectData: AllSelectData
     sortedByField: string
     sortedDirection: number
     modalIsOpen: boolean
@@ -18,6 +19,11 @@ interface PayloadShowTable {
     data: BaseElement[]
     table: string
     emptyElement: BaseElement
+    allSelectData: AllSelectData
+}
+
+interface PayloadAllSelectData {
+    data: AllSelectData
 }
 
 interface PayloadShowModalElement {
@@ -35,6 +41,7 @@ const initialState: TableState = {
     tableIsOpen: false,
     loading: false,
     data: [],
+    allSelectData: {},
     sortedByField: 'id',
     sortedDirection: 1,
     modalIsOpen: false,
@@ -54,9 +61,13 @@ export const tableSlice = createSlice({
         showTable(state: TableState, action: PayloadAction<PayloadShowTable>){
             state.modalIsOpen = false
             state.data = action.payload.data
+            state.allSelectData = action.payload.allSelectData
             state.currentUrl = action.payload.table
             state.emptyElement = action.payload.emptyElement
             state.loading = false
+        },
+        setAllSelectData(state, action: PayloadAction<PayloadAllSelectData>){
+            state.allSelectData = action.payload.data
         },
         sortTable(state, action: PayloadAction<PayloadSortTable>){
             state.data = action.payload.data

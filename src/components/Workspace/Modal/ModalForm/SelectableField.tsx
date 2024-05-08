@@ -1,25 +1,51 @@
-import React, { useContext, useRef, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button, AccordionContext, Spinner } from "react-bootstrap"
 import { createPortal } from "react-dom";
-import { BaseField, defaultElementOfTable } from "../../../../models/models";
+import { AllSelectData, BaseElement, BaseField, defaultElementOfTable } from "../../../../models/models";
 import { ModalForm } from "./index";
 
 
 export function SelectableField(props: any) {
-  const {name, value, index, formikValue, isEdit, setFieldValue, setCreateSub, errors, loading}: 
-  {name: string, value: BaseField, index: number, formikValue: any, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
+  const {name, value, index, formikValue, allSelectData, isEdit, setFieldValue, setCreateSub, errors, loading}: 
+  {name: string, value: BaseField, index: number, formikValue: any, allSelectData: AllSelectData, isEdit: boolean, setFieldValue: any, setCreateSub: any, errors: any, loading: any } = props;
 
   const [isOpen, setIsOpen] = useState(false);
+  const [visableValue, setVisableValue] = useState('');
   const portalRef = useRef<HTMLDivElement>(null);
   const accordionRef = useRef<HTMLDivElement>(null);
 
-  const findElement = value.selectData?.find((el: any) => el.id.toString() === formikValue)
-  const visableValue = findElement !== undefined ? value.valueFrom.map((field) => 
-    (findElement as {[key: string]: string})[field]).join(' ') : '';
+  const setSelectableValue = (elementField: BaseField, value: string[]) => {
+    const valueFrom: BaseElement = defaultElementOfTable.get(elementField.selectable);
+
+    const result = value.map((val) => {
+        const findValue = elementField.selectData?.find((el: any) => 
+            el.id.toString() === val.toString());
+        const visableValue = elementField.valueFrom.map((field) => { 
+            if (valueFrom[field].selectable && findValue !== undefined && !loading){
+                valueFrom[field].selectData = [...allSelectData[field]];
+                valueFrom[field].value = [(findValue as {[key: string]: string})[field]];
+                const res: string[] = setSelectableValue(valueFrom[field], valueFrom[field].value);
+                return res.join(' ')
+            } else {
+                return (findValue !== undefined ? 
+                (findValue as {[key: string]: string})[field] : '')
+            }
+        }).join(' ');
+
+        return visableValue
+    });
+    return result
+  }
 
   const handleCreate = () => {
     setIsOpen(!isOpen);
   }
+
+  useEffect(() => {
+    (formikValue[index] !== '' && formikValue[index] !== undefined) ?
+    setVisableValue(setSelectableValue(value, [formikValue[index]])[0]) :
+    setVisableValue(value.visableValue[index])
+  },[formikValue[index], loading])
 
   return(
     <Form.Group key={name}>
@@ -39,14 +65,14 @@ export function SelectableField(props: any) {
           </DropdownToggle>
           <Dropdown.Menu as={CustomMenu} style={{maxWidth: '420px'}} loading={loading}>
             {value.selectData?.map((el: Object) => (
-             /* ((value.subject === 'connectAssembling_Storage_Position') &&
-              (name === 'assembling') && ((el as any).id in formikValue)) ? 
+              ((value.subject === 'connectAssembling_Storage_Position') &&
+              (name === 'assembling') && (formikValue.includes((el as any).id.toString()))) ? 
               (
                 undefined
-              ) :*/
+              ) :
               (
                 <Dropdown.Item key={(el as any).id} eventKey={(el as any).id} style={{overflowX: 'hidden'}}>
-                  {value.valueFrom.map(field => (el as any)[field]).join(' ')}
+                  {setSelectableValue(value, [(el as any)['id']])[0]}
                 </Dropdown.Item>
               )
             )

@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
-import { Accordion, Button, Form } from "react-bootstrap";
+import { Accordion, Button, Form, Spinner } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { BaseElement, BaseField } from "../../../../models/models";
-import { createElement, showModalElement, updateElement } from "../../../../store/actions/tableActions";
+import { AllSelectData, BaseElement, BaseField } from "../../../../models/models";
+import { createElement, setAllSelectData, setElementVisableValues, setSubData, showModalElement, updateElement } from "../../../../store/actions/tableActions";
 import { SelectableField } from "./SelectableField";
 import { SubdataField } from "./SubdataField";
 import * as formik from 'formik';
@@ -17,38 +17,18 @@ export function ModalForm(props: any) {
     const element: BaseElement = props.element;
     const table: string = props.table;
     const userRole = useAppSelector(state => state.users.myProfile.role);
+    const allSelectData: AllSelectData = useAppSelector(state => state.tables.allSelectData);
 
     const formID = props.index !== undefined ? `${table}${props.index}` : `${table}0`;
 
-    const [loading, setLoading] = useState(!props.isOpen ? false : true);
     const [firstLoad, setFirstLoad] = useState(true);
+    const [loading, setLoading] = useState(props.isCreate ? true : false);
+    const [allSelectDataCopy, setAllSelectDataCopy] = useState(JSON.parse(JSON.stringify(allSelectData)))
     const [isEdit, setIsEdit] = useState(props.isEdit ? true : ('id' in element && element['id'].value[0] === '-1'));
-    const [createSub, setCreateSub] = useState(false);
+    const [createSub, setCreateSub] = useState('');
+    const [updateSubdata, setUpdateSubdata] = useState(false);
     const [newElement, setNewElement] = useState<BaseElement>(JSON.parse(JSON.stringify(element)));
     
-    const initialValues: {[key: string] : string[]} = Object
-        .entries(newElement)
-        .reduce((newObj, [elKey, elValue]) => {
-            if (elValue.visable) {
-                if (elValue.childrens){
-                    const arr = [...new Array(elValue.count)].map((_,i) => i+1);
-                    newObj[elKey] = [];
-                    arr.map((_,index) => {
-                        newObj[elKey][index] = newElement[elKey].visableValue[index];
-                    })
-                } else {
-                    newObj[elKey] = [];
-                    elValue.value.map((val, index) => {
-                        if (val === '-1')
-                            newObj[elKey][index] = ''
-                        else newObj[elKey][index] = val
-                    })
-                }
-            } 
-            return(newObj)
-        }, {} as {[key: string] : string[]});
-
-
     const validate = (values: {[key: string] : string[]}) => {
         const errors: {[key: string] : string[]}  = {};
         Object.entries(values).map(([key, value]) => {
@@ -85,33 +65,89 @@ export function ModalForm(props: any) {
 
     const getTableData = () => {
         const selectData: BaseElement = JSON.parse(JSON.stringify(newElement));
-        const promises = Object.keys(newElement).map((e) => {
-            if (newElement[e].selectable){
-                return(
-                    axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${newElement[e].selectable}/`, {
-                        headers: {
-                            'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
-                        }
-                    }).then((res) => {
-                        selectData[e].selectData = [...res.data]
-                    })
-                )
+        const data: AllSelectData = JSON.parse(JSON.stringify(allSelectDataCopy));
+        const promises: Promise<any>[] = [];
+        Object.keys(selectData).map((e) => {
+            if (selectData[e].selectable){
+                if (e in data) {
+                    selectData[e].selectData = [...data[e]]
+                } else {
+                setSubData(selectData, data, promises)
+                }
             }
         });
         Promise.all(promises).then(() => {
-            setLoading(false);
             firstLoad && setFirstLoad(false);
-            createSub && setCreateSub(false);
+            (createSub !== '') && setCreateSub('');
             setNewElement(JSON.parse(JSON.stringify(selectData)));
+            setAllSelectDataCopy(JSON.parse(JSON.stringify(data)));
+            const isUpdate = ((Object.keys(data).map((key) => {
+                if (!(key in allSelectData)) {
+                    return true
+                }
+            })).includes(true)) 
+            if (isUpdate) {
+            setUpdateSubdata(true);
+            }
         })
     }
 
-    const handleSave = (values: any) => {
-        console.log('save');
+    const updateData = () => {
+        const selectData: BaseElement = JSON.parse(JSON.stringify(newElement));
+        const promises: Promise<any>[] = [];
+        Object.keys(selectData).map(async (e) => {
+            if (selectData[e].selectable === createSub){
+                promises.push(axios.get(`${process.env.REACT_APP_BASE_STORAGE_URL}/${createSub}/`, {
+                    headers: {
+                        'Authorization': `Token ${localStorage.getItem('TOKEN')}`,
+                    }
+                }).then((res) => {
+                    selectData[e].selectData = [...res.data].sort((a, b) => {
+                        return Number(b.id) - Number(a.id)
+                    });
+                }))
+            }
+        });
+        Promise.all(promises).then(() => {
+            setNewElement(JSON.parse(JSON.stringify(selectData)));
+            setCreateSub('');
+            setLoading(false);
+        })
+
+    }
+
+    const createInitial = (element: BaseElement) => {
+        return Object
+            .entries(element)
+            .reduce((newObj, [elKey, elValue]) => {
+                if (elValue.inForm) {
+                    if (elValue.childrens){
+                        const arr = [...new Array(elValue.count)].map((_,i) => i+1);
+                        newObj[elKey] = [];
+                        arr.map((_,index) => {
+                            newObj[elKey][index] = elValue.visableValue[index];
+                        })
+                    } else {
+                        newObj[elKey] = [];
+                        elValue.value.map((val, index) => {
+                            if (val === '-1')
+                                newObj[elKey][index] = ''
+                            else newObj[elKey][index] = val
+                        })
+                    }
+                } 
+                return(newObj)
+            }, {} as {[key: string] : string[]});
+    }
+
+    const [initialValues, setInitialValues] = useState<{[key: string]: string[]}>(createInitial(newElement));
+
+    const handleSave = async (values: any) => {
         const newValues = JSON.parse(JSON.stringify(newElement));
         Object.entries(values).map(([key, value]) => {
             newValues[key].value = [...(value as Array<string>)]
         });
+        await setElementVisableValues(newValues, allSelectData);
 
         setIsEdit(false);
         if (newValues['id'].value[0] === '-1'){ 
@@ -123,14 +159,15 @@ export function ModalForm(props: any) {
         }
     }
 
-    const handleCreateSubData = (values: any) => {
+    const handleCreateSubData = async (values: any) => {
         const newValues = JSON.parse(JSON.stringify(newElement));
         Object.entries(values).map(([key, value]) => {
             newValues[key].value = [...(value as Array<string>)]
         });
+        await setElementVisableValues(newValues, allSelectData);
         dispatch(createElement(newValues, table))
         .then(() => {
-            props.setCreateSub && props.setCreateSub(true);
+            props.setCreateSub && props.setCreateSub(table);
             if (props.accordionRef.current !== undefined && props.accordionRef.current !== null) {
                 props.accordionRef.current.click();
                 setNewElement(JSON.parse(JSON.stringify(element)));
@@ -141,44 +178,57 @@ export function ModalForm(props: any) {
     const handleAddField = (name: string, values: any) => {
         const formElement: BaseElement = Object.entries(newElement).reduce((newObj, [elKey, elValue]) => {
             const newValue = [...(elKey in values ? values[elKey] : newElement[elKey].value)]
+            const visableValue = [...newElement[elKey].visableValue];
             if ((newElement[name].childrens as Array<string>).includes(elKey)){
                 newValue.push('');
+                visableValue.push('');
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
-                    visableValue: [...newElement[elKey].visableValue],
+                    visableValue: [...visableValue],
                     selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                 }
             } else if (elKey === name && elValue.count !== undefined) {
                 newValue.push('');
+                visableValue.push('');
                 const newCount = elValue.count + 1;
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
-                    visableValue: [...newElement[elKey].visableValue],
+                    visableValue: [...visableValue],
                     count: newCount
                 }
             } else {
                 newObj[elKey] = {
                     ...elValue,
                     value: [...newValue as string[]],
-                    visableValue: [...newElement[elKey].visableValue],
+                    visableValue: [...visableValue],
                     selectData: newElement[elKey].selectData !== undefined ? [...(newElement[elKey].selectData as Array<Object>)] : undefined
                 }
             }
             return(newObj)
         }, {} as BaseElement) 
         setNewElement(JSON.parse(JSON.stringify(formElement)));
+        setInitialValues(createInitial(formElement));
     }
 
     useEffect(() => {
-        if (createSub) {
-            getTableData();
+        if (createSub !== '') {
+            updateData();
+            setLoading(true);
         }
         if (props.isOpen && firstLoad) {
             getTableData();
-        } 
-    }, [setNewElement, isEdit, props.element, props.isOpen, loading, createSub])
+        }
+        if (updateSubdata) {
+            dispatch(setAllSelectData(allSelectDataCopy));
+            setLoading(false);
+            setUpdateSubdata(false);
+        }
+        if (!updateSubdata && !firstLoad && loading) {
+            setLoading(false);
+        }
+    }, [setNewElement, isEdit, props.element, props.isOpen, loading, createSub, firstLoad, allSelectDataCopy])
 
 
     return(
@@ -194,14 +244,14 @@ export function ModalForm(props: any) {
             }, {} as {[key: string]: string[]}); 
             return (errors)
         }}
-        validateOnMount={false}
+        validateOnMount={true}
         enableReinitialize={true}
         >
         {({ handleSubmit, handleChange, setFieldValue, submitForm, values, errors }) => (
         <Form key={formID} noValidate onSubmit={handleSubmit} className={props.isCreate && "rounded p-2 my-2"} style={props.isCreate && {backgroundColor: '#458b7460'}}>
             <Accordion>
             {Object.entries(newElement).map(([key, value]: [string, BaseField], index) => {
-                if (value.visable && value.childrens === undefined && value.subject === props.subject) {
+                if (value.inForm && value.childrens === undefined && value.subject === props.subject) {
                     if (value.selectable)
                         return(
                         <SelectableField 
@@ -209,7 +259,8 @@ export function ModalForm(props: any) {
                             name={key}
                             value={value}
                             index={0}
-                            formikValue={values[key][0]}
+                            formikValue={values[key]}
+                            allSelectData={allSelectData}
                             isEdit={isEdit} 
                             setFieldValue={setFieldValue}
                             setCreateSub={setCreateSub}
@@ -234,7 +285,7 @@ export function ModalForm(props: any) {
                             </Form.Control.Feedback>
                         </Form.Group>
                     )
-                } else if (value.visable && value.childrens && !props.subject) {
+                } else if (value.inForm && value.childrens && !props.subject) {
                     if (value.count !== undefined){
                         const arr = [...new Array(value.count)].map((_,i) => i+1);
 
@@ -246,10 +297,12 @@ export function ModalForm(props: any) {
                                     name={key}
                                     value={value}
                                     formikValue={values}
+                                    allSelectData={allSelectData}
                                     errors={errors}
                                     element={newElement}
                                     index={index}
                                     isEdit={isEdit} 
+                                    loading={loading}
                                     handleChange={handleChange}
                                     setFieldValue={setFieldValue}
                                     setCreateSub={setCreateSub}

@@ -1,15 +1,53 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Form, Accordion, useAccordionButton, Button } from "react-bootstrap"
-import { BaseElement, BaseField } from "../../../../models/models";
+import { AllSelectData, BaseElement, BaseField, defaultElementOfTable } from "../../../../models/models";
 import { SelectableField } from "./SelectableField";
 
 
 export function SubdataField(props: any) {
-    const {name, value, formikValue, errors, element, index, isEdit, handleChange, setFieldValue, setCreateSub, setNewElement}: 
-    {name: string, value: BaseField, formikValue: any, errors: any, element: BaseElement, index: number, isEdit: boolean, handleChange: any, setFieldValue: any, setCreateSub: any, setNewElement: any} = props;
+    const {name, value, formikValue, allSelectData, errors, element, index, isEdit, loading, handleChange, setFieldValue, setCreateSub, setNewElement}: 
+    {name: string, value: BaseField, formikValue: any, allSelectData: AllSelectData, errors: any, element: BaseElement, index: number, isEdit: boolean, loading: boolean, handleChange: any, setFieldValue: any, setCreateSub: any, setNewElement: any} = props;
+
     const [isOpen, setIsOpen] = useState(false);
+    const [visableValue, setVisableValue] = useState('');
     const accordionRef = useRef<HTMLInputElement>(null);
     const portalRef = useRef<HTMLDivElement>(null);
+
+    const setSelectableValue = (elementField: BaseField, value: string[]) => {
+        const valueFrom: BaseElement = defaultElementOfTable.get(elementField.selectable);
+
+        const result = value.map((val) => {
+            const findValue = elementField.selectData?.find((el: any) => 
+                el.id.toString() === val.toString());
+            const visableValue = elementField.valueFrom.map((field) => { 
+                if (valueFrom[field].selectable && findValue !== undefined){
+                    valueFrom[field].selectData = [...allSelectData[field]];
+                    valueFrom[field].value = [(findValue as {[key: string]: string})[field]];
+                    const res: string[] = setSelectableValue(valueFrom[field], valueFrom[field].value);
+                    return res
+                } else {
+                    return (findValue !== undefined ? 
+                    (findValue as {[key: string]: string})[field] : '')
+                }
+            }).join(' ');
+
+            return visableValue
+        });
+
+        return result
+    }
+
+    const setSubdataFieldVisableValue = () => {
+        const arrayValues = value.valueFrom.map((field) => {
+            const returned = (element[field].selectable ?
+                setSelectableValue(element[field], formikValue[field])[index] :
+                formikValue[field][index]);
+            return returned
+        });
+
+        const newValue = arrayValues[0].length > 0 ? arrayValues.join(', ') : arrayValues.join('')
+        return newValue
+    }
 
     const handleDel = () => {
         const newElement = JSON.parse(JSON.stringify(element));
@@ -23,13 +61,24 @@ export function SubdataField(props: any) {
         setNewElement(newElement);
     }
 
+    useEffect(() => {
+        const isEmpty = value.valueFrom.map((field) => {
+            if (formikValue[field][index] === undefined) {
+                return true
+            }
+        }).includes(true);
+
+        !isEmpty && setVisableValue(setSubdataFieldVisableValue())
+
+      }, [formikValue])
+
     return(
         <Form.Group key={index}>
           <Form.Label>{`${value.key} ${index + 1}`}</Form.Label>
           <div className={'d-flex'}>
             <CustomAccordionInput
                 name={name}
-                value={value.valueFrom!.map(field => formikValue[field][index]).join(' ')}
+                value={visableValue}
                 type={element[name].type}
                 error={!!errors[name] && !!errors[name][index] && errors[name][index]}
                 eventKey={index.toString()}
@@ -45,7 +94,7 @@ export function SubdataField(props: any) {
               {
                 <div className="rounded p-2 my-2" style={{backgroundColor: '#458b7460'}}>
                     {Object.entries(element).map(([key, value]) => (
-                        (element[key].subject === name && element[key].visable) &&
+                        (element[key].subject === name && element[key].inForm) &&
                         (!element[key].selectable ? 
                         <Form.Group key={`${key} ${index}`}>
                             <Form.Label className="mt-1">{value.key}</Form.Label>
@@ -70,12 +119,14 @@ export function SubdataField(props: any) {
                             key={`${key} ${index}`}
                             name={key}
                             value={element[key]}
-                            formikValue={formikValue[key][index]}
+                            formikValue={formikValue[key]}
+                            allSelectData={allSelectData}
                             index={index}
                             isEdit={isEdit}
                             setFieldValue={setFieldValue} 
                             setCreateSub={setCreateSub}
                             errors={errors}
+                            loading={loading}
                         />)
                     ))}
                 </div>

@@ -72,10 +72,7 @@ export function TableData() {
                         <tr>
                             {userRole !== 'user' && <th style={{width: '60px'}}></th>}
                             {Object.entries(baseElement).map(([key, value]) => (
-                                (baseElement[key].childrens === undefined) && 
-                                (key !== 'id_2') && 
-                                (key !== 'number_invoice_2') && 
-                                (key !== 'storage_position_2') &&
+                                value.inTable &&
                                 <th 
                                 key={key} 
                                 onClick={() => handleSortTable(key, searchData)}
@@ -94,7 +91,7 @@ export function TableData() {
                                     <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                                 </td>}
                                 {Object.entries(e).map(([keys, val]) => (
-                                    (e[keys].childrens === undefined) && (keys !== 'id_2') && (keys !== 'number_invoice_2') && (keys !== 'storage_position_2') &&
+                                    (val.inTable) &&
                                     <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
                                     {
                                         val.visableValue ? val.visableValue[0] : 
@@ -159,14 +156,14 @@ const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData
                 if (searchField === ''){
                     return(
                         Object.values(e).find((value) => {
-                            return value.value.find((str) => {
+                            return value.visableValue.find((str) => {
                                 return str.toLowerCase().includes(searchValue.toLowerCase())
                             })
                         })
                     )
                 } else {
                     return(
-                        e[searchField].value.find((str) => {
+                        e[searchField].visableValue.find((str) => {
                             return str.toLowerCase().includes(searchValue.toLowerCase())
                         })
                     )
@@ -192,7 +189,10 @@ const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData
             >
                 <option value={''}>любом</option>
                 {Object.entries(data[0]).map(([key, value]) => 
-                    value.visable && <option key={key} value={key}>{value.key}</option>
+                    value.inForm &&
+                    key !== 'connectAssembling_Storage_Position' &&
+                    key !== 'positions' &&
+                    <option key={key} value={key}>{value.key}</option>
                 )
                 }
             </Form.Select>
