@@ -842,6 +842,7 @@ export interface IAlert {
     id: number,
     status: AlertStatus,
     header: string,
+    date: string,
     message: string,
     timeout?: number,
 }

@@ -149,13 +149,22 @@ export function ModalForm(props: any) {
         });
         await setElementVisableValues(newValues, allSelectData);
 
-        setIsEdit(false);
         if (newValues['id'].value[0] === '-1'){ 
             dispatch(createElement(newValues, table))
-            .then((res) => res === 'success' && dispatch(showModalElement(false, undefined, table)))
+            .then((res) => {
+                if( res === 'success'){
+                    setIsEdit(false);
+                    dispatch(showModalElement(false, undefined, table));
+                }
+            })
         }else{
             dispatch(updateElement(newValues, table))
-            .then((res) => res === 'success' && dispatch(showModalElement(false, undefined, table)))
+            .then((res) => {
+                if( res === 'success'){
+                    setIsEdit(false);
+                    dispatch(showModalElement(false, undefined, table));
+                }
+            })
         }
     }
 

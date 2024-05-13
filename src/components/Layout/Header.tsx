@@ -32,14 +32,17 @@ export function Header() {
                     </Offcanvas>
                     <Nav.Link href='/storage' className="d-none d-sm-block ms-10">Управление складом</Nav.Link>
                     {userRole === 'admin' && <Nav.Link href='/admin' className="d-none d-sm-block ms-10">Администрирование</Nav.Link>}
-                    <Button className="d-none d-sm-block me-0" variant="danger" onClick={() => console.log(alerts.map((alert) => alert.message))}> * </Button>
-                    <Dropdown id='dropdown-profile' className="d-none d-sm-block col-sm-2 ms-auto">
-                        <Dropdown.Toggle>{username}</Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item as='button' onClick={() => navigate('/profile')}>Профиль</Dropdown.Item>
-                            <Dropdown.Item as='button' href='/login' onClick={() => dispatch(logout())}>Выйти</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    <div className="d-none d-sm-flex col-sm-2 ms-auto">
+                        <Button className="mx-2" variant="danger" onClick={() => console.log(alerts.map((alert) => alert.message))}> * </Button>
+                        <Dropdown id='dropdown-profile' className="mx-2">
+                            <Dropdown.Toggle>{username}</Dropdown.Toggle>
+                            <Dropdown.Menu>
+                                <Dropdown.Item as='button' onClick={() => navigate('/profile')}>Профиль</Dropdown.Item>
+                                <Dropdown.Item as='button' href='/login' onClick={() => dispatch(logout())}>Выйти</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div>
+                    
                 </Nav>
             </Container>
         </Navbar>

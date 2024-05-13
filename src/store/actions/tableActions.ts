@@ -190,7 +190,9 @@ export const createElement = (element: BaseElement, link: string) => {
                 dispatch(addAlert(
                     'danger', 
                     `${table[link as keyof typeof urlList]}`, 
-                    `Ошибка создания, неверный формат данных!`, 
+                    `${Object.values(e.response.data).map((e) => {
+                        return e
+                    }).join(', ')}`,
                     10000)
                 );
             }
@@ -207,7 +209,8 @@ export const updateElement = (element: BaseElement, link: string) => {
 
     return async(dispatch: AppDispatch) => {
         const result = await customAxios.patch(`/${link}/${id}/`, returnedData)
-        .then(() => {
+        .then((res) => {
+            console.log(res.data);
             dispatch(showModalElement(false, undefined, link));
             dispatch(addAlert(
                 'success', 
@@ -230,7 +233,9 @@ export const updateElement = (element: BaseElement, link: string) => {
                 dispatch(addAlert(
                     'danger', 
                     `${table[link as keyof typeof urlList]}`, 
-                    `Ошибка обновления, неверный формат данных!`, 
+                    `${Object.values(e.response.data).map((e) => {
+                        return e
+                    }).join(', ')}`, 
                     10000)
                 );
             }
@@ -269,7 +274,9 @@ export const deleteElement = (element: BaseElement, link: string) => {
                 dispatch(addAlert(
                     'danger', 
                     `${table[link as keyof typeof urlList]}`, 
-                    `Ошибка удаления, неверный формат данных!`, 
+                    `${Object.values(e.response.data).map((e) => {
+                        return e
+                    }).join(', ')}`, 
                     10000)
                 );
             }

@@ -4,6 +4,7 @@ import { AlertStatus, IAlert } from "../../models/models"
 interface PayloadAddAlert {
     status: AlertStatus
     header: string
+    date: string
     message: string
     timeout?: number
 }
@@ -29,6 +30,7 @@ export const alertsSlice = createSlice({
                 id: state.alerts.length > 0 ? state.alerts[state.alerts.length - 1].id + 1 : 0, 
                 status: action.payload.status, 
                 header: action.payload.header,
+                date: action.payload.date,
                 message: action.payload.message,
                 ...(action.payload.timeout && {timeout: action.payload.timeout})
             })
