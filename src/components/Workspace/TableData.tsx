@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { Button, Form, InputGroup, Pagination, Spinner, Table } from 'react-bootstrap';
-import { deleteElement, showModalElement } from '../../store/actions/tableActions';
+import { deleteElement, showModalElement, showProductsTable } from '../../store/actions/tableActions';
 import { BaseElement, defaultElementOfTable } from '../../models/models';
 import { useEffect, useState } from 'react';
 
@@ -59,14 +59,28 @@ export function TableData() {
             <Spinner animation="border" />
         </div> :
         <>
-            {userRole !== 'user' && <Button className="mx-2 mt-2" onClick={() => dispatch(showModalElement(true, baseElement))}  disabled={userRole === 'user'}>
+            <div className='d-flex w-100'>
+            {userRole !== 'user' && 
+            <Button 
+            variant='success'
+            className="mx-2 mt-2" 
+            onClick={() => dispatch(showModalElement(true, baseElement))}  
+            disabled={userRole === 'user'}>
                 Добавить элемент
             </Button>}
+            {<Button 
+            
+            className="ms-auto me-2 mt-2" 
+            onClick={() => dispatch(showProductsTable(currentTable))}  
+            >
+                Обновить
+            </Button>}
+            </div>
             {data.length > 0 ?
             <>
             <CustomSearch data={data} setSearchData={setSearchData} />
             {searchData.length > 0 ?
-            <div className='overflow-auto border mt-2' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', marginLeft: '0.5rem', resize: 'both'}}>
+            <div className='overflow-auto border mt-2' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', minWidth: '250px', minHeight: '100px', marginLeft: '0.5rem', resize: 'both'}}>
                 <Table striped bordered hover className='overflow-hidden'>
                     <thead>
                         <tr>
