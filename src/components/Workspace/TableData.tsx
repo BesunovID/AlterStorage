@@ -3,6 +3,7 @@ import { Button, Form, InputGroup, Pagination, Spinner, Table } from 'react-boot
 import { deleteElement, showModalElement, showProductsTable } from '../../store/actions/tableActions';
 import { BaseElement, defaultElementOfTable } from '../../models/models';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export function TableData() {
     const tableSelector = useAppSelector(state => state.tables);
@@ -61,29 +62,51 @@ export function TableData() {
         <>
             <div className='d-flex w-100'>
             {userRole !== 'user' && 
-            <Button 
-            variant='success'
-            className="mx-2 mt-2" 
-            onClick={() => dispatch(showModalElement(true, baseElement))}  
-            disabled={userRole === 'user'}>
+            <motion.button 
+                className="btn btn-success mx-2 mt-2" 
+                onClick={() => dispatch(showModalElement(true, baseElement))}  
+                disabled={userRole === 'user'}
+                whileTap={{ scale: 0.95 }}
+            >
                 Добавить элемент
-            </Button>}
-            {<Button 
-            
-            className="ms-auto me-2 mt-2" 
-            onClick={() => dispatch(showProductsTable(currentTable))}  
+            </motion.button>}
+            {<motion.button
+                className="btn btn-primary ms-auto me-2 mt-2" 
+                onClick={() => dispatch(showProductsTable(currentTable))} 
+                whileTap={{ scale: 0.95 }}
             >
                 Обновить
-            </Button>}
+            </motion.button>}
             </div>
             {data.length > 0 ?
             <>
             <CustomSearch data={data} setSearchData={setSearchData} />
             {searchData.length > 0 ?
-            <div className='overflow-auto border mt-2' style={{width: 'calc(100% - 1rem)', maxWidth: 'calc(100% - 1rem)', minWidth: '250px', minHeight: '100px', marginLeft: '0.5rem', resize: 'both'}}>
-                <Table striped bordered hover className='overflow-hidden'>
+            <div 
+                className='overflow-auto border mt-2' 
+                style={{
+                    width: 'calc(100% - 1rem)', 
+                    maxWidth: 'calc(100% - 1rem)', 
+                    maxHeight: '90vh',
+                    minWidth: '250px', 
+                    minHeight: '100px', 
+                    marginLeft: '0.5rem', 
+                    resize: 'both',
+                    borderRadius: '10px',
+                }}
+            >
+                {/*<Table striped bordered hover className='overflow-hidden'>*/}
+                <table 
+                    className='overflow-hidden' 
+                    style={{
+                        width: '100%', 
+                        backgroundColor: 'white',
+                        borderCollapse: 'separate',
+                        borderSpacing: '0px 5px',
+                    }}
+                >
                     <thead>
-                        <tr>
+                        <tr style={{ backgroundColor: 'DarkSlateGray', color: 'white', height: '3rem'}}>
                             {userRole !== 'user' && <th style={{width: '60px'}}></th>}
                             {Object.entries(baseElement).map(([key, value]) => (
                                 value.inTable &&
@@ -99,9 +122,36 @@ export function TableData() {
                         </tr>
                     </thead>
                     <tbody>
-                        {searchData.map((e: BaseElement) => (
-                            <tr key={`${e['id'].value[0]}`}>
-                                {userRole !== 'user' && <td style={{maxWidth: '40px'}}>   
+                        {searchData.slice(15 * (currentPage - 1), 15 * currentPage).map((e: BaseElement, index) => (
+                            <motion.tr 
+                                key={`${e['id'].value[0]}`}
+                                style={{
+                                    height: '4.5vh',
+                                    backgroundColor: 'AntiqueWhite',
+                                   // border: '10px solid white',
+                                }}
+                                whileHover='hover'
+                                initial={{
+                                    opacity: 0,
+                                    scale: 0.96,
+                                    y: '10px',
+                                }}
+                                animate={{
+                                    opacity: 1,
+                                    scale: 1,
+                                    y: 0,
+                                    transition: { duration: 0.5, delay: index * 0.03, type: "tween", stiffness: 400, damping: 40 }
+                                }}
+                                variants={{
+                                    hover: {
+                                        scale: 1.03,
+                                        border: '2px solid grey',
+                                        transition: { duration: 0.3 }
+                                    }
+                                }}
+                            >
+                                {userRole !== 'user' && 
+                                <td style={{maxWidth: '40px'}}>   
                                     <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
                                 </td>}
                                 {Object.entries(e).map(([keys, val]) => (
@@ -113,10 +163,10 @@ export function TableData() {
                                     }
                                     </td>  
                                 ))}
-                            </tr>
-                        )).slice(15 * (currentPage - 1), 15 * currentPage)}
+                            </motion.tr>
+                        ))}
                     </tbody> 
-                </Table> 
+                </table> 
             </div> 
             : <p className='my-3 mx-auto'>По данному запросу результатов не найдено</p>}
             {
