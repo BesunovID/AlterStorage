@@ -1,9 +1,9 @@
 import axios from "axios";
-import { useState, useEffect, useRef } from "react";
-import { Accordion, Button, Form, Spinner } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
-import { AllSelectData, BaseElement, BaseField } from "../../../../models/models";
-import { createElement, setAllSelectData, setElementVisableValues, setSubData, showModalElement, updateElement } from "../../../../store/actions/tableActions";
+import { useState, useEffect } from "react";
+import { Accordion, Button, Form } from "react-bootstrap";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { AllSelectData, BaseElement, BaseField } from "../../../models/models";
+import { createElement, setAllSelectData, setElementVisableValues, setSubData, showModalElement, updateElement } from "../../../store/actions/tableActions";
 import { SelectableField } from "./SelectableField";
 import { SubdataField } from "./SubdataField";
 import * as formik from 'formik';

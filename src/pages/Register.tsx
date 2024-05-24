@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "react-router-dom";
-import { Particles } from "../components/Particles";
+import { Particles } from "../components/Particles/particles";
 import { useAppDispatch } from "../hooks/redux"
 import { IUser } from "../models/models";
 import { register } from "../store/actions/authActions"

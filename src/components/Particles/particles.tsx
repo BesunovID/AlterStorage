@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { changeDirection } from '../store/actions/particlesActions';
-import style from '../styles/Particles.module.scss'
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { changeDirection } from '../../store/actions/particlesActions';
+import style from './Particles.module.scss'
 
 export function Particles() {
     const visable = !document.hidden;

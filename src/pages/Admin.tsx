@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Button, ListGroup, Modal, Spinner } from "react-bootstrap";
 import { Navigate } from "react-router-dom"
-import { Profile } from "../components/Profile";
+import { Profile } from "../components/Profile/Profile";
 import { useAppDispatch, useAppSelector } from "../hooks/redux"
 import { IUser } from "../models/models";
 import { getAllUsers } from "../store/actions/usersActions";
 
 
-export function AdminPanel() {
+export function Admin() {
     const dispatch = useAppDispatch();
     const isAuth = useAppSelector(state => state.auth.isAuth);
     const allUsers = useAppSelector(state => state.users.users);

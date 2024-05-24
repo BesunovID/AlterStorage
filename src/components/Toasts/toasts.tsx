@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Toast, ToastContainer } from "react-bootstrap";
-import { useAppSelector } from "../hooks/redux";
-import { IAlert } from "../models/models";
+import { useAppSelector } from "../../hooks/redux";
+import { IAlert } from "../../models/models";
 
 export function Toasts() {
     const toasts: IAlert[] = useAppSelector(state => state.alerts.alerts);

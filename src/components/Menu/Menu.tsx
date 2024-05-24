@@ -4,9 +4,8 @@ import { Form } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { urlList } from "../../models/models";
 import { showProductsTable } from "../../store/actions/tableActions";
-import style from "../../styles/Workspace/MainMenu.module.scss"
 
-export function MainMenu() {
+export function Menu() {
     const dispatch = useAppDispatch();
     const loading = useAppSelector(state => state.tables.loading);
     const [selectBtn, setButton] = useState('');

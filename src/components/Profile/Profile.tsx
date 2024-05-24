@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useAppDispatch } from "../hooks/redux";
-import { IUser, UserEnumField } from "../models/models";
-import { updateUser } from "../store/actions/usersActions";
+import { useAppDispatch } from "../../hooks/redux";
+import { IUser, UserEnumField } from "../../models/models";
+import { updateUser } from "../../store/actions/usersActions";
 
 
 export function Profile(props: any) {

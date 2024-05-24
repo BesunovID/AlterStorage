@@ -1,6 +1,6 @@
 import React from "react"
 import { Link, useNavigate } from "react-router-dom";
-import { Particles } from "../components/Particles";
+import { Particles } from "../components/Particles/particles";
 import { useAppDispatch } from "../hooks/redux";
 import { login } from "../store/actions/authActions";
 import style from '../styles/Auth.module.scss'

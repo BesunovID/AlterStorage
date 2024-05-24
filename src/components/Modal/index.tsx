@@ -1,9 +1,9 @@
 import { Modal, ModalDialog } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { showModalElement } from "../../../store/actions/tableActions";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { showModalElement } from "../../store/actions/tableActions";
 import { ModalForm } from "./ModalForm/index";
 
-export function ModalWindow() {
+export function Form() {
     const dispatch = useAppDispatch();
 
     const isOpen = useAppSelector(state => state.tables.modalIsOpen)

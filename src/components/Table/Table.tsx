@@ -1,11 +1,11 @@
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
-import { Button, Form, InputGroup, Pagination, Spinner, Table } from 'react-bootstrap';
+import { Button, Form, InputGroup, Pagination, Spinner } from 'react-bootstrap';
 import { deleteElement, showModalElement, showProductsTable } from '../../store/actions/tableActions';
-import { BaseElement, defaultElementOfTable } from '../../models/models';
+import { BaseElement } from '../../models/models';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
-export function TableData() {
+export function Table() {
     const tableSelector = useAppSelector(state => state.tables);
     const userRole = useAppSelector(state => state.users.myProfile.role)
     const dispatch = useAppDispatch();
@@ -15,10 +15,33 @@ export function TableData() {
     const baseElement = tableSelector.emptyElement;
     const loading = tableSelector.loading;
 
+    const countOnPage = 13;
+
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortField, setSortField] = useState('id');
     const [sortedDirection, setSortedDirection] = useState(1);
-    const [searchData, setSearchData] = useState<BaseElement[]>(JSON.parse(JSON.stringify(data)))
+    const [searchData, setSearchData] = useState<BaseElement[]>(JSON.parse(JSON.stringify(data)));
+
+    const animateVariants = {
+        initial: {
+            opacity: 0,
+            y: '20px',
+        },
+        animate: (i: number) => ({
+            opacity: 1,
+            y: '0',
+            transition: { duration: 0.5, delay: (i + 1) * 0.02 }
+        }),
+        hover: {
+            backgroundColor: '#ffffff',
+            transition: { duration: 0.5 },
+        },
+       /* exit: (i: number) => ({
+            y: '-10px',
+            opacity: 0,
+            transition: { duration: 0.3, delay: i * 0.02, type: "tween", stiffness: 400, damping: 40 },
+        }) */
+    }
 
     const handleSortTable = (field: string, data: BaseElement[]) => {
         const arrayOfSort = [...data];
@@ -95,7 +118,6 @@ export function TableData() {
                     borderRadius: '10px',
                 }}
             >
-                {/*<Table striped bordered hover className='overflow-hidden'>*/}
                 <table 
                     className='overflow-hidden' 
                     style={{
@@ -107,7 +129,6 @@ export function TableData() {
                 >
                     <thead>
                         <tr style={{ backgroundColor: 'DarkSlateGray', color: 'white', height: '3rem'}}>
-                            {userRole !== 'user' && <th style={{width: '60px'}}></th>}
                             {Object.entries(baseElement).map(([key, value]) => (
                                 value.inTable &&
                                 <th 
@@ -119,41 +140,24 @@ export function TableData() {
                                     {(sortField === key) && (sortedDirection === 1) && `  ▼`}
                                 </th>  
                             ))}
+                            {userRole !== 'user' && <th style={{width: '60px'}}></th>}
                         </tr>
                     </thead>
                     <tbody>
-                        {searchData.slice(15 * (currentPage - 1), 15 * currentPage).map((e: BaseElement, index) => (
+                        {searchData.slice(countOnPage * (currentPage - 1), countOnPage * currentPage).map((e: BaseElement, index) => (
                             <motion.tr 
                                 key={`${e['id'].value[0]}`}
                                 style={{
                                     height: '4.5vh',
-                                    backgroundColor: 'AntiqueWhite',
-                                   // border: '10px solid white',
+                                    backgroundColor: '#faebd7',
                                 }}
+                                initial='initial'
+                                custom={index}
+                                animate='animate'
                                 whileHover='hover'
-                                initial={{
-                                    opacity: 0,
-                                    scale: 0.96,
-                                    y: '10px',
-                                }}
-                                animate={{
-                                    opacity: 1,
-                                    scale: 1,
-                                    y: 0,
-                                    transition: { duration: 0.5, delay: index * 0.03, type: "tween", stiffness: 400, damping: 40 }
-                                }}
-                                variants={{
-                                    hover: {
-                                        scale: 1.03,
-                                        border: '2px solid grey',
-                                        transition: { duration: 0.3 }
-                                    }
-                                }}
+                                exit='exit'
+                                variants={animateVariants}
                             >
-                                {userRole !== 'user' && 
-                                <td style={{maxWidth: '40px'}}>   
-                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
-                                </td>}
                                 {Object.entries(e).map(([keys, val]) => (
                                     (val.inTable) &&
                                     <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
@@ -163,18 +167,24 @@ export function TableData() {
                                     }
                                     </td>  
                                 ))}
+                                {userRole !== 'user' && 
+                                <td style={{maxWidth: '40px'}}>   
+                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
+                                </td>}
                             </motion.tr>
                         ))}
+                        
                     </tbody> 
                 </table> 
             </div> 
             : <p className='my-3 mx-auto'>По данному запросу результатов не найдено</p>}
             {
-                searchData.length > 15 && 
+                searchData.length > countOnPage && 
                 <CustomPagination 
                     size={searchData.length} 
                     currentPage={currentPage} 
                     setCurrentPage={setCurrentPage} 
+                    countOnPage={countOnPage}
                 />
             }
            </>
@@ -185,11 +195,11 @@ export function TableData() {
 }
 
 const CustomPagination = (
-    {size, currentPage, setCurrentPage}: 
-    {size: number, currentPage: number, setCurrentPage: any}
+    {size, currentPage, setCurrentPage, countOnPage}: 
+    {size: number, currentPage: number, setCurrentPage: any, countOnPage: number}
     ) => {
 
-    const lastPage = Math.ceil(size / 15);
+    const lastPage = Math.ceil(size / countOnPage);
 
     return(
         <Pagination className='mx-auto mt-2'>

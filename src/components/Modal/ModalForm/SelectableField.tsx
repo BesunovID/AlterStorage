@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { Form, Dropdown, DropdownToggle, Accordion, useAccordionButton, Button, AccordionContext, Spinner } from "react-bootstrap"
 import { createPortal } from "react-dom";
-import { AllSelectData, BaseElement, BaseField, defaultElementOfTable } from "../../../../models/models";
+import { AllSelectData, BaseElement, BaseField, defaultElementOfTable } from "../../../models/models";
 import { ModalForm } from "./index";
 
 

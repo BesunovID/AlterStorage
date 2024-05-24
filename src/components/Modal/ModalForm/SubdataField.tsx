@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Form, Accordion, useAccordionButton, Button } from "react-bootstrap"
-import { AllSelectData, BaseElement, BaseField, defaultElementOfTable } from "../../../../models/models";
+import { AllSelectData, BaseElement, BaseField, defaultElementOfTable } from "../../../models/models";
 import { SelectableField } from "./SelectableField";
 
 

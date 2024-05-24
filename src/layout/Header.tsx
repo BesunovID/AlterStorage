@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Badge, Button, Container, Dropdown, Nav, Navbar, Offcanvas } from "react-bootstrap"
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../hooks/redux";
-import { logout } from '../../store/actions/authActions'
+import { useAppDispatch, useAppSelector } from "../hooks/redux";
+import { logout } from '../store/actions/authActions'
 
 export function Header() {
     const dispatch = useAppDispatch();
@@ -30,7 +30,7 @@ export function Header() {
                             <Nav.Link href='/login' className=" mt-4 ms-10" onClick={() => dispatch(logout())}>Выйти</Nav.Link>
                         </Offcanvas.Body>
                     </Offcanvas>
-                    <Nav.Link href='/' className="p-0">
+                    <Nav.Link href='/' className="d-none d-sm-block p-0">
                         <div 
                             style={{
                                 backgroundColor: 'white',

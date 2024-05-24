@@ -1,6 +1,6 @@
 import { Container, Toast } from 'react-bootstrap'
 import { Header } from './Header'
-import { Toasts } from '../Toasts'
+import { Toasts } from '../components/Toasts/toasts'
 
 interface LayoutProps {
     children: React.ReactNode

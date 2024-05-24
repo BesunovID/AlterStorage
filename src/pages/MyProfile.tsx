@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { Profile } from "../components/Profile";
+import { Profile } from "../components/Profile/Profile";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { useEffect, useState } from "react";
 import { getProfile } from "../store/actions/usersActions";
 import { Spinner } from "react-bootstrap";
 
 
-export function UserProfile() {
+export function MyProfile() {
     const isAuth = useAppSelector(state => state.auth.isAuth)
     const myProfile = useAppSelector(state => state.users.myProfile)
     const [loading, setLoading] = useState(true);
