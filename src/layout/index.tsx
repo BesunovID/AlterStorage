@@ -1,4 +1,4 @@
-import { Container, Toast } from 'react-bootstrap'
+import style from './Layout.module.scss'
 import { Header } from './Header'
 import { Toasts } from '../components/Toasts/toasts'
 
@@ -7,13 +7,11 @@ interface LayoutProps {
 }
 
 export function Layout(props: LayoutProps) {
-
-    
     return(
-        <Container fluid className={'min-vh-100 d-flex flex-column p-0'}>
+        <div className={style.container}>
             <Header />
             {props.children}
             <Toasts />
-        </Container>
+        </div>
     )
 }

@@ -1,0 +1,36 @@
+@import '../../../node_modules/bootstrap/scss/bootstrap.scss';
+
+%menu-item{
+    display: flex;
+    justify-content: start;
+    background-color: $teal-100;
+    margin: 3px 5px;
+    width: calc(100% - 10px);
+    padding: 10px 10px;
+    border: 2px solid $teal-100;
+    text-align: start;
+}
+
+.menu{
+    position: sticky;
+    background-color: $teal-100;
+    height: calc(100vh - 58px);
+    padding: 0;
+    &-item{
+        @extend %menu-item;
+        &-text{
+            margin: 0 5px;
+            text-align: center;
+        }
+        &-img{
+            width: 25px;
+        }
+        &-active{
+            @extend %menu-item;
+            justify-content: end;
+            text-align: end;
+            border-right: 3px solid $indigo-500;
+        }
+        
+    }
+}

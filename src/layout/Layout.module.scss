@@ -1,0 +1,9 @@
+
+.container{
+    min-height: 100vh;
+    position: relative;
+    .header{
+        display: flex;
+        justify-content: center;
+    }
+}

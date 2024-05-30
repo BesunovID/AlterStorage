@@ -4,6 +4,10 @@ import { deleteElement, showModalElement, showProductsTable } from '../../store/
 import { BaseElement } from '../../models/models';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import style from './Table.module.scss'
+import searchImg from '../../public/search-icon.png'
+import addImg from '../../public/add-button.png'
+import refreshImg from '../../public/refrash-table.png'
 
 export function Table() {
     const tableSelector = useAppSelector(state => state.tables);
@@ -21,6 +25,19 @@ export function Table() {
     const [sortField, setSortField] = useState('id');
     const [sortedDirection, setSortedDirection] = useState(1);
     const [searchData, setSearchData] = useState<BaseElement[]>(JSON.parse(JSON.stringify(data)));
+
+    const animateButton = {
+        tap: {
+            scale: 0.95
+        },
+        hover: {
+            rotate: 360,
+            scale: 1.1,
+        },
+        exit: {
+            scale: 1
+        }
+    }
 
     const animateVariants = {
         initial: {
@@ -82,115 +99,107 @@ export function Table() {
         <div className="bg-grey d-flex align-self-center align-items-center justify-content-center"  style={{minHeight: '60vh'}}>
             <Spinner animation="border" />
         </div> :
-        <>
-            <div className='d-flex w-100'>
-            {userRole !== 'user' && 
-            <motion.button 
-                className="btn btn-success mx-2 mt-2" 
-                onClick={() => dispatch(showModalElement(true, baseElement))}  
-                disabled={userRole === 'user'}
-                whileTap={{ scale: 0.95 }}
-            >
-                Добавить элемент
-            </motion.button>}
-            {<motion.button
-                className="btn btn-primary ms-auto me-2 mt-2" 
-                onClick={() => dispatch(showProductsTable(currentTable))} 
-                whileTap={{ scale: 0.95 }}
-            >
-                Обновить
-            </motion.button>}
-            </div>
-            {data.length > 0 ?
-            <>
-            <CustomSearch data={data} setSearchData={setSearchData} />
-            {searchData.length > 0 ?
-            <div 
-                className='overflow-auto border mt-2' 
-                style={{
-                    width: 'calc(100% - 1rem)', 
-                    maxWidth: 'calc(100% - 1rem)', 
-                    maxHeight: '90vh',
-                    minWidth: '250px', 
-                    minHeight: '100px', 
-                    marginLeft: '0.5rem', 
-                    resize: 'both',
-                    borderRadius: '10px',
-                }}
-            >
-                <table 
-                    className='overflow-hidden' 
-                    style={{
-                        width: '100%', 
-                        backgroundColor: 'white',
-                        borderCollapse: 'separate',
-                        borderSpacing: '0px 5px',
-                    }}
-                >
-                    <thead>
-                        <tr style={{ backgroundColor: 'DarkSlateGray', color: 'white', height: '3rem'}}>
-                            {Object.entries(baseElement).map(([key, value]) => (
-                                value.inTable &&
-                                <th 
-                                key={key} 
-                                onClick={() => handleSortTable(key, searchData)}
-                                >
-                                    {value.key}
-                                    {(sortField === key) && (sortedDirection === -1) && `  ▲`}
-                                    {(sortField === key) && (sortedDirection === 1) && `  ▼`}
-                                </th>  
-                            ))}
-                            {userRole !== 'user' && <th style={{width: '60px'}}></th>}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {searchData.slice(countOnPage * (currentPage - 1), countOnPage * currentPage).map((e: BaseElement, index) => (
-                            <motion.tr 
-                                key={`${e['id'].value[0]}`}
-                                style={{
-                                    height: '4.5vh',
-                                    backgroundColor: '#faebd7',
-                                }}
-                                initial='initial'
-                                custom={index}
-                                animate='animate'
-                                whileHover='hover'
-                                exit='exit'
-                                variants={animateVariants}
-                            >
-                                {Object.entries(e).map(([keys, val]) => (
-                                    (val.inTable) &&
-                                    <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
-                                    {
-                                        val.visableValue ? val.visableValue[0] : 
-                                        (val.value.length > 1 ? `${val.value[0]} ...` : val.value[0])
-                                    }
-                                    </td>  
-                                ))}
-                                {userRole !== 'user' && 
-                                <td style={{maxWidth: '40px'}}>   
-                                    <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
-                                </td>}
-                            </motion.tr>
-                        ))}
-                        
-                    </tbody> 
-                </table> 
-            </div> 
-            : <p className='my-3 mx-auto'>По данному запросу результатов не найдено</p>}
+        <div className={style['table-main']}>
             {
-                searchData.length > countOnPage && 
-                <CustomPagination 
-                    size={searchData.length} 
-                    currentPage={currentPage} 
-                    setCurrentPage={setCurrentPage} 
-                    countOnPage={countOnPage}
-                />
+                userRole !== 'user' && 
+                <motion.button 
+                    className={style['add-button']}
+                    onClick={() => dispatch(showModalElement(true, baseElement))}  
+                    whileTap='tap' 
+                    whileHover='hover'
+                    exit='exit'
+                >
+                    <motion.img 
+                        src={addImg} 
+                        variants={animateButton}
+                    />
+                </motion.button>
             }
-           </>
-           : <div className="m-auto">Данные отсутствуют</div>
+            {
+                data.length > 0 ?
+                <>
+                <div className={style['table-control']}>
+                    <CustomSearch data={data} setSearchData={setSearchData} />
+                    <motion.button
+                        className={style['refresh-button']} 
+                        onClick={() => dispatch(showProductsTable(currentTable))}
+                        whileTap='tap' 
+                        whileHover='hover' 
+                        exit='exit'
+                    >
+                        <motion.img 
+                            src={refreshImg} 
+                            variants={animateButton}
+                        />
+                    </motion.button>
+                </div>
+                {
+                    searchData.length > 0 ?
+                    <div className={style['table-container']}>
+                        <table className={style.table}>
+                            <thead>
+                                <tr>
+                                    {Object.entries(baseElement).map(([key, value]) => (
+                                        value.inTable &&
+                                        <th 
+                                        key={key} 
+                                        onClick={() => handleSortTable(key, searchData)}
+                                        >
+                                            {value.key}
+                                            {(sortField === key) && (sortedDirection === -1) && `  ▲`}
+                                            {(sortField === key) && (sortedDirection === 1) && `  ▼`}
+                                        </th>  
+                                    ))}
+                                    {userRole !== 'user' && <th style={{width: '60px'}}></th>}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {searchData.slice(countOnPage * (currentPage - 1), countOnPage * currentPage).map((e: BaseElement, index) => (
+                                    <motion.tr 
+                                        key={`${e['id'].value[0]}`}
+                                        initial='initial'
+                                        custom={index}
+                                        animate='animate'
+                                        whileHover='hover'
+                                        exit='exit'
+                                        variants={animateVariants}
+                                    >
+                                        {Object.entries(e).map(([keys, val]) => (
+                                            (val.inTable) &&
+                                            <td key={keys} onClick={() => dispatch(showModalElement(true, e))} style={{cursor:'pointer'}}>
+                                            {
+                                                val.visableValue ? val.visableValue[0] : 
+                                                (val.value.length > 1 ? `${val.value[0]} ...` : val.value[0])
+                                            }
+                                            </td>  
+                                        ))}
+                                        {userRole !== 'user' && 
+                                        <td style={{maxWidth: '40px'}}>   
+                                            <Button variant='danger' key={e['id'].value[0]} onClick={() => handleDeleteElement(e)} style={{width: '30px', height: '30px', padding: '0'}}>X</Button>
+                                        </td>}
+                                    </motion.tr>
+                                ))}
+                                
+                            </tbody> 
+                        </table> 
+                    </div> 
+                    : <p className='my-3 mx-auto'>
+                        По данному запросу результатов не найдено
+                    </p>
+                }
+                {
+                    searchData.length > countOnPage && 
+                    <CustomPagination 
+                        size={searchData.length} 
+                        currentPage={currentPage} 
+                        setCurrentPage={setCurrentPage} 
+                        countOnPage={countOnPage}
+                    />
+                }
+                </>
+            : <div className="m-auto">Данные отсутствуют</div>
             }
-        </>
+        </div>
     )
 }
 
@@ -247,8 +256,10 @@ const CustomSearch = ({data, setSearchData}: {data: BaseElement[], setSearchData
     }, [searchValue, searchField])
 
     return(
-        <InputGroup className='mx-2 mt-2' style={{width: 'calc(100% - 2rem)'}}>
-            <InputGroup.Text id='search'>Поиск</InputGroup.Text>
+        <InputGroup className='mx-2 mt-2' style={{width: 'calc(100% - 1rem)'}}>
+            <InputGroup.Text id='search'>
+                <img src={searchImg} />
+            </InputGroup.Text>
             <Form.Control
                 aria-label="Поиск"
                 value={searchValue}

@@ -1,0 +1,11 @@
+@import '../../node_modules/bootstrap/scss/bootstrap.scss';
+
+.storage-container{
+    display: flex;
+    .table-workspace{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        padding: 0;
+    }
+}
